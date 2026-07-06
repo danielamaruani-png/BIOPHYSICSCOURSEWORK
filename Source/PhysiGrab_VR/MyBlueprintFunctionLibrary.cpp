@@ -1,4 +1,4 @@
-#include "MyBlueprintLibrary.h"
+#include "MyBlueprintFunctionLibrary.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "HAL/PlatformFilemanager.h"
@@ -30,7 +30,7 @@ namespace
 	}
 }
 
-FBowlingAttemptRecord UMyBlueprintLibrary::RecordAttempt(int32 PinsKnockedDown, float BallVelocity)
+FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(int32 PinsKnockedDown, float BallVelocity)
 {
 	const FString SaveFilePath = GetOrInitSaveFilePath();
 
@@ -54,12 +54,12 @@ FBowlingAttemptRecord UMyBlueprintLibrary::RecordAttempt(int32 PinsKnockedDown, 
 	return Record;
 }
 
-void UMyBlueprintLibrary::ResetSession()
+void UMyBlueprintFunctionLibrary::ResetSession()
 {
 	GCurrentAttemptNumber = 0;
 }
 
-FString UMyBlueprintLibrary::GetSaveFilePath()
+FString UMyBlueprintFunctionLibrary::GetSaveFilePath()
 {
 	return GetOrInitSaveFilePath();
 }

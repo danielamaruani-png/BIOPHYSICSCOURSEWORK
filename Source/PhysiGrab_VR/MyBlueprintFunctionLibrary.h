@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "MyBlueprintLibrary.generated.h"
+#include "MyBlueprintFunctionLibrary.generated.h"
 
 USTRUCT(BlueprintType)
 struct FBowlingAttemptRecord
@@ -25,7 +25,7 @@ struct FBowlingAttemptRecord
  * play sessions and can be opened directly in a spreadsheet for analysis.
  */
 UCLASS()
-class BOWLINGVR_API UMyBlueprintLibrary : public UBlueprintFunctionLibrary
+class PHYSIGRAB_VR_API UMyBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
