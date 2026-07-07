@@ -38,8 +38,8 @@ FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(int32 PinsKnock
 
 	FBowlingAttemptRecord Record;
 	Record.AttemptNumber = GCurrentAttemptNumber;
-	Record.PinsKnockedDown = PinsKnockedDown;
-	Record.BallVelocity = BallVelocity;
+	Record.PinsKnockedDown = FMath::Clamp(PinsKnockedDown, 0, 10);
+	Record.BallVelocity = FMath::Max(0.0f, BallVelocity);
 
 	const FString Line = FString::Printf(
 		TEXT("%d,%d,%.2f\n"), Record.AttemptNumber, Record.PinsKnockedDown, Record.BallVelocity);
@@ -62,4 +62,47 @@ void UMyBlueprintFunctionLibrary::ResetSession()
 FString UMyBlueprintFunctionLibrary::GetSaveFilePath()
 {
 	return GetOrInitSaveFilePath();
+}
+
+bool UMyBlueprintFunctionLibrary::LoadAllRecords(TArray<FBowlingAttemptRecord>& OutRecords)
+{
+	OutRecords.Empty();
+
+	const FString SaveFilePath = GetOrInitSaveFilePath();
+
+	FString FileContent;
+	if (!FFileHelper::LoadFileToString(FileContent, *SaveFilePath))
+	{
+		return false;
+	}
+
+	TArray<FString> Lines;
+	FileContent.ParseIntoArrayLines(Lines);
+
+	for (int32 i = 1; i < Lines.Num(); ++i)
+	{
+		if (Lines[i].IsEmpty())
+		{
+			continue;
+		}
+
+		TArray<FString> Columns;
+		Lines[i].ParseIntoArray(Columns, TEXT(","));
+
+		if (Columns.Num() == 3)
+		{
+			FBowlingAttemptRecord Record;
+			Record.AttemptNumber = FCString::Atoi(*Columns[0]);
+			Record.PinsKnockedDown = FCString::Atoi(*Columns[1]);
+			Record.BallVelocity = FCString::Atof(*Columns[2]);
+			OutRecords.Add(Record);
+		}
+	}
+
+	if (OutRecords.Num() > 0)
+	{
+		GCurrentAttemptNumber = OutRecords.Last().AttemptNumber;
+	}
+
+	return true;
 }

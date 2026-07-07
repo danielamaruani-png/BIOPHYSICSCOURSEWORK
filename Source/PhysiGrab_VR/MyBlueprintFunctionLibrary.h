@@ -9,35 +9,31 @@ struct FBowlingAttemptRecord
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, Category = "Bowling|Save")
+	UPROPERTY(BlueprintReadOnly, Category = "Bowling|File IO")
 	int32 AttemptNumber = 0;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Bowling|Save")
+	UPROPERTY(BlueprintReadOnly, Category = "Bowling|File IO")
 	int32 PinsKnockedDown = 0;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Bowling|Save")
+	UPROPERTY(BlueprintReadOnly, Category = "Bowling|File IO")
 	float BallVelocity = 0.f;
 };
 
-/**
- * Static helpers to persist one CSV row per bowling attempt (attempt number, pins knocked
- * down, ball velocity) to a file outside the packaged content, so results survive between
- * play sessions and can be opened directly in a spreadsheet for analysis.
- */
 UCLASS()
 class PHYSIGRAB_VR_API UMyBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
-	// Call this once per throw, when the ball and pins have settled.
-	UFUNCTION(BlueprintCallable, Category = "Bowling|Save")
+	UFUNCTION(BlueprintCallable, Category = "Bowling|File IO")
 	static FBowlingAttemptRecord RecordAttempt(int32 PinsKnockedDown, float BallVelocity);
 
-	// Call when starting a fresh game/session if attempt numbering should restart at 1.
-	UFUNCTION(BlueprintCallable, Category = "Bowling|Save")
+	UFUNCTION(BlueprintCallable, Category = "Bowling|File IO")
 	static void ResetSession();
 
-	UFUNCTION(BlueprintPure, Category = "Bowling|Save")
+	UFUNCTION(BlueprintPure, Category = "Bowling|File IO")
 	static FString GetSaveFilePath();
+
+	UFUNCTION(BlueprintCallable, Category = "Bowling|File IO")
+	static bool LoadAllRecords(TArray<FBowlingAttemptRecord>& OutRecords);
 };
