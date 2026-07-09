@@ -22,7 +22,7 @@ namespace
 
 		if (!FileManager.FileExists(*SaveFilePath))
 		{
-			const FString Header = TEXT("AttemptNumber,PinsKnockedDown,BallVelocity\n");
+			const FString Header = TEXT("AttemptNumber,PinsKnockedDown,BallVelocity,DirectionX,DirectionY,DirectionZ\n");
 			FFileHelper::SaveStringToFile(Header, *SaveFilePath);
 		}
 
@@ -30,7 +30,7 @@ namespace
 	}
 }
 
-FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(int32 PinsKnockedDown, float BallVelocity)
+FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(int32 PinsKnockedDown, float BallVelocity, FVector BallDirection)
 {
 	const FString SaveFilePath = GetOrInitSaveFilePath();
 
@@ -40,9 +40,16 @@ FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(int32 PinsKnock
 	Record.AttemptNumber = GCurrentAttemptNumber;
 	Record.PinsKnockedDown = FMath::Clamp(PinsKnockedDown, 0, 10);
 	Record.BallVelocity = FMath::Max(0.0f, BallVelocity);
+	Record.BallDirection = BallDirection.GetSafeNormal();
 
 	const FString Line = FString::Printf(
-		TEXT("%d,%d,%.2f\n"), Record.AttemptNumber, Record.PinsKnockedDown, Record.BallVelocity);
+		TEXT("%d,%d,%.2f,%.4f,%.4f,%.4f\n"),
+		Record.AttemptNumber,
+		Record.PinsKnockedDown,
+		Record.BallVelocity,
+		Record.BallDirection.X,
+		Record.BallDirection.Y,
+		Record.BallDirection.Z);
 
 	FFileHelper::SaveStringToFile(
 		Line,
@@ -89,12 +96,16 @@ bool UMyBlueprintFunctionLibrary::LoadAllRecords(TArray<FBowlingAttemptRecord>& 
 		TArray<FString> Columns;
 		Lines[i].ParseIntoArray(Columns, TEXT(","));
 
-		if (Columns.Num() == 3)
+		if (Columns.Num() == 6)
 		{
 			FBowlingAttemptRecord Record;
 			Record.AttemptNumber = FCString::Atoi(*Columns[0]);
 			Record.PinsKnockedDown = FCString::Atoi(*Columns[1]);
 			Record.BallVelocity = FCString::Atof(*Columns[2]);
+			Record.BallDirection = FVector(
+				FCString::Atof(*Columns[3]),
+				FCString::Atof(*Columns[4]),
+				FCString::Atof(*Columns[5]));
 			OutRecords.Add(Record);
 		}
 	}

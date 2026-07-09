@@ -17,6 +17,9 @@ struct FBowlingAttemptRecord
 
 	UPROPERTY(BlueprintReadOnly, Category = "Bowling|File IO")
 	float BallVelocity = 0.f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Bowling|File IO")
+	FVector BallDirection = FVector::ZeroVector;
 };
 
 UCLASS()
@@ -26,7 +29,7 @@ class PHYSIGRAB_VR_API UMyBlueprintFunctionLibrary : public UBlueprintFunctionLi
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Bowling|File IO")
-	static FBowlingAttemptRecord RecordAttempt(int32 PinsKnockedDown, float BallVelocity);
+	static FBowlingAttemptRecord RecordAttempt(int32 PinsKnockedDown, float BallVelocity, FVector BallDirection);
 
 	UFUNCTION(BlueprintCallable, Category = "Bowling|File IO")
 	static void ResetSession();
