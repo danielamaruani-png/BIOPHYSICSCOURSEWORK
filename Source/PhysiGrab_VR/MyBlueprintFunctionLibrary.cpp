@@ -5,8 +5,11 @@
 
 namespace
 {
+	// In-memory only: not persisted, so it resets whenever the editor/game restarts.
 	int32 GCurrentAttemptNumber = 0;
 
+	// Resolves the CSV path once (static local = computed on first call, cached after),
+	// and makes sure the folder and header row exist before anything tries to write to it.
 	FString GetOrInitSaveFilePath()
 	{
 		static const FString SaveFilePath = FPaths::Combine(
@@ -40,6 +43,8 @@ FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(int32 PinsKnock
 	Record.AttemptNumber = GCurrentAttemptNumber;
 	Record.PinsKnockedDown = FMath::Clamp(PinsKnockedDown, 0, 10);
 	Record.BallVelocity = FMath::Max(0.0f, BallVelocity);
+	// Normalize here so the caller doesn't have to remember to; direction and speed
+	// are logged as separate columns rather than one combined velocity vector.
 	Record.BallDirection = BallDirection.GetSafeNormal();
 
 	const FString Line = FString::Printf(
@@ -51,6 +56,7 @@ FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(int32 PinsKnock
 		Record.BallDirection.Y,
 		Record.BallDirection.Z);
 
+	// Append, not overwrite: every throw across every play session accumulates in the same file.
 	FFileHelper::SaveStringToFile(
 		Line,
 		*SaveFilePath,
@@ -86,6 +92,7 @@ bool UMyBlueprintFunctionLibrary::LoadAllRecords(TArray<FBowlingAttemptRecord>& 
 	TArray<FString> Lines;
 	FileContent.ParseIntoArrayLines(Lines);
 
+	// Start at 1 to skip the header row.
 	for (int32 i = 1; i < Lines.Num(); ++i)
 	{
 		if (Lines[i].IsEmpty())
@@ -110,6 +117,8 @@ bool UMyBlueprintFunctionLibrary::LoadAllRecords(TArray<FBowlingAttemptRecord>& 
 		}
 	}
 
+	// Keep numbering continuous with what's already on disk, rather than restarting at 1
+	// and overwriting/duplicating attempt numbers on the next RecordAttempt call.
 	if (OutRecords.Num() > 0)
 	{
 		GCurrentAttemptNumber = OutRecords.Last().AttemptNumber;
