@@ -35,13 +35,22 @@ class PHYSIGRAB_VR_API UMyBlueprintFunctionLibrary : public UBlueprintFunctionLi
 	GENERATED_BODY()
 
 public:
-	// Call once per throw. Appends one CSV row and returns the record that was written.
+	// Call once per throw, after the ball has been released. Reads whatever pin count has
+	// accumulated from IncrementPinsKnockedDown() calls since the last attempt, appends one row
+	// to each CSV, and resets that pin count back to 0 for the next throw.
 	UFUNCTION(BlueprintCallable, Category = "Bowling|File IO")
-	static FBowlingAttemptRecord RecordAttempt(int32 PinsKnockedDown, float BallVelocity, FVector BallDirection);
+	static FBowlingAttemptRecord RecordAttempt(float BallVelocity, FVector BallDirection);
 
-	// Resets the in-memory attempt counter to 0 and starts a new pair of timestamped CSV files
-	// for both ball-throw and pins-knocked-down data. Call this once per game session (e.g. from
-	// Event BeginPlay) to get a fresh set of files every time you play.
+	// Call this once from each pin's own Blueprint, right when that pin is confirmed knocked
+	// down (e.g. from BP_BowlingPin's Event Hit chain, guarded so it only fires once per pin).
+	// No reference to the ball is needed: this is a static library function every pin can call
+	// directly, which is what RecordAttempt reads from for the next CSV row.
+	UFUNCTION(BlueprintCallable, Category = "Bowling|File IO")
+	static void IncrementPinsKnockedDown();
+
+	// Resets the in-memory attempt counter and pending pin count to 0, and starts a new pair of
+	// timestamped CSV files for both ball-throw and pins-knocked-down data. Call this once per
+	// game session (e.g. from Event BeginPlay) to get a fresh set of files every time you play.
 	UFUNCTION(BlueprintCallable, Category = "Bowling|File IO")
 	static void ResetSession();
 

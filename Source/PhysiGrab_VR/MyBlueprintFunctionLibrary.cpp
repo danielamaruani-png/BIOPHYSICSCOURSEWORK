@@ -9,6 +9,11 @@ namespace
 	// In-memory only: not persisted, so it resets whenever the editor/game restarts.
 	int32 GCurrentAttemptNumber = 0;
 
+	// Accumulates via IncrementPinsKnockedDown() calls from individual pins between throws,
+	// then RecordAttempt reads and clears it. This replaces re-scanning all pin actors after
+	// the fact, which was unreliable at telling fallen pins apart from ones merely resting.
+	int32 GPinsKnockedDownThisAttempt = 0;
+
 	// Empty until first needed, then holds a per-session timestamp used in both CSV file
 	// names. Cleared by ResetSession() so the next write starts a brand new pair of files.
 	FString GSessionTimestamp;
@@ -62,13 +67,14 @@ namespace
 	}
 }
 
-FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(int32 PinsKnockedDown, float BallVelocity, FVector BallDirection)
+FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(float BallVelocity, FVector BallDirection)
 {
 	++GCurrentAttemptNumber;
 
 	FBowlingAttemptRecord Record;
 	Record.AttemptNumber = GCurrentAttemptNumber;
-	Record.PinsKnockedDown = FMath::Clamp(PinsKnockedDown, 0, 10);
+	Record.PinsKnockedDown = FMath::Clamp(GPinsKnockedDownThisAttempt, 0, 10);
+	GPinsKnockedDownThisAttempt = 0;
 	Record.BallVelocity = FMath::Max(0.0f, BallVelocity);
 	// Normalize here so the caller doesn't have to remember to; direction and speed
 	// are logged as separate columns rather than one combined velocity vector.
@@ -107,9 +113,15 @@ FBowlingAttemptRecord UMyBlueprintFunctionLibrary::RecordAttempt(int32 PinsKnock
 	return Record;
 }
 
+void UMyBlueprintFunctionLibrary::IncrementPinsKnockedDown()
+{
+	++GPinsKnockedDownThisAttempt;
+}
+
 void UMyBlueprintFunctionLibrary::ResetSession()
 {
 	GCurrentAttemptNumber = 0;
+	GPinsKnockedDownThisAttempt = 0;
 	// Clearing this forces GetSessionTimestamp() to mint a new one on the next file write,
 	// which in turn makes GetOrInit*FilePath() start writing to a brand new pair of files.
 	GSessionTimestamp.Empty();
