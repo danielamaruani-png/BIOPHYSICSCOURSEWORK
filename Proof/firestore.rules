@@ -1,0 +1,44 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Private profile + all nested resolutions/proofs: owner only.
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /resolutions/{resolutionId} {
+        allow read, write: if isOwner(uid);
+
+        match /proofs/{day} {
+          allow read, write: if isOwner(uid);
+        }
+      }
+    }
+
+    // Thin, denormalized summary any signed-in user can read (needed
+    // for friend search + today's-status), but only the owner can write.
+    match /publicProfiles/{uid} {
+      allow read: if signedIn();
+      allow write: if isOwner(uid);
+    }
+
+    // Follow graph: anyone can read (used to resolve who follows whom
+    // for the friends list); only the follower can create/delete their
+    // own edge.
+    match /follows/{edgeId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.followerId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.followerId == request.auth.uid;
+      allow update: if false;
+    }
+  }
+}

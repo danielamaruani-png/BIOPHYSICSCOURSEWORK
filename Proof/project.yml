@@ -1,0 +1,81 @@
+name: Proof
+options:
+  bundleIdPrefix: com.proofapp
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: "" # fill in your Apple Developer Team ID
+    CODE_SIGN_STYLE: Automatic
+
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: 10.29.0
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: 7.1.0
+
+targets:
+  Proof:
+    type: application
+    platform: iOS
+    sources:
+      - path: Proof
+        excludes:
+          - "**/*.entitlements"
+    resources:
+      - path: Proof/Resources
+    entitlements:
+      path: Proof/Proof.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.proofapp.shared
+        com.apple.developer.applesignin:
+          - Default
+    info:
+      path: Proof/Info.plist
+      properties:
+        CFBundleDisplayName: Proof
+        UILaunchScreen: {}
+        NSCameraUsageDescription: "Proof uses your camera to capture today's proof photo."
+        NSPhotoLibraryUsageDescription: "Proof lets you pick a photo from your library as today's proof."
+        UIBackgroundModes: []
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              # Replace with the REVERSED_CLIENT_ID from your
+              # GoogleService-Info.plist after generating the project
+              # (see Proof/README.md, step 4).
+              - "REPLACE_WITH_REVERSED_CLIENT_ID"
+    dependencies:
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseStorage
+      - package: GoogleSignIn
+        product: GoogleSignIn
+      - target: ProofWidgetExtension
+        embed: true
+    postCompileScripts: []
+
+  ProofWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ProofWidget
+    entitlements:
+      path: ProofWidget/ProofWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.proofapp.shared
+    info:
+      path: ProofWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Proof Widget
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
