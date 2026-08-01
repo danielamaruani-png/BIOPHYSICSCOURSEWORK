@@ -11,15 +11,33 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // Private profile + all nested resolutions/proofs: owner only.
+    function pairId(a, b) {
+      return a < b ? a + '_' + b : b + '_' + a;
+    }
+
+    // True once `otherUid` and `uid` have an accepted PartnerRequest —
+    // the mutual, explicit-consent link that unlocks reading each
+    // other's actual proof photos (following alone never does).
+    function isAcceptedPartner(uid, otherUid) {
+      let id = pairId(uid, otherUid);
+      return signedIn() &&
+        exists(/databases/$(database)/documents/partnerRequests/$(id)) &&
+        get(/databases/$(database)/documents/partnerRequests/$(id)).data.status == 'accepted';
+    }
+
+    // Private profile: owner only. Resolutions + proofs are also
+    // readable by an accepted partner — that's the whole point of
+    // partnering — but still only writable by the owner.
     match /users/{uid} {
       allow read, write: if isOwner(uid);
 
       match /resolutions/{resolutionId} {
-        allow read, write: if isOwner(uid);
+        allow read: if isOwner(uid) || isAcceptedPartner(uid, request.auth.uid);
+        allow write: if isOwner(uid);
 
         match /proofs/{day} {
-          allow read, write: if isOwner(uid);
+          allow read: if isOwner(uid) || isAcceptedPartner(uid, request.auth.uid);
+          allow write: if isOwner(uid);
         }
       }
     }
@@ -33,12 +51,40 @@ service cloud.firestore {
 
     // Follow graph: anyone can read (used to resolve who follows whom
     // for the friends list); only the follower can create/delete their
-    // own edge.
+    // own edge. Following alone only ever exposes today's ✅/⭕ via
+    // publicProfiles — never the proof photo itself.
     match /follows/{edgeId} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.followerId == request.auth.uid;
       allow delete: if signedIn() && resource.data.followerId == request.auth.uid;
       allow update: if false;
+    }
+
+    // Accountability-partner requests, keyed by the sorted pair so
+    // there's exactly one relationship per pair of users.
+    match /partnerRequests/{docId} {
+      allow read: if signedIn() &&
+        (resource.data.uidA == request.auth.uid || resource.data.uidB == request.auth.uid);
+
+      allow create: if signedIn() &&
+        request.resource.data.fromUid == request.auth.uid &&
+        (request.resource.data.uidA == request.auth.uid || request.resource.data.uidB == request.auth.uid) &&
+        request.resource.data.status == 'pending' &&
+        pairId(request.resource.data.uidA, request.resource.data.uidB) == docId;
+
+      // Only the recipient (not the requester) can accept/decline —
+      // otherwise a user could grant themselves access to someone
+      // who never agreed.
+      allow update: if signedIn() &&
+        (resource.data.uidA == request.auth.uid || resource.data.uidB == request.auth.uid) &&
+        request.auth.uid != resource.data.fromUid &&
+        request.resource.data.status in ['accepted', 'declined'] &&
+        request.resource.data.fromUid == resource.data.fromUid &&
+        request.resource.data.uidA == resource.data.uidA &&
+        request.resource.data.uidB == resource.data.uidB;
+
+      allow delete: if signedIn() &&
+        (resource.data.uidA == request.auth.uid || resource.data.uidB == request.auth.uid);
     }
   }
 }

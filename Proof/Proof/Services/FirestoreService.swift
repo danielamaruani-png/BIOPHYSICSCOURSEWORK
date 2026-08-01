@@ -160,4 +160,50 @@ final class FirestoreService {
             .getDocuments()
         return try snapshot.documents.map { try $0.data(as: PublicProfile.self) }
     }
+
+    // MARK: - Accountability partners (mutual proof sharing)
+
+    /// Sends (or re-sends after a decline) a request to share actual
+    /// proof photos with someone — distinct from `follow`, which never
+    /// needs the other person's consent because it only ever exposes
+    /// today's ✅/⭕.
+    func sendPartnerRequest(from: String, to: String) async throws {
+        let id = PartnerRequest.pairId(from, to)
+        let request = PartnerRequest(
+            uidA: from < to ? from : to,
+            uidB: from < to ? to : from,
+            fromUid: from,
+            status: .pending,
+            createdAt: Date(),
+            respondedAt: nil
+        )
+        try db.collection("partnerRequests").document(id).setData(from: request)
+    }
+
+    /// Only the recipient of a request may call this — enforced again
+    /// server-side by firestore.rules, not just here.
+    func respondToPartnerRequest(uid: String, otherUid: String, accept: Bool) async throws {
+        let id = PartnerRequest.pairId(uid, otherUid)
+        try await db.collection("partnerRequests").document(id).updateData([
+            "status": accept ? PartnerStatus.accepted.rawValue : PartnerStatus.declined.rawValue,
+            "respondedAt": Date()
+        ])
+    }
+
+    /// All partner requests (any status, either direction) touching
+    /// this user. Callers split it into incoming/outgoing/accepted by
+    /// comparing `fromUid`/`status` against `uid`.
+    func fetchPartnerRequests(uid: String) async throws -> [PartnerRequest] {
+        async let asA = db.collection("partnerRequests").whereField("uidA", isEqualTo: uid).getDocuments()
+        async let asB = db.collection("partnerRequests").whereField("uidB", isEqualTo: uid).getDocuments()
+        let (snapshotA, snapshotB) = try await (asA, asB)
+        let requests = try (snapshotA.documents + snapshotB.documents).map { try $0.data(as: PartnerRequest.self) }
+        return requests
+    }
+
+    func fetchAcceptedPartnerIds(uid: String) async throws -> [String] {
+        try await fetchPartnerRequests(uid: uid)
+            .filter { $0.status == .accepted }
+            .map { $0.otherUid(from: uid) }
+    }
 }

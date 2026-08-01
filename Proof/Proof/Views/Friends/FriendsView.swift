@@ -4,6 +4,8 @@ struct FriendsView: View {
     @EnvironmentObject var session: SessionViewModel
     @StateObject private var viewModel = FriendsViewModel()
 
+    private var uid: String { session.userId ?? "" }
+
     var body: some View {
         NavigationStack {
             List {
@@ -12,6 +14,27 @@ struct FriendsView: View {
                         .onChange(of: viewModel.searchText) { _, _ in
                             Task { await viewModel.search() }
                         }
+                }
+
+                if !viewModel.incomingRequests.isEmpty {
+                    Section("Proof-sharing requests") {
+                        ForEach(viewModel.incomingRequests) { profile in
+                            HStack(spacing: 12) {
+                                AvatarView(photoURL: profile.photoURL, size: 36)
+                                Text(profile.name).font(.headline)
+                                Spacer()
+                                Button("Decline") {
+                                    Task { await viewModel.respondToPartnership(uid: uid, target: profile, accept: false) }
+                                }
+                                .buttonStyle(.bordered)
+                                Button("Accept") {
+                                    Task { await viewModel.respondToPartnership(uid: uid, target: profile, accept: true) }
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+                            .font(.footnote)
+                        }
+                    }
                 }
 
                 if !viewModel.searchResults.isEmpty {
@@ -33,15 +56,16 @@ struct FriendsView: View {
                 }
             }
             .navigationTitle("Friends")
-            .task {
-                guard let uid = session.userId else { return }
-                await viewModel.loadFriends(uid: uid)
+            .navigationDestination(for: PublicProfile.self) { profile in
+                PartnerProofView(partner: profile)
             }
+            .task { await viewModel.loadFriends(uid: uid) }
         }
     }
 
     private func friendRow(_ profile: PublicProfile) -> some View {
-        HStack(spacing: 12) {
+        let state = viewModel.partnerState(for: profile, uid: uid)
+        return HStack(spacing: 12) {
             AvatarView(photoURL: profile.photoURL, size: 40)
             VStack(alignment: .leading) {
                 Text(profile.name).font(.headline)
@@ -54,13 +78,34 @@ struct FriendsView: View {
                 StreakBadge(streak: profile.bestCurrentStreak)
             }
             Button(viewModel.isFollowing(profile) ? "Following" : "Follow") {
-                Task {
-                    guard let uid = session.userId else { return }
-                    await viewModel.toggleFollow(uid: uid, target: profile)
-                }
+                Task { await viewModel.toggleFollow(uid: uid, target: profile) }
             }
             .buttonStyle(.bordered)
             .font(.footnote)
+
+            partnerControl(state: state, profile: profile)
+        }
+    }
+
+    @ViewBuilder
+    private func partnerControl(state: PartnerState, profile: PublicProfile) -> some View {
+        switch state {
+        case .none:
+            Button("Share proofs") {
+                Task { await viewModel.requestPartnership(uid: uid, target: profile) }
+            }
+            .buttonStyle(.bordered)
+            .font(.footnote)
+        case .requestSent:
+            Text("Requested").font(.caption).foregroundStyle(.secondary)
+        case .requestReceived:
+            Text("Check requests above").font(.caption2).foregroundStyle(.secondary)
+        case .accepted:
+            NavigationLink(value: profile) {
+                Label("Partners", systemImage: "checkmark.seal.fill")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+            }
         }
     }
 }

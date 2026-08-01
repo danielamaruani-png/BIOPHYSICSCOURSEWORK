@@ -9,6 +9,7 @@ final class SessionViewModel: ObservableObject {
     @Published var userId: String?
     @Published var profile: UserProfile?
     @Published var resolutions: [Resolution] = []
+    @Published var partnerProfiles: [PublicProfile] = []
     @Published var isLoading = true
     @Published var errorMessage: String?
 
@@ -55,7 +56,21 @@ final class SessionViewModel: ObservableObject {
         guard let userId else { return }
         do {
             resolutions = try await FirestoreService.shared.fetchResolutions(uid: userId)
+            await refreshPartners()
             syncWidgetSnapshot()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    /// Accepted accountability partners only — never plain followers.
+    /// Called after resolutions so the widget snapshot below always has
+    /// both halves of its data ready at once.
+    func refreshPartners() async {
+        guard let userId else { return }
+        do {
+            let partnerIds = try await FirestoreService.shared.fetchAcceptedPartnerIds(uid: userId)
+            partnerProfiles = try await FirestoreService.shared.fetchPublicProfiles(uids: partnerIds)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -68,11 +83,15 @@ final class SessionViewModel: ObservableObject {
         let today = FirestoreService.dayString()
         let completedToday = resolutions.filter { $0.lastProofDate == today }.count
         let bestStreak = resolutions.map(\.currentStreak).max() ?? 0
+        let partnerStreaks = partnerProfiles.map {
+            PartnerStreakSummary(id: $0.uid, name: $0.name, streak: $0.bestCurrentStreak, completedToday: $0.todayCompleted)
+        }
         WidgetSnapshot(
             bestCurrentStreak: bestStreak,
             totalResolutions: resolutions.count,
             completedToday: completedToday,
-            updatedAt: Date()
+            updatedAt: Date(),
+            partnerStreaks: partnerStreaks
         ).save()
     }
 

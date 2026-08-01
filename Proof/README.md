@@ -2,7 +2,8 @@
 
 A social accountability app whose only content is proof of progress:
 one photo per resolution per day, streaks, and a friends list that
-shows completion status only — never a feed.
+shows completion status only by default — never a feed, unless two
+people mutually opt in to become accountability partners.
 
 This folder is a native iOS (SwiftUI) app. It was written in a
 Linux container without Xcode, so **none of this has been compiled or
@@ -20,7 +21,12 @@ treat first build as the point where real bugs will surface.
 - Progress: current/longest streak, lifetime completion %, calendar
   heatmap, proof count
 - Friends: one-way follow, see today's completion status only
-- Home screen widget: streak + "today's proof missing/done"
+- Accountability partners: either side can request to share actual
+  proof photos; only takes effect once the other side accepts. Once
+  accepted, both can browse each other's resolutions and proof photos
+  (read-only — no capture, no editing someone else's data)
+- Home screen widget: your streak + "today's proof missing/done",
+  plus a medium-size widget that also shows accepted partners' streaks
 
 ## Prerequisites
 
@@ -43,7 +49,10 @@ treat first build as the point where real bugs will surface.
      firebase deploy --only firestore:rules,storage:rules
      ```
      (or paste `firestore.rules` / `storage.rules` into the console's
-     Rules tabs)
+     Rules tabs). `storage.rules` reads Firestore (`firestore.get`/
+     `firestore.exists`) to check accepted accountability-partner
+     status before releasing a proof photo, so both services need to
+     be enabled in the same project for that check to work.
 
 2. **App Group** (needed for the widget to read streak data)
    - In your Apple Developer account, create an App Group with the
@@ -103,6 +112,15 @@ treat first build as the point where real bugs will surface.
   and `ProofWidget` rather than shared, to keep the widget target a
   simple drop-in folder. If the shared surface grows, promote both to
   a local Swift package instead of keeping them in sync by hand.
+- **Accountability partners** are a separate, mutual-consent layer on
+  top of following: `PartnerRequest` docs are keyed by the two uids
+  sorted into one deterministic ID (`PartnerRequest.pairId`), so
+  there's exactly one relationship per pair and both `firestore.rules`
+  and `storage.rules` can check "are these two people partners" with a
+  single `exists`/`get` instead of a query. Only an *accepted* request
+  unlocks reading someone's `resolutions`/`proofs` and their Storage
+  photos; a plain follow never does, by design — see the "Guiding
+  Principles" in the product roadmap this app is built from.
 
 ## Known gaps going into first build
 
@@ -112,3 +130,8 @@ treat first build as the point where real bugs will surface.
   or `timesPerWeek` resolutions.
 - No image compression/resizing beyond JPEG quality — large camera
   photos upload at full resolution.
+- No push notification when someone sends a partner request — they'll
+  only see it next time they open the Friends tab.
+- No UI to revoke an accepted partnership once granted (only accept/
+  decline at request time). Deleting the `partnerRequests` doc would
+  do it server-side; add a "Remove partner" action before shipping.

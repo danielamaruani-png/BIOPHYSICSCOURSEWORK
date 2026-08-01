@@ -1,9 +1,13 @@
 import SwiftUI
 
+/// Read-only by construction — there's no capture affordance here, so
+/// this same view works both for a user's own progress and (once
+/// `ownerUid` is a partner's uid instead of the viewer's own) for
+/// looking at an accepted partner's actual proof photos.
 struct ProgressScreenView: View {
+    let ownerUid: String
     let resolution: Resolution
 
-    @EnvironmentObject var session: SessionViewModel
     @StateObject private var viewModel = ProgressViewModel()
 
     var body: some View {
@@ -20,11 +24,15 @@ struct ProgressScreenView: View {
                     Text("Recent proofs").font(.headline)
                     ForEach(viewModel.proofs.sorted { $0.dateString > $1.dateString }.prefix(10)) { proof in
                         HStack(alignment: .top, spacing: 12) {
-                            Text(proof.dateString).font(.footnote).foregroundStyle(.secondary)
-                            if let caption = proof.caption, !caption.isEmpty {
-                                Text(caption)
+                            ProofThumbnail(urlString: proof.photoURL)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(proof.dateString).font(.footnote).foregroundStyle(.secondary)
+                                if let caption = proof.caption, !caption.isEmpty {
+                                    Text(caption).font(.subheadline)
+                                }
                             }
                         }
+                        .padding(.vertical, 4)
                     }
                 }
             }
@@ -33,8 +41,7 @@ struct ProgressScreenView: View {
         .navigationTitle(resolution.name)
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            guard let uid = session.userId else { return }
-            await viewModel.load(uid: uid, resolution: resolution)
+            await viewModel.load(uid: ownerUid, resolution: resolution)
         }
     }
 
@@ -56,5 +63,25 @@ struct ProgressScreenView: View {
         .padding(.vertical, 12)
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct ProofThumbnail: View {
+    let urlString: String
+
+    var body: some View {
+        Group {
+            if let url = URL(string: urlString) {
+                AsyncImage(url: url) { image in
+                    image.resizable().scaledToFill()
+                } placeholder: {
+                    Color(.secondarySystemBackground)
+                }
+            } else {
+                Color(.secondarySystemBackground)
+            }
+        }
+        .frame(width: 44, height: 44)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

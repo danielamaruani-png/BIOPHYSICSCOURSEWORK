@@ -9,7 +9,11 @@ struct StreakEntry: TimelineEntry {
 struct StreakProvider: TimelineProvider {
     func placeholder(in context: Context) -> StreakEntry {
         StreakEntry(date: Date(), snapshot: WidgetSnapshot(
-            bestCurrentStreak: 18, totalResolutions: 3, completedToday: 1, updatedAt: Date()
+            bestCurrentStreak: 18, totalResolutions: 3, completedToday: 1, updatedAt: Date(),
+            partnerStreaks: [
+                PartnerStreakSummary(id: "1", name: "Marco", streak: 9, completedToday: true),
+                PartnerStreakSummary(id: "2", name: "Léa", streak: 31, completedToday: false)
+            ]
         ))
     }
 
@@ -27,23 +31,17 @@ struct StreakProvider: TimelineProvider {
 }
 
 struct ProofWidgetEntryView: View {
+    @Environment(\.widgetFamily) private var family
     var entry: StreakEntry
 
     var body: some View {
         if let snapshot = entry.snapshot {
-            let allDone = snapshot.completedToday >= snapshot.totalResolutions && snapshot.totalResolutions > 0
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 4) {
-                    Text("🔥")
-                    Text("\(snapshot.bestCurrentStreak)").font(.title2.bold())
-                }
-                Spacer()
-                Text(allDone ? "Today's proof done" : "Today's proof missing")
-                    .font(.caption)
-                    .foregroundStyle(allDone ? .green : .orange)
-                    .fontWeight(.semibold)
+            switch family {
+            case .systemMedium:
+                MediumWidgetView(snapshot: snapshot)
+            default:
+                SmallWidgetView(snapshot: snapshot)
             }
-            .padding()
         } else {
             VStack {
                 Text("Open Proof").font(.headline)
@@ -51,6 +49,78 @@ struct ProofWidgetEntryView: View {
             }
             .padding()
         }
+    }
+}
+
+private struct SmallWidgetView: View {
+    let snapshot: WidgetSnapshot
+
+    var allDone: Bool {
+        snapshot.completedToday >= snapshot.totalResolutions && snapshot.totalResolutions > 0
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 4) {
+                Text("🔥")
+                Text("\(snapshot.bestCurrentStreak)").font(.title2.bold())
+            }
+            Spacer()
+            Text(allDone ? "Today's proof done" : "Today's proof missing")
+                .font(.caption)
+                .foregroundStyle(allDone ? .green : .orange)
+                .fontWeight(.semibold)
+        }
+        .padding()
+    }
+}
+
+/// Adds accepted accountability partners alongside the user's own
+/// streak — only ever populated with people who explicitly agreed to
+/// share proof, never plain followers.
+private struct MediumWidgetView: View {
+    let snapshot: WidgetSnapshot
+
+    var allDone: Bool {
+        snapshot.completedToday >= snapshot.totalResolutions && snapshot.totalResolutions > 0
+    }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("You").font(.caption).foregroundStyle(.secondary)
+                HStack(spacing: 4) {
+                    Text("🔥")
+                    Text("\(snapshot.bestCurrentStreak)").font(.title.bold())
+                }
+                Text(allDone ? "Done today" : "Missing today")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(allDone ? .green : .orange)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text("Partners").font(.caption).foregroundStyle(.secondary)
+                if snapshot.partnerStreaks.isEmpty {
+                    Text("None yet").font(.caption2).foregroundStyle(.secondary)
+                } else {
+                    ForEach(snapshot.partnerStreaks.prefix(3)) { partner in
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(partner.completedToday ? .green : .orange)
+                                .frame(width: 6, height: 6)
+                            Text(partner.name).font(.caption2).lineLimit(1)
+                            Spacer()
+                            Text("🔥\(partner.streak)").font(.caption2.weight(.semibold))
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding()
     }
 }
 
@@ -63,7 +133,7 @@ struct ProofWidget: Widget {
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Proof Streak")
-        .description("Your current streak and today's status.")
-        .supportedFamilies([.systemSmall])
+        .description("Your current streak, today's status, and accepted partners' streaks.")
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

@@ -32,7 +32,7 @@ struct HomeView: View {
                 CaptureProofView(resolution: resolution)
             }
             .navigationDestination(item: $progressTarget) { resolution in
-                ProgressScreenView(resolution: resolution)
+                ProgressScreenView(ownerUid: session.userId ?? "", resolution: resolution)
             }
             .task { await session.refreshResolutions() }
             .refreshable { await session.refreshResolutions() }
