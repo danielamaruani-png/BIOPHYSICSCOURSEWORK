@@ -18,6 +18,7 @@ struct PartnerStreakSummary: Codable, Identifiable {
 /// which keeps the extension simple and avoids giving it its own auth
 /// session.
 struct WidgetSnapshot: Codable {
+    var myUid: String
     var bestCurrentStreak: Int
     var totalResolutions: Int
     var completedToday: Int

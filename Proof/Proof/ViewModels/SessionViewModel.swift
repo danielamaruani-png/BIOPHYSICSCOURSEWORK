@@ -71,8 +71,30 @@ final class SessionViewModel: ObservableObject {
         do {
             let partnerIds = try await FirestoreService.shared.fetchAcceptedPartnerIds(uid: userId)
             partnerProfiles = try await FirestoreService.shared.fetchPublicProfiles(uids: partnerIds)
+            await cachePartnerPhotosForWidget()
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    /// Pulls down today's proof photo for each accepted partner who has
+    /// one, so the widget can show it without ever talking to Storage
+    /// itself. Skipped entirely for anyone who hasn't posted today —
+    /// that's also what keeps a stale, previously-cached photo from
+    /// ever being mistaken for today's: the widget only renders a
+    /// partner's cached photo when `completedToday` says it's fresh.
+    private func cachePartnerPhotosForWidget() async {
+        let today = FirestoreService.dayString()
+        for partner in partnerProfiles where partner.todayCompleted {
+            guard let partnerResolutions = try? await FirestoreService.shared.fetchResolutions(uid: partner.uid),
+                  let completed = partnerResolutions.first(where: { $0.lastProofDate == today }),
+                  let resolutionId = completed.id,
+                  let proof = try? await FirestoreService.shared.fetchProof(
+                      uid: partner.uid, resolutionId: resolutionId, day: today
+                  ),
+                  let url = URL(string: proof.photoURL)
+            else { continue }
+            await WidgetPhotoCache.downloadAndSave(from: url, forUid: partner.uid)
         }
     }
 
@@ -87,6 +109,7 @@ final class SessionViewModel: ObservableObject {
             PartnerStreakSummary(id: $0.uid, name: $0.name, streak: $0.bestCurrentStreak, completedToday: $0.todayCompleted)
         }
         WidgetSnapshot(
+            myUid: userId ?? "",
             bestCurrentStreak: bestStreak,
             totalResolutions: resolutions.count,
             completedToday: completedToday,

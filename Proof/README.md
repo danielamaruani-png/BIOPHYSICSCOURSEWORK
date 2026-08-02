@@ -25,8 +25,9 @@ treat first build as the point where real bugs will surface.
   proof photos; only takes effect once the other side accepts. Once
   accepted, both can browse each other's resolutions and proof photos
   (read-only — no capture, no editing someone else's data)
-- Home screen widget: your streak + "today's proof missing/done",
-  plus a medium-size widget that also shows accepted partners' streaks
+- Home screen widget: shows today's actual proof photo (small size)
+  with the streak overlaid on top, BeReal-style; the medium size adds
+  a second tile with one accepted partner's photo and streak too
 
 ## Prerequisites
 
@@ -121,6 +122,24 @@ treat first build as the point where real bugs will surface.
   unlocks reading someone's `resolutions`/`proofs` and their Storage
   photos; a plain follow never does, by design — see the "Guiding
   Principles" in the product roadmap this app is built from.
+- **Widget photos** (`WidgetPhotoCache` / `WidgetPhotoLoader`) are
+  cached as plain JPEG files in the same shared App Group container,
+  separate from `WidgetSnapshot`'s `UserDefaults` — large binary blobs
+  don't belong in `UserDefaults`. The main app writes: your own photo
+  right after `CaptureProofViewModel.submit()` succeeds (reusing the
+  `UIImage` already in memory instead of re-downloading it), and one
+  accepted partner's photo — only if they've completed *today* —
+  whenever `SessionViewModel.refreshPartners()` runs. Files are named
+  `<uid>.jpg`, so both sides of the widget just need to know a uid,
+  never a URL. A partner's photo is only ever fetched and only ever
+  shown when their `completedToday` flag is true, which is what stops
+  a stale cached file from ever being mistaken for today's proof.
+- **Privacy note**: putting an actual proof photo on the home screen
+  widget means it's visible to anyone glancing at the phone or its
+  lock screen widgets — a bigger exposure than the app's own "not
+  their entire life" default. Worth a deliberate call (a Settings
+  toggle to fall back to the streak-only widget?) before shipping,
+  not just an emergent side effect of this implementation.
 
 ## Known gaps going into first build
 
@@ -135,3 +154,8 @@ treat first build as the point where real bugs will surface.
 - No UI to revoke an accepted partnership once granted (only accept/
   decline at request time). Deleting the `partnerRequests` doc would
   do it server-side; add a "Remove partner" action before shipping.
+- Widget photo cache only ever holds the *one* featured partner
+  (whoever `partnerStreaks.first { $0.completedToday }` picks) — with
+  several accepted partners posting the same day, only one photo gets
+  cached/shown, and yesterday's featured partner's file lingers
+  unused in the App Group container instead of being cleaned up.

@@ -30,6 +30,9 @@ final class CaptureProofViewModel: ObservableObject {
                 caption: caption.isEmpty ? nil : caption
             )
             try await StreakEngine.recordProofAndUpdateStreak(uid: uid, resolutionId: resolutionId, day: day)
+            // Cache the photo we already have in memory for the widget,
+            // rather than making it re-download what we just uploaded.
+            WidgetPhotoCache.save(image: image, forUid: uid)
             return true
         } catch {
             errorMessage = error.localizedDescription

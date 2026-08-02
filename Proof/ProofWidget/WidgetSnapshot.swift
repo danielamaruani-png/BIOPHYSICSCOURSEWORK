@@ -12,6 +12,7 @@ struct PartnerStreakSummary: Codable, Identifiable {
 }
 
 struct WidgetSnapshot: Codable {
+    var myUid: String
     var bestCurrentStreak: Int
     var totalResolutions: Int
     var completedToday: Int
