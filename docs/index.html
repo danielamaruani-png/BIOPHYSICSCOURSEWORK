@@ -1,0 +1,1067 @@
+<title>Proof — App Preview</title>
+<style>
+  :root{
+    --bg: #F6F3EF;
+    --bg-grid-dot: #00000010;
+    --card: #FFFFFF;
+    --card-raised: #FBFAF8;
+    --text: #1C1C1E;
+    --text-secondary: #6E6E73;
+    --text-tertiary: #B8B6B2;
+    --separator: #E5E2DC;
+    --accent: #FF6B35;
+    --accent-text: #FFFFFF;
+    --green: #2FA84F;
+    --track-empty: #E9E6E0;
+    --sheet-scrim: rgba(20,18,16,0.38);
+    --phone-bezel: #101012;
+    --phone-bezel-edge: #2b2b2e;
+    --shadow-color: 220 20% 10%;
+    --swatch-run: #E7414C;
+    --swatch-read: #2EC4B6;
+    --swatch-code: #1982C4;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg: #000000;
+      --bg-grid-dot: #ffffff12;
+      --card: #1C1C1E;
+      --card-raised: #232325;
+      --text: #F5F5F5;
+      --text-secondary: #98989D;
+      --text-tertiary: #616163;
+      --separator: #2C2C2E;
+      --accent: #FF7A47;
+      --accent-text: #14100D;
+      --green: #3FCB63;
+      --track-empty: #2C2C2E;
+      --sheet-scrim: rgba(0,0,0,0.55);
+      --phone-bezel: #050506;
+      --phone-bezel-edge: #050506;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #000000;
+    --bg-grid-dot: #ffffff12;
+    --card: #1C1C1E;
+    --card-raised: #232325;
+    --text: #F5F5F5;
+    --text-secondary: #98989D;
+    --text-tertiary: #616163;
+    --separator: #2C2C2E;
+    --accent: #FF7A47;
+    --accent-text: #14100D;
+    --green: #3FCB63;
+    --track-empty: #2C2C2E;
+    --sheet-scrim: rgba(0,0,0,0.55);
+    --phone-bezel: #050506;
+    --phone-bezel-edge: #050506;
+  }
+  :root[data-theme="light"]{
+    --bg: #F6F3EF;
+    --bg-grid-dot: #00000010;
+    --card: #FFFFFF;
+    --card-raised: #FBFAF8;
+    --text: #1C1C1E;
+    --text-secondary: #6E6E73;
+    --text-tertiary: #B8B6B2;
+    --separator: #E5E2DC;
+    --accent: #FF6B35;
+    --accent-text: #FFFFFF;
+    --green: #2FA84F;
+    --track-empty: #E9E6E0;
+    --sheet-scrim: rgba(20,18,16,0.38);
+    --phone-bezel: #101012;
+    --phone-bezel-edge: #2b2b2e;
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 1px 1px, var(--bg-grid-dot) 1px, transparent 0) 0 0/22px 22px,
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 28px 16px 60px;
+    overflow-x:hidden;
+  }
+
+  .masthead{
+    width:100%;
+    max-width: 920px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom: 22px;
+    flex-wrap:wrap;
+  }
+  .masthead h1{
+    font-family: ui-rounded, -apple-system, sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin:0;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .masthead h1 .flame{ font-size:20px; }
+  .masthead p{
+    margin:0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    max-width: 46ch;
+  }
+
+  .stage{
+    width:100%;
+    max-width: 920px;
+    display:grid;
+    grid-template-columns: minmax(320px, 400px) minmax(220px, 280px);
+    gap: 40px;
+    align-items:start;
+    justify-content:center;
+  }
+  @media (max-width: 720px){
+    .stage{ grid-template-columns: 1fr; justify-items:center; }
+  }
+
+  /* ---------- Phone chrome ---------- */
+  .phone-wrap{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .phone{
+    position:relative;
+    width: 356px;
+    height: 748px;
+    background: var(--phone-bezel);
+    border-radius: 54px;
+    padding: 14px;
+    box-shadow:
+      0 2px 0 var(--phone-bezel-edge) inset,
+      0 30px 60px -20px hsl(var(--shadow-color) / 0.45),
+      0 10px 24px -12px hsl(var(--shadow-color) / 0.35);
+  }
+  .phone::before{
+    content:"";
+    position:absolute; left:50%; top:14px; transform:translateX(-50%);
+    width:100px; height:28px; background:#000; border-radius:20px; z-index:30;
+  }
+  .screen{
+    position:relative;
+    width:100%; height:100%;
+    background: var(--bg);
+    border-radius: 42px;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .statusbar{
+    height:46px; flex:0 0 auto;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    padding: 0 26px 6px;
+    font-size:14px; font-weight:600; font-variant-numeric:tabular-nums;
+  }
+  .statusbar .icons{ display:flex; gap:5px; align-items:center; opacity:.9; }
+
+  .screens{ position:relative; flex:1 1 auto; overflow:hidden; }
+  .app-screen{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    opacity:0; pointer-events:none; transform: translateY(6px);
+    transition: opacity .28s ease, transform .28s ease;
+  }
+  .app-screen.active{ opacity:1; pointer-events:auto; transform:none; }
+
+  .navbar{
+    flex:0 0 auto;
+    padding: 2px 20px 10px;
+  }
+  .navbar .large-title{
+    font-size: 30px; font-weight:800; letter-spacing:-0.02em;
+    text-wrap: balance;
+  }
+  .navbar-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 6px 20px 8px;
+  }
+  .navbar-row .title{ font-size:17px; font-weight:700; }
+  .nav-btn{
+    border:none; background:none; color: var(--accent);
+    font-size:16px; font-weight:600; padding:6px 4px; cursor:pointer;
+    display:flex; align-items:center; gap:2px;
+  }
+  .nav-icon-btn{
+    border:none; background: var(--card-raised); color:var(--text);
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+
+  .content{ flex:1 1 auto; overflow-y:auto; padding: 4px 16px 20px; }
+  .content::-webkit-scrollbar{ display:none; }
+
+  /* ---------- Tab bar ---------- */
+  .tabbar{
+    flex:0 0 auto;
+    display:flex;
+    border-top:1px solid var(--separator);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    backdrop-filter: blur(20px);
+    padding: 8px 6px 18px;
+  }
+  .tab{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    border:none; background:none; color:var(--text-tertiary); cursor:pointer;
+    font-size:10.5px; font-weight:600; padding:4px 0;
+  }
+  .tab svg{ width:24px; height:24px; }
+  .tab.active{ color: var(--accent); }
+
+  /* ---------- Mission list ---------- */
+  .mission-card{
+    display:flex; align-items:center; gap:12px;
+    background: var(--card);
+    border-radius:16px;
+    padding: 13px 14px;
+    margin-bottom:10px;
+    cursor:pointer;
+    border:1px solid var(--separator);
+    transition: transform .12s ease;
+  }
+  .mission-card:active{ transform: scale(0.98); }
+  .mission-icon{
+    width:38px; height:38px; border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    flex:0 0 auto;
+  }
+  .mission-icon svg{ width:19px; height:19px; }
+  .mission-meta{ flex:1; min-width:0; }
+  .mission-meta .name{ font-size:15.5px; font-weight:700; }
+  .mission-meta .freq{ font-size:12.5px; color:var(--text-secondary); margin-top:1px; }
+  .streak-pill{
+    display:flex; align-items:center; gap:3px;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+    font-size:12.5px; font-weight:800; font-variant-numeric:tabular-nums;
+    padding:4px 8px; border-radius:20px; flex:0 0 auto;
+  }
+  .status-dot svg{ width:23px; height:23px; flex:0 0 auto; }
+  .status-dot.done{ color: var(--green); }
+  .status-dot.pending{ color: var(--text-tertiary); }
+
+  .cta-bar{ padding: 6px 16px 14px; flex:0 0 auto; }
+  .btn-primary{
+    width:100%; border:none; border-radius:15px;
+    background: var(--accent); color: var(--accent-text);
+    font-size:16px; font-weight:700;
+    padding:15px 0; display:flex; align-items:center; justify-content:center; gap:8px;
+    cursor:pointer;
+  }
+  .btn-primary:disabled{ opacity:.4; }
+  .btn-primary svg{ width:17px; height:17px; }
+
+  .empty-state{ text-align:center; padding: 60px 24px 0; color:var(--text-secondary); }
+  .empty-state svg{ width:44px; height:44px; color:var(--text-tertiary); margin-bottom:14px; }
+  .empty-state h3{ color:var(--text); font-size:17px; margin: 0 0 6px; }
+  .empty-state p{ font-size:13.5px; margin:0 0 18px; }
+
+  /* ---------- Friends / Profile rows ---------- */
+  .section-label{
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-secondary); margin: 14px 4px 8px;
+  }
+  .row{
+    display:flex; align-items:center; gap:11px;
+    background:var(--card); border-radius:14px; padding:11px 12px; margin-bottom:8px;
+    border:1px solid var(--separator);
+  }
+  .avatar{
+    width:38px; height:38px; border-radius:50%; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:14px; color:#fff;
+  }
+  .row .name{ font-size:14.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .row .sub{ font-size:12px; color:var(--text-secondary); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .row > div[style*="flex:1"]{ min-width:0; }
+  .follow-btn{
+    border:1px solid var(--separator); background:var(--card-raised); color:var(--text);
+    font-size:12.5px; font-weight:700; border-radius:20px; padding:6px 10px; cursor:pointer;
+    flex:0 0 auto; white-space:nowrap;
+  }
+  .follow-btn.following{ color:var(--text-secondary); }
+  .search-input{
+    width:100%; border:1px solid var(--separator); background:var(--card);
+    border-radius:12px; padding:10px 12px; font-size:14.5px; color:var(--text);
+    margin-bottom:14px;
+  }
+  .search-input::placeholder{ color:var(--text-tertiary); }
+
+  /* ---------- Sheets ---------- */
+  .sheet-scrim{
+    position:absolute; inset:0; background:var(--sheet-scrim);
+    opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:40;
+  }
+  .sheet-scrim.active{ opacity:1; pointer-events:auto; }
+  .sheet{
+    position:absolute; left:0; right:0; bottom:0; top:8%;
+    background:var(--bg); border-radius: 24px 24px 0 0;
+    transform: translateY(100%); transition: transform .32s cubic-bezier(.32,.72,0,1);
+    display:flex; flex-direction:column; z-index:41;
+    box-shadow: 0 -8px 30px hsl(var(--shadow-color)/.25);
+  }
+  .sheet.active{ transform: translateY(0); }
+  .sheet-handle{ width:36px; height:5px; border-radius:3px; background:var(--separator); margin:8px auto 2px; flex:0 0 auto; }
+
+  /* ---------- Capture screen ---------- */
+  .photo-well{
+    aspect-ratio: 1/1; border-radius:20px; background: var(--card-raised);
+    border:1px dashed var(--separator);
+    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px;
+    color:var(--text-secondary); font-size:13px; font-weight:600;
+    margin-bottom:14px; cursor:pointer; overflow:hidden; position:relative;
+  }
+  .photo-well svg{ width:30px; height:30px; }
+  .photo-well.filled{ border-style:solid; }
+  .photo-well img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .capture-actions{ display:flex; gap:10px; margin-bottom:16px; }
+  .chip-btn{
+    flex:1; border:1px solid var(--separator); background:var(--card);
+    border-radius:12px; padding:10px 8px; font-size:13px; font-weight:700; color:var(--text);
+    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .chip-btn svg{ width:15px; height:15px; }
+  .caption-field{
+    width:100%; border:1px solid var(--separator); background:var(--card);
+    border-radius:12px; padding:11px 12px; font-size:14.5px; color:var(--text);
+    resize:none; font-family:inherit; min-height:52px;
+  }
+  .char-count{ font-size:11.5px; color:var(--text-tertiary); text-align:right; margin:5px 2px 16px; }
+
+  /* ---------- Progress screen ---------- */
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:20px; }
+  .stat-tile{
+    background:var(--card); border:1px solid var(--separator); border-radius:14px;
+    padding:11px 4px; text-align:center;
+  }
+  .stat-tile .val{ font-size:18px; font-weight:800; font-variant-numeric:tabular-nums; font-family: ui-rounded, -apple-system; }
+  .stat-tile .lbl{ font-size:10px; color:var(--text-secondary); margin-top:2px; }
+  .heatmap{ display:grid; grid-template-columns:repeat(14,1fr); gap:3px; margin-bottom:18px; }
+  .heat-cell{ aspect-ratio:1; border-radius:2.5px; background:var(--track-empty); }
+  .proof-row{ display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--separator); font-size:13px; }
+  .proof-row .date{ color:var(--text-secondary); font-variant-numeric:tabular-nums; flex:0 0 auto; }
+
+  /* ---------- Create resolution ---------- */
+  .field-label{ font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.04em; margin: 16px 2px 8px; }
+  .text-input{
+    width:100%; border:1px solid var(--separator); background:var(--card);
+    border-radius:12px; padding:12px 13px; font-size:15px; color:var(--text); font-family:inherit;
+  }
+  .chip-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .cat-chip{
+    border:1px solid var(--separator); background:var(--card); color:var(--text);
+    padding:8px 12px; border-radius:20px; font-size:12.5px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+  }
+  .cat-chip.sel{ background:var(--accent); border-color:var(--accent); color:var(--accent-text); }
+  .cat-chip svg{ width:13px; height:13px; }
+  .swatch-row{ display:flex; gap:10px; margin-top:4px; }
+  .swatch{ width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent; }
+  .swatch.sel{ border-color: var(--text); }
+  .freq-seg{ display:flex; background:var(--card-raised); border-radius:10px; padding:3px; }
+  .freq-opt{ flex:1; text-align:center; padding:7px 4px; font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; color:var(--text-secondary); }
+  .freq-opt.sel{ background:var(--card); color:var(--text); box-shadow: 0 1px 3px hsl(var(--shadow-color)/.2); }
+
+  /* ---------- Widget preview panel ---------- */
+  .widget-col{ display:flex; flex-direction:column; gap:18px; padding-top:6px; }
+  .panel-title{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-secondary); }
+  .widget-card{
+    width:155px; height:155px; border-radius:28px;
+    background: var(--card);
+    border:1px solid var(--separator);
+    box-shadow: 0 14px 26px -14px hsl(var(--shadow-color)/.35);
+    overflow:hidden; position:relative;
+  }
+  .widget-card.widget-medium{ width:100%; max-width:330px; height:150px; display:flex; gap:3px; padding:3px; }
+  .photo-tile{
+    position:relative; width:100%; height:100%; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:space-between;
+    flex:1; min-width:0; border-radius:22px;
+  }
+  .widget-medium .photo-tile{ border-radius:19px; }
+  .photo-tile .pt-bg{ position:absolute; inset:0; }
+  .photo-tile .pt-bg.placeholder{ background:linear-gradient(160deg, var(--track-empty), var(--separator)); }
+  .photo-tile .pt-streak{
+    position:relative; align-self:flex-start; margin:9px;
+    display:flex; align-items:baseline; gap:3px;
+    background:rgba(0,0,0,0.38); color:#fff; backdrop-filter:blur(6px);
+    padding:4px 9px; border-radius:20px; font-family: ui-rounded, -apple-system;
+    font-size:12.5px; font-weight:800; font-variant-numeric:tabular-nums;
+  }
+  .photo-tile .pt-foot{
+    position:relative; display:flex; align-items:center; justify-content:space-between;
+    padding:7px 9px; color:#fff; font-size:11px; font-weight:700;
+    background:linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+  }
+  .photo-tile .pt-foot .pt-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .photo-tile.no-partner{ display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; background:var(--card-raised); color:var(--text-secondary); font-size:10.5px; text-align:center; }
+  .photo-tile.no-partner svg{ width:18px; height:18px; opacity:.6; }
+  .note{ font-size:12.5px; line-height:1.5; color:var(--text-secondary); max-width:32ch; }
+  .note b{ color:var(--text); }
+  .legend{ display:flex; flex-direction:column; gap:8px; }
+  .legend-row{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-secondary); }
+  .legend-row svg{ width:16px; height:16px; flex:0 0 auto; }
+
+  svg{ display:block; }
+</style>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="ic-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="ic-check-fill" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="currentColor"/><path d="M8 12.3l2.6 2.6L16.2 9" fill="none" stroke="var(--card)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5.5 12.5l4.2 4.2L18.5 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-camera" viewBox="0 0 24 24"><path d="M4 8.2A1.8 1.8 0 0 1 5.8 6.4h1.7L8.6 4.6h6.8l1.1 1.8h1.7A1.8 1.8 0 0 1 20 8.2v9A1.8 1.8 0 0 1 18.2 19H5.8A1.8 1.8 0 0 1 4 17.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12.4" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="ic-photo" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.6" fill="currentColor"/><path d="M5 16.5l4.5-4.5 3 3 2.5-2.5 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-chevron-left" viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-xmark" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-today" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.3 12.2l2.4 2.4 5-5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-friends" viewBox="0 0 24 24"><circle cx="8.7" cy="9" r="2.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="16.2" cy="10" r="2.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.4 18.4c.5-3 2.6-4.7 5.3-4.7s4.8 1.7 5.3 4.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M14.9 14.2c2 .2 3.5 1.7 3.9 4.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="ic-profile" viewBox="0 0 24 24"><circle cx="12" cy="8.3" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.8 19c.9-3.7 3.4-5.7 7.2-5.7s6.3 2 7.2 5.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="ic-run" viewBox="0 0 24 24"><circle cx="14.6" cy="5.4" r="1.7" fill="currentColor"/><path d="M12.4 9l2 2.2-1 3.6M14.4 11.2l3 .7M9.7 20l2-4.6-2.4-2 1.4-3.6 3.7-1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-book" viewBox="0 0 24 24"><path d="M4.5 5.2A2 2 0 0 1 6.5 4H12v15.5H6.5a2 2 0 0 0-2 2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M19.5 5.2A2 2 0 0 0 17.5 4H12v15.5h5.5a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-code" viewBox="0 0 24 24"><path d="M9 8.5L4.8 12 9 15.5M15 8.5L19.2 12 15 15.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/></symbol>
+</svg>
+
+<div class="masthead">
+  <h1><span class="flame">🔥</span>Proof — Phase&nbsp;1 preview</h1>
+  <p>Aperçu interactif des écrans SwiftUI. Explore les onglets, poste une preuve, regarde le widget se mettre à jour.</p>
+</div>
+
+<div class="stage">
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar">
+          <span id="clock">9:41</span>
+          <span class="icons">▮▮▮ 5G 🔋</span>
+        </div>
+
+        <div class="screens">
+
+          <!-- HOME -->
+          <section class="app-screen" data-screen="home">
+            <div class="navbar">
+              <div class="large-title">Today's Mission</div>
+            </div>
+            <div class="content" id="missionList"></div>
+            <div class="cta-bar">
+              <button class="btn-primary" id="ctaAddProof">
+                <svg><use href="#ic-camera"/></svg> Add Today's Proof
+              </button>
+            </div>
+            <nav class="tabbar">
+              <button class="tab active" data-tab="home"><svg><use href="#ic-today"/></svg>Today</button>
+              <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
+              <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
+            </nav>
+          </section>
+
+          <!-- FRIENDS -->
+          <section class="app-screen" data-screen="friends">
+            <div class="navbar"><div class="large-title">Friends</div></div>
+            <div class="content">
+              <input class="search-input" placeholder="Search by name" disabled>
+              <div id="requestsSection"></div>
+              <div class="section-label">Friends</div>
+              <div id="friendsList"></div>
+            </div>
+            <nav class="tabbar">
+              <button class="tab" data-tab="home"><svg><use href="#ic-today"/></svg>Today</button>
+              <button class="tab active" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
+              <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
+            </nav>
+          </section>
+
+          <!-- PROFILE -->
+          <section class="app-screen" data-screen="profile">
+            <div class="navbar"><div class="large-title">Profile</div></div>
+            <div class="content">
+              <div class="row" style="padding:14px 12px;">
+                <div class="avatar" style="width:52px;height:52px;font-size:18px;background:linear-gradient(135deg,var(--accent),#ffb27a)">D</div>
+                <div>
+                  <div class="name" style="font-size:16.5px">Daniela</div>
+                  <div class="sub">Building one habit at a time</div>
+                </div>
+              </div>
+              <div class="section-label">Resolutions</div>
+              <div id="profileResList"></div>
+              <div class="section-label">&nbsp;</div>
+              <div class="row" style="justify-content:center; color:#E7414C; font-weight:700; cursor:pointer;">Sign out</div>
+            </div>
+            <nav class="tabbar">
+              <button class="tab" data-tab="home"><svg><use href="#ic-today"/></svg>Today</button>
+              <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
+              <button class="tab active" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
+            </nav>
+          </section>
+
+        </div>
+
+        <!-- SHEET SCRIM -->
+        <div class="sheet-scrim" id="scrim"></div>
+
+        <!-- CAPTURE SHEET -->
+        <div class="sheet" id="sheetCapture">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="captureCancel">Cancel</button>
+            <div class="title" id="captureTitle">Run 5km</div>
+            <span style="width:50px"></span>
+          </div>
+          <div class="content">
+            <div class="photo-well" id="photoWell">
+              <svg><use href="#ic-camera"/></svg>
+              <span>Add today's photo</span>
+            </div>
+            <div class="capture-actions">
+              <button class="chip-btn" id="takePhoto"><svg><use href="#ic-camera"/></svg>Take photo</button>
+              <button class="chip-btn" id="choosePhoto"><svg><use href="#ic-photo"/></svg>Choose from library</button>
+            </div>
+            <textarea class="caption-field" id="captionInput" maxlength="100" placeholder="Caption (optional)"></textarea>
+            <div class="char-count"><span id="charCount">0</span>/100</div>
+          </div>
+          <div class="cta-bar">
+            <button class="btn-primary" id="postProof" disabled>
+              <svg><use href="#ic-check"/></svg> Post proof
+            </button>
+          </div>
+        </div>
+
+        <!-- PROGRESS SHEET -->
+        <div class="sheet" id="sheetProgress">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="progressBack"><svg style="width:20px;height:20px"><use href="#ic-chevron-left"/></svg>Back</button>
+            <div class="title" id="progressTitle">Read every day</div>
+            <span style="width:50px"></span>
+          </div>
+          <div class="content">
+            <div class="stat-grid">
+              <div class="stat-tile"><div class="val" id="statCurrent">18</div><div class="lbl">CURRENT</div></div>
+              <div class="stat-tile"><div class="val" id="statLongest">24</div><div class="lbl">LONGEST</div></div>
+              <div class="stat-tile"><div class="val" id="statTotal">61</div><div class="lbl">TOTAL</div></div>
+              <div class="stat-tile"><div class="val" id="statPct">83%</div><div class="lbl">COMPLETION</div></div>
+            </div>
+            <div class="section-label" style="margin-top:0">Last 14 weeks</div>
+            <div class="heatmap" id="heatmap"></div>
+            <div class="section-label">Recent proofs</div>
+            <div id="proofList"></div>
+          </div>
+        </div>
+
+        <!-- CREATE RESOLUTION SHEET -->
+        <div class="sheet" id="sheetCreate">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="createCancel">Cancel</button>
+            <div class="title">New resolution</div>
+            <button class="nav-btn" id="createSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content">
+            <div class="field-label" style="margin-top:4px">Goal</div>
+            <input class="text-input" id="newName" placeholder="e.g. Meditate 10 min">
+            <div class="field-label">Category</div>
+            <div class="chip-row" id="catChips"></div>
+            <div class="field-label">Frequency</div>
+            <div class="freq-seg" id="freqSeg">
+              <div class="freq-opt sel" data-freq="Every day">Daily</div>
+              <div class="freq-opt" data-freq="Weekdays">Weekdays</div>
+              <div class="freq-opt" data-freq="3x / week">3x/week</div>
+            </div>
+            <div class="field-label">Colour</div>
+            <div class="swatch-row" id="swatchRow"></div>
+          </div>
+        </div>
+
+        <!-- PARTNER PROOF SHEET (only shown once a friend accepts) -->
+        <div class="sheet" id="sheetPartner">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="partnerBack"><svg style="width:20px;height:20px"><use href="#ic-chevron-left"/></svg><span id="partnerBackLabel">Close</span></button>
+            <div class="title" id="partnerTitle">Marco</div>
+            <span style="width:50px"></span>
+          </div>
+          <div class="content" id="partnerContent"></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-row"><svg><use href="#ic-camera"/></svg>Tape une mission incomplète → capture de preuve</div>
+      <div class="legend-row"><svg><use href="#ic-check-fill"/></svg>Tape une mission ✅ → détail progression</div>
+      <div class="legend-row"><svg><use href="#ic-friends"/></svg>Onglet Friends → demande "Share proofs" à Léa</div>
+    </div>
+  </div>
+
+  <div class="widget-col">
+    <div>
+      <div class="panel-title" style="margin-bottom:10px">Widget — small</div>
+      <div class="widget-card widget-photo" id="widgetSmall"></div>
+    </div>
+    <div>
+      <div class="panel-title" style="margin-bottom:10px">Widget — medium, avec un partenaire</div>
+      <div class="widget-card widget-medium" id="widgetMedium"></div>
+    </div>
+    <p class="note">La vraie photo (la tienne, et celle d'un partenaire <b>accepté</b> qui a posté aujourd'hui) s'affiche en fond, avec le streak 🔥 en overlay — jamais un simple follow.</p>
+    <div>
+      <div class="panel-title" style="margin-bottom:10px">Ce que montre cet aperçu</div>
+      <p class="note">Toutes les captures d'écran correspondent au code SwiftUI déjà écrit : <b>Home</b>, <b>Capture</b>, <b>Progress</b>, <b>Friends</b>, <b>Profile</b>, et le <b>widget</b> WidgetKit. Rendu ici en HTML pour que tu puisses le voir avant le premier build Xcode.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const CATS = {
+    fitness: {icon:'ic-run', label:'Fitness'},
+    reading: {icon:'ic-book', label:'Reading'},
+    coding: {icon:'ic-code', label:'Coding'},
+  };
+
+  let resolutions = [
+    { id:'run', name:'Run 5km', cat:'fitness', color:'var(--swatch-run)', freq:'Every day', streak:12, longest:15, total:47, completedToday:false },
+    { id:'read', name:'Read every day', cat:'reading', color:'var(--swatch-read)', freq:'Every day', streak:18, longest:24, total:61, completedToday:true },
+    { id:'code', name:'Code daily', cat:'coding', color:'var(--swatch-code)', freq:'3x / week', streak:0, longest:9, total:22, completedToday:false },
+  ];
+
+  // partner: 'none' | 'requested' (I asked) | 'incoming' (they asked me) | 'accepted'
+  // Only 'accepted' unlocks resolutions/proof photos + a slot in the widget.
+  const friends = [
+    { id:'marco', name:'Marco', streak:9, done:true, color:'#1982C4', partner:'accepted',
+      resolutions:[
+        { id:'pushups', name:'Push-ups', icon:'ic-run', color:'#1982C4', streak:9, longest:12, total:40, freq:'Every day' }
+      ] },
+    { id:'lea', name:'Léa', streak:31, done:true, color:'#6A4C93', partner:'none' },
+    { id:'sam', name:'Sam', streak:4, done:true, color:'#E7414C', partner:'incoming',
+      resolutions:[
+        { id:'meditate', name:'Meditate 10 min', icon:'ic-target', color:'#E7414C', streak:4, longest:11, total:19, freq:'Every day' }
+      ] },
+  ];
+
+  let activeTab = 'home';
+  let captureId = null, progressId = null, pendingPhoto = false;
+  let partnerViewId = null, partnerViewResolution = null;
+
+  function iconFor(cat){ return CATS[cat]?.icon || 'ic-target'; }
+
+  function render(){
+    renderMissions();
+    renderFriends();
+    renderProfile();
+    renderWidget();
+  }
+
+  function renderMissions(){
+    const el = document.getElementById('missionList');
+    if(resolutions.length === 0){
+      el.innerHTML = `<div class="empty-state">
+        <svg><use href="#ic-target"/></svg>
+        <h3>No resolutions yet</h3>
+        <p>Add your first goal to start posting daily proof.</p>
+      </div>`;
+      return;
+    }
+    el.innerHTML = resolutions.map(r => `
+      <div class="mission-card" data-id="${r.id}">
+        <div class="mission-icon" style="background:color-mix(in srgb, ${r.color} 16%, transparent); color:${r.color}">
+          <svg><use href="#${iconFor(r.cat)}"/></svg>
+        </div>
+        <div class="mission-meta">
+          <div class="name">${r.name}</div>
+          <div class="freq">${r.freq}</div>
+        </div>
+        ${r.streak > 0 ? `<div class="streak-pill">🔥${r.streak}</div>` : ''}
+        <div class="status-dot ${r.completedToday ? 'done' : 'pending'}">
+          <svg><use href="#${r.completedToday ? 'ic-check-fill' : 'ic-circle'}"/></svg>
+        </div>
+      </div>
+    `).join('');
+    el.querySelectorAll('.mission-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const r = resolutions.find(x => x.id === card.dataset.id);
+        if(r.completedToday){ openProgress(r.id); } else { openCapture(r.id); }
+      });
+    });
+    const firstIncomplete = resolutions.find(r => !r.completedToday);
+    const cta = document.getElementById('ctaAddProof');
+    cta.disabled = !firstIncomplete;
+    cta.onclick = () => { if(firstIncomplete) openCapture(firstIncomplete.id); };
+  }
+
+  function partnerControlHtml(f){
+    switch(f.partner){
+      case 'accepted':
+        return `<button class="follow-btn" data-open-partner="${f.id}" style="color:var(--green); border-color:var(--green);">✓ Partners</button>`;
+      case 'requested':
+        return `<span style="font-size:11px; color:var(--text-secondary); font-weight:700; flex:0 0 auto;">Requested</span>`;
+      case 'incoming':
+        return `<span style="font-size:10.5px; color:var(--text-secondary); flex:0 0 auto;">See ↑</span>`;
+      default:
+        return `<button class="follow-btn" data-request="${f.id}">Share</button>`;
+    }
+  }
+
+  function renderFriends(){
+    const incoming = friends.filter(f => f.partner === 'incoming');
+    document.getElementById('requestsSection').innerHTML = incoming.length === 0 ? '' : `
+      <div class="section-label" style="margin-top:6px">Proof-sharing requests</div>
+      ${incoming.map(f => `
+        <div class="row">
+          <div class="avatar" style="background:${f.color}">${f.name[0]}</div>
+          <div style="flex:1"><div class="name">${f.name}</div><div class="sub">wants to share daily proof</div></div>
+          <button class="follow-btn" data-decline="${f.id}" style="color:#E7414C; border-color:#E7414C;">Decline</button>
+          <button class="follow-btn" data-accept="${f.id}" style="background:var(--accent); color:var(--accent-text); border-color:var(--accent);">Accept</button>
+        </div>
+      `).join('')}
+    `;
+
+    document.getElementById('friendsList').innerHTML = friends.map(f => `
+      <div class="row">
+        <div class="avatar" style="background:${f.color}">${f.name[0]}</div>
+        <div style="flex:1">
+          <div class="name">${f.name}</div>
+          <div class="sub">${f.done ? 'Completed today ✅' : 'Not completed yet'}</div>
+        </div>
+        ${f.streak > 0 ? `<div class="streak-pill">🔥${f.streak}</div>` : ''}
+        ${f.partner === 'accepted' ? '' : '<button class="follow-btn following">Following</button>'}
+        ${partnerControlHtml(f)}
+      </div>
+    `).join('');
+
+    document.querySelectorAll('[data-request]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const f = friends.find(x => x.id === btn.dataset.request);
+        f.partner = 'requested';
+        renderFriends();
+      });
+    });
+    document.querySelectorAll('[data-accept]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const f = friends.find(x => x.id === btn.dataset.accept);
+        f.partner = 'accepted';
+        if(!f.resolutions){
+          f.resolutions = [{ id:'shared', name:'Their resolution', icon:'ic-target', color:f.color, streak:f.streak, longest:f.streak+3, total:f.streak*2, freq:'Every day' }];
+        }
+        renderFriends();
+        renderWidget();
+      });
+    });
+    document.querySelectorAll('[data-decline]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const f = friends.find(x => x.id === btn.dataset.decline);
+        f.partner = 'none';
+        renderFriends();
+      });
+    });
+    document.querySelectorAll('[data-open-partner]').forEach(btn => {
+      btn.addEventListener('click', () => openPartner(btn.dataset.openPartner));
+    });
+  }
+
+  function renderProfile(){
+    document.getElementById('profileResList').innerHTML = resolutions.map(r => `
+      <div class="row">
+        <div class="mission-icon" style="width:32px;height:32px;background:color-mix(in srgb, ${r.color} 16%, transparent); color:${r.color}">
+          <svg style="width:16px;height:16px"><use href="#${iconFor(r.cat)}"/></svg>
+        </div>
+        <div style="flex:1"><div class="name">${r.name}</div></div>
+        ${r.streak > 0 ? `<div class="streak-pill">🔥${r.streak}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  function photoTileHtml({ seed, streak, completed, name }){
+    const bg = completed
+      ? `<div class="pt-bg" style="${thumbStyle(seedFromString(seed))}"></div>`
+      : `<div class="pt-bg placeholder"></div>`;
+    return `
+      <div class="photo-tile">
+        ${bg}
+        <div class="pt-streak">🔥&nbsp;${streak}</div>
+        <div class="pt-foot">
+          <span class="pt-name">${name}</span>
+          ${completed ? '' : '<svg style="width:12px;height:12px;opacity:.85"><use href="#ic-circle"/></svg>'}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderWidget(){
+    const best = Math.max(0, ...resolutions.map(r => r.streak));
+    const myCompletedToday = resolutions.some(r => r.completedToday);
+
+    // Small widget: just me.
+    document.getElementById('widgetSmall').innerHTML = photoTileHtml({
+      seed:'me-today', streak:best, completed:myCompletedToday, name:'You'
+    });
+
+    // Medium widget: me + one accepted partner who has posted today
+    // (the same "only if completedToday" gate the real widget uses,
+    // so a stale photo never gets shown as if it were today's).
+    const featured = friends.find(f => f.partner === 'accepted' && f.done);
+    const partnerTile = featured
+      ? photoTileHtml({ seed:'partner-'+featured.id, streak:featured.streak, completed:true, name:featured.name })
+      : `<div class="photo-tile no-partner"><svg><use href="#ic-friends"/></svg><span>No partner<br>proof yet</span></div>`;
+
+    document.getElementById('widgetMedium').innerHTML =
+      photoTileHtml({ seed:'me-today', streak:best, completed:myCompletedToday, name:'You' }) + partnerTile;
+  }
+
+  // ---- Tab switching ----
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+  function switchTab(tab){
+    activeTab = tab;
+    document.querySelectorAll('.app-screen').forEach(s => s.classList.toggle('active', s.dataset.screen === tab));
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  }
+  switchTab('home');
+
+  // ---- Sheets ----
+  const scrim = document.getElementById('scrim');
+  function openSheet(el){ scrim.classList.add('active'); el.classList.add('active'); }
+  function closeSheets(){
+    scrim.classList.remove('active');
+    ['sheetCapture','sheetProgress','sheetCreate','sheetPartner'].forEach(id => document.getElementById(id).classList.remove('active'));
+  }
+  scrim.addEventListener('click', closeSheets);
+
+  // ---- Capture flow ----
+  function openCapture(id){
+    captureId = id; pendingPhoto = false;
+    const r = resolutions.find(x => x.id === id);
+    document.getElementById('captureTitle').textContent = r.name;
+    document.getElementById('photoWell').className = 'photo-well';
+    document.getElementById('photoWell').innerHTML = `<svg><use href="#ic-camera"/></svg><span>Add today's photo</span>`;
+    document.getElementById('captionInput').value = '';
+    document.getElementById('charCount').textContent = '0';
+    document.getElementById('postProof').disabled = true;
+    openSheet(document.getElementById('sheetCapture'));
+  }
+  document.getElementById('captureCancel').addEventListener('click', closeSheets);
+
+  function fillPhoto(){
+    pendingPhoto = true;
+    const well = document.getElementById('photoWell');
+    const hue = Math.floor(Math.random()*360);
+    well.className = 'photo-well filled';
+    well.innerHTML = `<div style="position:absolute;inset:0;background:linear-gradient(135deg, hsl(${hue} 70% 55%), hsl(${hue+40} 70% 40%))"></div>`;
+    document.getElementById('postProof').disabled = false;
+  }
+  document.getElementById('takePhoto').addEventListener('click', fillPhoto);
+  document.getElementById('choosePhoto').addEventListener('click', fillPhoto);
+
+  const captionInput = document.getElementById('captionInput');
+  captionInput.addEventListener('input', () => {
+    if(captionInput.value.length > 100) captionInput.value = captionInput.value.slice(0,100);
+    document.getElementById('charCount').textContent = captionInput.value.length;
+  });
+
+  document.getElementById('postProof').addEventListener('click', () => {
+    const r = resolutions.find(x => x.id === captureId);
+    r.completedToday = true;
+    r.streak += 1;
+    r.longest = Math.max(r.longest, r.streak);
+    r.total += 1;
+    closeSheets();
+    render();
+  });
+
+  // ---- Progress flow ----
+  function seededHeat(seed, count, density){
+    let s = seed;
+    const rand = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return (s / 0x7fffffff); };
+    const cells = [];
+    for(let i=0;i<count;i++){
+      const recentBoost = i > count - 20 ? 0.35 : 0;
+      cells.push(rand() < (density + recentBoost) ? 1 : 0);
+    }
+    return cells;
+  }
+  function seedFromString(str){ return str.split('').reduce((a,c)=>a+c.charCodeAt(0), 7); }
+  function thumbStyle(seed){
+    const hue = seed % 360;
+    return `background:linear-gradient(135deg, hsl(${hue} 65% 55%), hsl(${(hue+40)%360} 65% 40%))`;
+  }
+  function buildProofList(id, color){
+    const seed = seedFromString(id);
+    const cells = seededHeat(seed, 98, 0.42);
+    const today = new Date();
+    const proofs = [];
+    let d = new Date(today);
+    let count = 0;
+    while(proofs.length < 6 && count < 30){
+      if(cells[cells.length - 1 - count]){
+        const label = d.toISOString().slice(0,10);
+        const captions = ['Felt great today', 'Short one, but done', '', 'Rainy but did it', '', 'New personal best pace'];
+        proofs.push({date:label, caption: captions[proofs.length % captions.length]});
+      }
+      d.setDate(d.getDate()-1);
+      count++;
+    }
+    return { cells, html: proofs.map(p => `
+      <div class="proof-row" style="align-items:center">
+        <div style="width:40px;height:40px;border-radius:8px;flex:0 0 auto;${thumbStyle(seedFromString(id+p.date))}"></div>
+        <div><div class="date">${p.date}</div>${p.caption ? `<div>${p.caption}</div>` : ''}</div>
+      </div>
+    `).join('') };
+  }
+
+  function openProgress(id){
+    progressId = id;
+    const r = resolutions.find(x => x.id === id);
+    document.getElementById('progressTitle').textContent = r.name;
+    document.getElementById('statCurrent').textContent = r.streak;
+    document.getElementById('statLongest').textContent = r.longest;
+    document.getElementById('statTotal').textContent = r.total;
+    const pct = Math.min(100, Math.round((r.total / 75) * 100));
+    document.getElementById('statPct').textContent = pct + '%';
+
+    const { cells, html } = buildProofList(id, r.color);
+    document.getElementById('heatmap').innerHTML = cells.map(c =>
+      `<div class="heat-cell" style="${c ? `background:${r.color}` : ''}"></div>`
+    ).join('');
+    document.getElementById('proofList').innerHTML = html;
+
+    openSheet(document.getElementById('sheetProgress'));
+  }
+  document.getElementById('progressBack').addEventListener('click', closeSheets);
+
+  // ---- Accountability partner flow ----
+  function openPartner(friendId){
+    partnerViewId = friendId;
+    partnerViewResolution = null;
+    showPartnerList();
+    openSheet(document.getElementById('sheetPartner'));
+  }
+  function showPartnerList(){
+    partnerViewResolution = null;
+    const f = friends.find(x => x.id === partnerViewId);
+    document.getElementById('partnerTitle').textContent = f.name;
+    document.getElementById('partnerBackLabel').textContent = 'Close';
+    const list = f.resolutions || [];
+    document.getElementById('partnerContent').innerHTML = list.length === 0
+      ? `<p style="color:var(--text-secondary); font-size:13.5px; padding-top:20px;">${f.name} hasn't added a resolution yet.</p>`
+      : list.map(r => `
+        <div class="mission-card" data-partner-res="${r.id}">
+          <div class="mission-icon" style="background:color-mix(in srgb, ${r.color} 16%, transparent); color:${r.color}">
+            <svg><use href="#${r.icon}"/></svg>
+          </div>
+          <div class="mission-meta">
+            <div class="name">${r.name}</div>
+            <div class="freq">${r.freq}</div>
+          </div>
+          ${r.streak > 0 ? `<div class="streak-pill">🔥${r.streak}</div>` : ''}
+        </div>
+      `).join('');
+    document.querySelectorAll('[data-partner-res]').forEach(card => {
+      card.addEventListener('click', () => showPartnerDetail(card.dataset.partnerRes));
+    });
+  }
+  function showPartnerDetail(resolutionId){
+    const f = friends.find(x => x.id === partnerViewId);
+    const r = f.resolutions.find(x => x.id === resolutionId);
+    partnerViewResolution = resolutionId;
+    document.getElementById('partnerTitle').textContent = r.name;
+    document.getElementById('partnerBackLabel').textContent = 'Back';
+
+    const pct = Math.min(100, Math.round((r.total / 75) * 100));
+    const { cells, html } = buildProofList(partnerViewId + resolutionId, r.color);
+    document.getElementById('partnerContent').innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="val">${r.streak}</div><div class="lbl">CURRENT</div></div>
+        <div class="stat-tile"><div class="val">${r.longest}</div><div class="lbl">LONGEST</div></div>
+        <div class="stat-tile"><div class="val">${r.total}</div><div class="lbl">TOTAL</div></div>
+        <div class="stat-tile"><div class="val">${pct}%</div><div class="lbl">COMPLETION</div></div>
+      </div>
+      <div class="section-label" style="margin-top:0">Last 14 weeks</div>
+      <div class="heatmap">${cells.map(c => `<div class="heat-cell" style="${c ? `background:${r.color}` : ''}"></div>`).join('')}</div>
+      <div class="section-label">Recent proofs — visible because you're accepted partners</div>
+      <div>${html}</div>
+    `;
+  }
+  document.getElementById('partnerBack').addEventListener('click', () => {
+    if(partnerViewResolution){ showPartnerList(); } else { closeSheets(); }
+  });
+
+  // ---- Create resolution ----
+  const catChipsEl = document.getElementById('catChips');
+  let selectedCat = 'fitness';
+  const swatches = ['#E7414C','#2EC4B6','#6A4C93','#1982C4','#FFB703'];
+  let selectedColor = swatches[0];
+  let selectedFreq = 'Every day';
+
+  function renderCreateForm(){
+    catChipsEl.innerHTML = Object.entries(CATS).map(([key,c]) => `
+      <div class="cat-chip ${key===selectedCat?'sel':''}" data-cat="${key}">
+        <svg><use href="#${c.icon}"/></svg>${c.label}
+      </div>`).join('');
+    catChipsEl.querySelectorAll('.cat-chip').forEach(chip => {
+      chip.addEventListener('click', () => { selectedCat = chip.dataset.cat; renderCreateForm(); });
+    });
+    document.getElementById('swatchRow').innerHTML = swatches.map(c => `
+      <div class="swatch ${c===selectedColor?'sel':''}" style="background:${c}" data-color="${c}"></div>`).join('');
+    document.getElementById('swatchRow').querySelectorAll('.swatch').forEach(sw => {
+      sw.addEventListener('click', () => { selectedColor = sw.dataset.color; renderCreateForm(); });
+    });
+  }
+  document.getElementById('freqSeg').querySelectorAll('.freq-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      selectedFreq = opt.dataset.freq;
+      document.getElementById('freqSeg').querySelectorAll('.freq-opt').forEach(o => o.classList.toggle('sel', o===opt));
+    });
+  });
+
+  function openCreate(){
+    document.getElementById('newName').value = '';
+    selectedCat = 'fitness'; selectedColor = swatches[0]; selectedFreq = 'Every day';
+    renderCreateForm();
+    openSheet(document.getElementById('sheetCreate'));
+  }
+  document.getElementById('createCancel').addEventListener('click', closeSheets);
+  document.getElementById('createSave').addEventListener('click', () => {
+    const name = document.getElementById('newName').value.trim();
+    if(!name) return;
+    resolutions.push({
+      id: 'r' + Date.now(), name, cat: selectedCat, color: selectedColor,
+      freq: selectedFreq, streak:0, longest:0, total:0, completedToday:false
+    });
+    closeSheets();
+    render();
+  });
+
+  // Wire the nav-icon "+" — added to Today navbar dynamically for clarity
+  const homeNavbar = document.querySelector('[data-screen="home"] .navbar');
+  const plusBtn = document.createElement('button');
+  plusBtn.className = 'nav-icon-btn';
+  plusBtn.style.cssText = 'position:absolute; right:16px; top:6px;';
+  plusBtn.innerHTML = '<svg style="width:16px;height:16px"><use href="#ic-plus"/></svg>';
+  homeNavbar.style.position = 'relative';
+  homeNavbar.appendChild(plusBtn);
+  plusBtn.addEventListener('click', openCreate);
+
+  // live clock in status bar (cosmetic)
+  function tick(){
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+  }
+  tick(); setInterval(tick, 30000);
+
+  render();
+})();
+</script>
