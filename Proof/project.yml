@@ -36,6 +36,7 @@ targets:
           - group.com.proofapp.shared
         com.apple.developer.applesignin:
           - Default
+        aps-environment: development
     info:
       path: Proof/Info.plist
       properties:
@@ -43,7 +44,8 @@ targets:
         UILaunchScreen: {}
         NSCameraUsageDescription: "Proof uses your camera to capture today's proof photo."
         NSPhotoLibraryUsageDescription: "Proof lets you pick a photo from your library as today's proof."
-        UIBackgroundModes: []
+        UIBackgroundModes:
+          - remote-notification
         CFBundleURLTypes:
           - CFBundleURLSchemes:
               # Replace with the REVERSED_CLIENT_ID from your
@@ -57,6 +59,8 @@ targets:
         product: FirebaseFirestore
       - package: Firebase
         product: FirebaseStorage
+      - package: Firebase
+        product: FirebaseMessaging
       - package: GoogleSignIn
         product: GoogleSignIn
       - target: ProofWidgetExtension

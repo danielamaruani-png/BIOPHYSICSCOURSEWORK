@@ -28,6 +28,11 @@ treat first build as the point where real bugs will surface.
 - Home screen widget: shows today's actual proof photo (small size)
   with the streak overlaid on top, BeReal-style; the medium size adds
   a second tile with one accepted partner's photo and streak too
+- Push notification: when an accepted partner posts their proof, you
+  get "{name} completed today's proof! 🎉 Complete yours to check it
+  out." — the one piece of server-side logic in Phase 1 (`functions/`),
+  since fanning out to someone else's device isn't something a client
+  can do on its own
 
 ## Prerequisites
 
@@ -44,7 +49,9 @@ treat first build as the point where real bugs will surface.
    - Add an iOS app with bundle ID `com.proofapp.Proof`
    - Download `GoogleService-Info.plist`
    - Enable **Authentication** providers: Apple, Google
-   - Enable **Firestore** (production mode) and **Storage**
+   - Enable **Firestore** (production mode), **Storage**, and **Cloud
+     Messaging** (push) — Cloud Messaging needs no setup beyond
+     turning it on; its APNs key gets configured in step 2
    - Deploy the security rules in this folder:
      ```
      firebase deploy --only firestore:rules,storage:rules
@@ -54,22 +61,40 @@ treat first build as the point where real bugs will surface.
      `firestore.exists`) to check accepted accountability-partner
      status before releasing a proof photo, so both services need to
      be enabled in the same project for that check to work.
+   - Deploy the Cloud Function that sends the partner-proof push:
+     ```
+     cd functions && npm install && cd ..
+     firebase use --add   # pick your project, alias it "default"
+     firebase deploy --only functions
+     ```
+     This needs the Blaze (pay-as-you-go) plan — Cloud Functions don't
+     run on the free Spark plan. In practice this function fires at
+     most a few times a day per user, well within Blaze's free tier.
 
-2. **App Group** (needed for the widget to read streak data)
+2. **APNs key for push** (needed for `notifyPartnersOnProof` to
+   actually reach devices)
+   - Apple Developer account → Certificates, IDs & Profiles → Keys →
+     create a key with **Apple Push Notifications service (APNs)**
+     enabled, download the `.p8` file
+   - Firebase console → Project settings → Cloud Messaging → Apple
+     app configuration → upload that `.p8` key with its Key ID and
+     your Team ID
+
+3. **App Group** (needed for the widget to read streak data)
    - In your Apple Developer account, create an App Group with the
      identifier `group.com.proofapp.shared`
    - `project.yml` already requests this entitlement for both the app
      and widget targets — you just need the ID to exist and your team
      to have access to it.
 
-3. **Generate the Xcode project**
+4. **Generate the Xcode project**
    ```
    cd Proof
    xcodegen generate
    open Proof.xcodeproj
    ```
 
-4. **Wire up Google Sign-In's URL scheme**
+5. **Wire up Google Sign-In's URL scheme**
    - Open the downloaded `GoogleService-Info.plist`, copy the
      `REVERSED_CLIENT_ID` value
    - In `project.yml`, replace `REPLACE_WITH_REVERSED_CLIENT_ID` under
@@ -78,18 +103,19 @@ treat first build as the point where real bugs will surface.
      (or edit it directly in Xcode's target Info tab — either works,
      but re-running xcodegen will overwrite a direct edit)
 
-5. **Add `GoogleService-Info.plist` to the project**
+6. **Add `GoogleService-Info.plist` to the project**
    - Drag it into the `Proof/Proof` group in Xcode
    - Check "Copy items if needed" and target membership = `Proof`
 
-6. **Set your Team ID**
+7. **Set your Team ID**
    - Either fill in `DEVELOPMENT_TEAM` in `project.yml` and regenerate,
      or set it in Xcode's Signing & Capabilities tab for both targets
 
-7. **Build & run** on a device or simulator running iOS 16+.
+8. **Build & run** on a device or simulator running iOS 16+.
    Sign in with Apple requires a real device or a simulator signed
    into a real Apple ID under Settings; it does not work in every
-   simulator configuration.
+   simulator configuration. Push notifications only work on a real
+   device — the simulator can't register for remote notifications.
 
 ## Architecture notes
 
@@ -140,6 +166,17 @@ treat first build as the point where real bugs will surface.
   their entire life" default. Worth a deliberate call (a Settings
   toggle to fall back to the streak-only widget?) before shipping,
   not just an emergent side effect of this implementation.
+- **Push notifications** are the one place Phase 1 needs server-side
+  code (`functions/index.js`): a client can update its own Firestore
+  data, but it can't push to *someone else's* device, so
+  `notifyPartnersOnProof` runs as a Cloud Function triggered on proof
+  creation, looks up the poster's accepted partners, and sends via FCM
+  to whichever of them have a `pushToken` saved. `PushNotificationService`
+  (client) requests permission and keeps that token current — declining
+  the permission prompt just means silently never getting nudged,
+  nothing else depends on it. `project.yml` sets `aps-environment:
+  development`; switch it to `production` before an App Store/TestFlight
+  build or push silently won't work for anyone outside Xcode.
 
 ## Known gaps going into first build
 
@@ -149,8 +186,13 @@ treat first build as the point where real bugs will surface.
   or `timesPerWeek` resolutions.
 - No image compression/resizing beyond JPEG quality — large camera
   photos upload at full resolution.
-- No push notification when someone sends a partner request — they'll
-  only see it next time they open the Friends tab.
+- No push notification when someone *sends a partner request* — only
+  when an existing partner posts a proof. A request still only
+  surfaces next time the recipient opens the Friends tab.
+- No tap-through routing on the push notification yet — tapping it
+  just opens the app to wherever it was left, not straight to the
+  partner's proof. Would need a notification userInfo payload
+  (`fromUid`) plus some navigation state in `RootView`/`SessionViewModel`.
 - No UI to revoke an accepted partnership once granted (only accept/
   decline at request time). Deleting the `partnerRequests` doc would
   do it server-side; add a "Remove partner" action before shipping.

@@ -8,6 +8,7 @@ struct UserProfile: Codable, Identifiable {
     var bio: String?
     var createdAt: Date
     var onboardingCompleted: Bool = false
+    var pushToken: String? // FCM token; read by notifyPartnersOnProof (functions/index.js)
 
     var uid: String { id ?? "" }
 }

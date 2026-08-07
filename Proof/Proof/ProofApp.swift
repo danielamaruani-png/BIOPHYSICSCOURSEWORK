@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseCore
+import FirebaseMessaging
 import GoogleSignIn
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
@@ -9,6 +10,15 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         FirebaseApp.configure()
         return true
+    }
+
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        // Hands the APNs token to Firebase Messaging, which is what
+        // actually derives the FCM token PushNotificationService saves.
+        Messaging.messaging().apnsToken = deviceToken
     }
 }
 

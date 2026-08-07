@@ -143,6 +143,9 @@ final class SessionViewModel: ObservableObject {
             )
             profile = try await FirestoreService.shared.fetchUserProfile(uid: uid)
             await refreshResolutions()
+            // Best-effort: a declined permission prompt just means this
+            // device never gets the "partner completed today" nudge.
+            PushNotificationService.shared.requestAuthorizationAndRegister()
         } catch {
             errorMessage = error.localizedDescription
         }

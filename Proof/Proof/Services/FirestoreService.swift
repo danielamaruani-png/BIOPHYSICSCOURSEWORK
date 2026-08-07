@@ -57,6 +57,14 @@ final class FirestoreService {
         try await db.collection("publicProfiles").document(uid).updateData(publicFields)
     }
 
+    /// Saves this device's FCM token so notifyPartnersOnProof (Cloud
+    /// Function) can reach it. Only ever read server-side with Admin
+    /// privileges — no rule change needed beyond the existing
+    /// owner-only write on `users/{uid}`.
+    func updatePushToken(uid: String, token: String) async throws {
+        try await db.collection("users").document(uid).updateData(["pushToken": token])
+    }
+
     // MARK: - Resolutions
 
     private func resolutionsRef(uid: String) -> CollectionReference {

@@ -12,3 +12,7 @@ DerivedData/
 GoogleService-Info.plist
 
 .DS_Store
+
+# Cloud Functions
+functions/node_modules/
+functions/*.log
