@@ -168,6 +168,33 @@
   }
   .statusbar .icons{ display:flex; gap:5px; align-items:center; opacity:.9; }
 
+  /* ---------- Push notification banner ---------- */
+  .push-toast{
+    position:absolute; left:8px; right:8px; top:8px; z-index:60;
+    background: color-mix(in srgb, var(--card) 82%, transparent);
+    backdrop-filter: blur(20px);
+    border-radius:18px;
+    padding:11px 12px;
+    display:flex; align-items:flex-start; gap:10px;
+    box-shadow: 0 10px 24px -8px hsl(var(--shadow-color)/.4);
+    transform: translateY(-140%);
+    transition: transform .45s cubic-bezier(.17,.89,.32,1.28);
+    cursor:pointer;
+  }
+  .push-toast.show{ transform: translateY(0); }
+  .push-toast .pt-icon{
+    width:34px; height:34px; border-radius:9px; flex:0 0 auto;
+    background: linear-gradient(135deg, var(--accent), #ffb27a);
+    display:flex; align-items:center; justify-content:center; font-size:17px;
+  }
+  .push-toast .pt-body{ flex:1; min-width:0; }
+  .push-toast .pt-appname{
+    font-size:10.5px; font-weight:700; color:var(--text-secondary);
+    text-transform:uppercase; letter-spacing:.04em; display:flex; justify-content:space-between;
+  }
+  .push-toast .pt-title{ font-size:13px; font-weight:700; color:var(--text); margin-top:1px; line-height:1.3; }
+  .push-toast .pt-msg{ font-size:12.5px; color:var(--text-secondary); margin-top:1px; line-height:1.3; }
+
   .screens{ position:relative; flex:1 1 auto; overflow:hidden; }
   .app-screen{
     position:absolute; inset:0;
@@ -375,6 +402,93 @@
   .freq-opt{ flex:1; text-align:center; padding:7px 4px; font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; color:var(--text-secondary); }
   .freq-opt.sel{ background:var(--card); color:var(--text); box-shadow: 0 1px 3px hsl(var(--shadow-color)/.2); }
 
+  /* ---------- Community screen ---------- */
+  .community-switch{
+    display:flex; background:var(--card-raised); border-radius:12px; padding:3px; margin-bottom:14px;
+  }
+  .community-switch button{
+    flex:1; border:none; background:none; padding:8px 4px; border-radius:9px;
+    font-size:12.5px; font-weight:700; color:var(--text-secondary); cursor:pointer;
+  }
+  .community-switch button.sel{ background:var(--card); color:var(--text); box-shadow:0 1px 3px hsl(var(--shadow-color)/.2); }
+  .community-header{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;
+  }
+  .community-header h2{ font-size:19px; font-weight:800; margin:0; }
+  .community-header .sub{ font-size:12px; color:var(--text-secondary); margin-top:2px; }
+  .member-grid{
+    display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px;
+  }
+  .member-tile{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .member-avatar{
+    width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-size:14px; position:relative; flex:0 0 auto;
+  }
+  .member-avatar .dot{
+    position:absolute; right:-1px; bottom:-1px; width:12px; height:12px; border-radius:50%;
+    border:2px solid var(--bg);
+  }
+  .member-avatar .dot.done{ background:var(--green); }
+  .member-avatar .dot.pending{ background:var(--text-tertiary); }
+  .member-tile .mname{ font-size:9.5px; color:var(--text-secondary); max-width:44px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .event-card{
+    background:var(--card); border:1px solid var(--separator); border-radius:16px; padding:13px;
+    margin-bottom:14px;
+  }
+  .event-card .ev-top{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .event-card .ev-icon{
+    width:30px; height:30px; border-radius:9px; background:color-mix(in srgb, var(--accent) 15%, transparent);
+    color:var(--accent); display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  }
+  .event-card .ev-icon svg{ width:15px; height:15px; }
+  .event-card .ev-title{ font-size:14px; font-weight:700; }
+  .event-card .ev-when{ font-size:11.5px; color:var(--text-secondary); }
+  .event-card .ev-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+  .bonus-pill{
+    background:color-mix(in srgb, var(--green) 16%, transparent); color:var(--green);
+    font-size:11px; font-weight:800; padding:3px 9px; border-radius:20px;
+  }
+  .join-btn{
+    background:var(--accent); color:var(--accent-text); border:none; border-radius:20px;
+    font-size:12px; font-weight:700; padding:6px 14px; cursor:pointer;
+  }
+  .chat-row{
+    display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--separator);
+    border-radius:14px; padding:11px 12px; margin-bottom:16px; cursor:pointer;
+  }
+  .chat-row .ci{ width:32px; height:32px; border-radius:50%; background:color-mix(in srgb, var(--accent) 15%, transparent); color:var(--accent); display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  .chat-row .ci svg{ width:15px; height:15px; }
+  .chat-row .cbody{ flex:1; min-width:0; }
+  .chat-row .cname{ font-size:12.5px; font-weight:700; }
+  .chat-row .cmsg{ font-size:12px; color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .challenge-card{
+    background:var(--card); border:1px solid var(--separator); border-radius:14px; padding:12px; margin-bottom:10px;
+  }
+  .challenge-card .ch-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .challenge-card .ch-title{ font-size:13.5px; font-weight:700; }
+  .challenge-card .ch-from{ font-size:11px; color:var(--text-secondary); margin-top:1px; }
+  .challenge-card .ch-frac{ font-size:11.5px; font-weight:700; color:var(--text-secondary); }
+  .ch-track{ height:6px; border-radius:4px; background:var(--track-empty); overflow:hidden; }
+  .ch-fill{ height:100%; border-radius:4px; }
+  .reward-row{ display:flex; gap:10px; margin-bottom:6px; }
+  .reward-badge{
+    flex:1; text-align:center; background:var(--card); border:1px solid var(--separator); border-radius:14px;
+    padding:12px 6px; opacity:1;
+  }
+  .reward-badge.locked{ opacity:.35; }
+  .reward-badge .remoji{ font-size:22px; }
+  .reward-badge .rlabel{ font-size:11px; font-weight:700; margin-top:4px; }
+  .reward-badge .rneed{ font-size:9.5px; color:var(--text-secondary); margin-top:1px; }
+
+  .chat-bubble-row{ display:flex; gap:8px; align-items:flex-end; }
+  .chat-bubble-row .cb-avatar{
+    width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:10.5px; font-weight:800; flex:0 0 auto;
+  }
+  .chat-bubble{ background:var(--card-raised); border-radius:14px 14px 14px 4px; padding:8px 12px; max-width:76%; }
+  .chat-bubble .cb-name{ font-size:10px; font-weight:700; color:var(--text-secondary); margin-bottom:1px; }
+  .chat-bubble .cb-text{ font-size:13px; color:var(--text); }
+
   /* ---------- Widget preview panel ---------- */
   .widget-col{ display:flex; flex-direction:column; gap:18px; padding-top:6px; }
   .panel-title{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-secondary); }
@@ -409,6 +523,14 @@
   .photo-tile .pt-foot .pt-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .photo-tile.no-partner{ display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; background:var(--card-raised); color:var(--text-secondary); font-size:10.5px; text-align:center; }
   .photo-tile.no-partner svg{ width:18px; height:18px; opacity:.6; }
+  .stat-split{
+    flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:2px;
+    border-radius:14px; padding:8px;
+  }
+  .stat-split .ss-lbl{ font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text-secondary); }
+  .stat-split .ss-num{ font-family: ui-rounded, -apple-system; font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .stat-split .ss-sub{ font-size:9px; color:var(--text-secondary); }
+  .stat-divider{ width:1px; background:var(--separator); align-self:stretch; margin:6px 0; }
   .note{ font-size:12.5px; line-height:1.5; color:var(--text-secondary); max-width:32ch; }
   .note b{ color:var(--text); }
   .legend{ display:flex; flex-direction:column; gap:8px; }
@@ -434,11 +556,20 @@
   <symbol id="ic-book" viewBox="0 0 24 24"><path d="M4.5 5.2A2 2 0 0 1 6.5 4H12v15.5H6.5a2 2 0 0 0-2 2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M19.5 5.2A2 2 0 0 0 17.5 4H12v15.5h5.5a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
   <symbol id="ic-code" viewBox="0 0 24 24"><path d="M9 8.5L4.8 12 9 15.5M15 8.5L19.2 12 15 15.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/></symbol>
+  <symbol id="ic-chefhat" viewBox="0 0 24 24"><path d="M6 19h12M7 19v-6.5c0-.3 0-.6.1-.9a2.6 2.6 0 0 1 2-4.9A4 4 0 0 1 12 4a4 4 0 0 1 3.8 2.7 2.6 2.6 0 0 1 2.1 4.9c.1.3.1.6.1.9V19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-salad" viewBox="0 0 24 24"><path d="M4 12h16a8 8 0 0 1-16 0z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 12c0-2 .8-3.5 2-4.5M12 12c.3-2.4 1.2-4 2.5-5M16 12c-.2-1.6.2-2.8 1-3.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="ic-cake" viewBox="0 0 24 24"><path d="M4 20h16v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 20c1 .8 2 .8 3 0s2-.8 3 0 2 .8 3 0 2-.8 3 0 2 .8 3 0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M12 12V8.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M12 8.5c-.9 0-1.4-.6-1.4-1.4S11.2 5.6 12 4.6c.8 1 1.4 1.7 1.4 2.5S12.9 8.5 12 8.5z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-container" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 8l1.5-3h13L20 8M12 8v11M8 8v3M16 8v3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="ic-community" viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="9.5" r="2.7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 19c.4-2.8 2.2-4.4 4.5-4.4M21.5 19c-.4-2.8-2.2-4.4-4.5-4.4M8 19c.4-3 2-4.6 4-4.6s3.6 1.6 4 4.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="ic-chat" viewBox="0 0 24 24"><path d="M4 5.5h16v11H9l-4 3.5v-3.5H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 9.5h16M8 3.5v3M16 3.5v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 5.5H4.5A2.5 2.5 0 0 0 7 9M17 5.5h2.5A2.5 2.5 0 0 1 17 9" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 14v3M9 20h6M9.5 20c0-1.8.8-2.6 2.5-2.6s2.5.8 2.5 2.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-map" viewBox="0 0 24 24"><path d="M9 4.5L4 6.5v13l5-2 6 2 5-2v-13l-5 2-6-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 4.5v13M15 6.5v13" stroke="currentColor" stroke-width="1.4"/></symbol>
 </svg>
 
 <div class="masthead">
-  <h1><span class="flame">🔥</span>Proof — Phase&nbsp;1 preview</h1>
-  <p>Aperçu interactif des écrans SwiftUI. Explore les onglets, poste une preuve, regarde le widget se mettre à jour.</p>
+  <h1><span class="flame">🔥</span>Proof — l'appli cuisine</h1>
+  <p>Prouve que t'as cuisiné aujourd'hui, garde ton streak, et retrouve ta communauté de cuisiniers. Explore les onglets, poste une preuve, ouvre Communauté.</p>
 </div>
 
 <div class="stage">
@@ -448,6 +579,15 @@
         <div class="statusbar">
           <span id="clock">9:41</span>
           <span class="icons">▮▮▮ 5G 🔋</span>
+        </div>
+
+        <div class="push-toast" id="pushToast">
+          <div class="pt-icon">🔥</div>
+          <div class="pt-body">
+            <div class="pt-appname"><span>Proof</span><span id="pushTime">now</span></div>
+            <div class="pt-title" id="pushTitle">Marco completed today's proof! 🎉</div>
+            <div class="pt-msg" id="pushMsg">Complete yours to check it out.</div>
+          </div>
         </div>
 
         <div class="screens">
@@ -465,6 +605,7 @@
             </div>
             <nav class="tabbar">
               <button class="tab active" data-tab="home"><svg><use href="#ic-today"/></svg>Today</button>
+              <button class="tab" data-tab="community"><svg><use href="#ic-community"/></svg>Community</button>
               <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
               <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
             </nav>
@@ -481,7 +622,23 @@
             </div>
             <nav class="tabbar">
               <button class="tab" data-tab="home"><svg><use href="#ic-today"/></svg>Today</button>
+              <button class="tab" data-tab="community"><svg><use href="#ic-community"/></svg>Community</button>
               <button class="tab active" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
+              <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
+            </nav>
+          </section>
+
+          <!-- COMMUNITY -->
+          <section class="app-screen" data-screen="community">
+            <div class="navbar-row">
+              <div class="title">Community</div>
+              <button class="nav-icon-btn" id="communityBoostBtn" title="Boost the community"><svg style="width:16px;height:16px"><use href="#ic-camera"/></svg></button>
+            </div>
+            <div class="content" id="communityContent"></div>
+            <nav class="tabbar">
+              <button class="tab" data-tab="home"><svg><use href="#ic-today"/></svg>Today</button>
+              <button class="tab active" data-tab="community"><svg><use href="#ic-community"/></svg>Community</button>
+              <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
               <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
             </nav>
           </section>
@@ -499,11 +656,14 @@
               </div>
               <div class="section-label">Resolutions</div>
               <div id="profileResList"></div>
+              <div class="section-label">Rewards</div>
+              <div class="reward-row" id="rewardsRow"></div>
               <div class="section-label">&nbsp;</div>
               <div class="row" style="justify-content:center; color:#E7414C; font-weight:700; cursor:pointer;">Sign out</div>
             </div>
             <nav class="tabbar">
               <button class="tab" data-tab="home"><svg><use href="#ic-today"/></svg>Today</button>
+              <button class="tab" data-tab="community"><svg><use href="#ic-community"/></svg>Community</button>
               <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
               <button class="tab active" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
             </nav>
@@ -598,6 +758,21 @@
           <div class="content" id="partnerContent"></div>
         </div>
 
+        <!-- COMMUNITY CHAT SHEET -->
+        <div class="sheet" id="sheetChat">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="chatClose"><svg style="width:20px;height:20px"><use href="#ic-chevron-left"/></svg>Close</button>
+            <div class="title" id="chatTitle">My Cooking Crew</div>
+            <span style="width:50px"></span>
+          </div>
+          <div class="content" id="chatMessages" style="display:flex; flex-direction:column; gap:10px;"></div>
+          <div class="cta-bar" style="display:flex; gap:8px; padding-top:8px;">
+            <input class="text-input" placeholder="Message the group…" disabled style="flex:1">
+            <button class="nav-icon-btn" style="width:40px;height:40px;"><svg style="width:16px;height:16px"><use href="#ic-chat"/></svg></button>
+          </div>
+        </div>
+
       </div>
     </div>
     <div class="legend">
@@ -617,6 +792,19 @@
       <div class="widget-card widget-medium" id="widgetMedium"></div>
     </div>
     <p class="note">La vraie photo (la tienne, et celle d'un partenaire <b>accepté</b> qui a posté aujourd'hui) s'affiche en fond, avec le streak 🔥 en overlay — jamais un simple follow.</p>
+
+    <div>
+      <div class="panel-title" style="margin-bottom:10px">Widget — photo au hasard de la communauté</div>
+      <div class="widget-card widget-photo" id="widgetCommunityPhoto"></div>
+    </div>
+    <p class="note">Change de photo à chaque refresh du widget — tire au sort parmi les membres de ta communauté qui ont posté <b>aujourd'hui</b>. Donne envie de checker qui a cuisiné quoi.</p>
+
+    <div>
+      <div class="panel-title" style="margin-bottom:10px">Widget — streak communauté vs toi</div>
+      <div class="widget-card widget-medium" id="widgetCommunityStreak"></div>
+    </div>
+    <p class="note">Le streak cumulé de toute la communauté à côté du tien — l'idée : "boost" le chiffre collectif en postant ta preuve.</p>
+
     <div>
       <div class="panel-title" style="margin-bottom:10px">Ce que montre cet aperçu</div>
       <p class="note">Toutes les captures d'écran correspondent au code SwiftUI déjà écrit : <b>Home</b>, <b>Capture</b>, <b>Progress</b>, <b>Friends</b>, <b>Profile</b>, et le <b>widget</b> WidgetKit. Rendu ici en HTML pour que tu puisses le voir avant le premier build Xcode.</p>
@@ -627,15 +815,16 @@
 <script>
 (function(){
   const CATS = {
-    fitness: {icon:'ic-run', label:'Fitness'},
-    reading: {icon:'ic-book', label:'Reading'},
-    coding: {icon:'ic-code', label:'Coding'},
+    healthy: {icon:'ic-salad', label:'Healthy meals'},
+    baking: {icon:'ic-cake', label:'Baking'},
+    recipes: {icon:'ic-chefhat', label:'New recipes'},
+    mealprep: {icon:'ic-container', label:'Meal prep'},
   };
 
   let resolutions = [
-    { id:'run', name:'Run 5km', cat:'fitness', color:'var(--swatch-run)', freq:'Every day', streak:12, longest:15, total:47, completedToday:false },
-    { id:'read', name:'Read every day', cat:'reading', color:'var(--swatch-read)', freq:'Every day', streak:18, longest:24, total:61, completedToday:true },
-    { id:'code', name:'Code daily', cat:'coding', color:'var(--swatch-code)', freq:'3x / week', streak:0, longest:9, total:22, completedToday:false },
+    { id:'dinner', name:'Cook dinner every day', cat:'healthy', color:'var(--swatch-run)', freq:'Every day', streak:12, longest:15, total:47, completedToday:false },
+    { id:'recipe', name:'Try a new recipe', cat:'recipes', color:'var(--swatch-read)', freq:'Every day', streak:18, longest:24, total:61, completedToday:true },
+    { id:'mealprep', name:'Meal prep Sunday', cat:'mealprep', color:'var(--swatch-code)', freq:'3x / week', streak:0, longest:9, total:22, completedToday:false },
   ];
 
   // partner: 'none' | 'requested' (I asked) | 'incoming' (they asked me) | 'accepted'
@@ -643,13 +832,57 @@
   const friends = [
     { id:'marco', name:'Marco', streak:9, done:true, color:'#1982C4', partner:'accepted',
       resolutions:[
-        { id:'pushups', name:'Push-ups', icon:'ic-run', color:'#1982C4', streak:9, longest:12, total:40, freq:'Every day' }
+        { id:'bread', name:'Bake bread', icon:'ic-cake', color:'#1982C4', streak:9, longest:12, total:40, freq:'Every day' }
       ] },
     { id:'lea', name:'Léa', streak:31, done:true, color:'#6A4C93', partner:'none' },
     { id:'sam', name:'Sam', streak:4, done:true, color:'#E7414C', partner:'incoming',
       resolutions:[
-        { id:'meditate', name:'Meditate 10 min', icon:'ic-target', color:'#E7414C', streak:4, longest:11, total:19, freq:'Every day' }
+        { id:'lunch', name:'Healthy lunch', icon:'ic-salad', color:'#E7414C', streak:4, longest:11, total:19, freq:'Every day' }
       ] },
+  ];
+
+  // ---- Community (10–50 people) — friends community + local community ----
+  const communities = {
+    friends: {
+      name:'My Cooking Crew', size:14, streak:214,
+      members:[
+        { name:'Marco', streak:9, done:true, color:'#1982C4' },
+        { name:'Léa', streak:31, done:true, color:'#6A4C93' },
+        { name:'Sam', streak:4, done:true, color:'#E7414C' },
+        { name:'Nina', streak:22, done:false, color:'#2EC4B6' },
+        { name:'Tom', streak:6, done:true, color:'#FFB703' },
+        { name:'Ana', streak:15, done:false, color:'#8AC926' },
+      ],
+      event:{ title:'Sunday Potluck', when:'Sun · 6:00 PM', bonus:3, going:9 },
+      chatPreview:{ name:'Léa', msg:'anyone tried the miso glaze yet? 🔥' },
+    },
+    local: {
+      name:'Paris — Home Cooks', size:38, streak:891,
+      members:[
+        { name:'Julien', streak:44, done:true, color:'#E7414C' },
+        { name:'Fatou', streak:12, done:true, color:'#1982C4' },
+        { name:'Marie', streak:28, done:false, color:'#6A4C93' },
+        { name:'Sacha', streak:3, done:true, color:'#2EC4B6' },
+        { name:'Yasmine', streak:19, done:true, color:'#FFB703' },
+        { name:'Léo', streak:7, done:false, color:'#8AC926' },
+      ],
+      event:{ title:'Pasta Night Meetup', when:'Fri · 7:30 PM', bonus:5, going:22 },
+      chatPreview:{ name:'Julien', msg:'who\'s bringing the wine for Friday? 🍷' },
+    },
+  };
+  let activeCommunity = 'friends';
+
+  // ---- Challenges ----
+  const challenges = [
+    { title:'7-day veggie challenge', from:'Léa challenged you', progress:4, total:7, color:'#2EC4B6' },
+    { title:'No-takeout week', from:'Community challenge · 212 joined', progress:2, total:7, color:'#FF6B35' },
+  ];
+
+  // ---- Rewards ----
+  const rewards = [
+    { emoji:'🍳', label:'Home Chef', need:'7-day streak', unlocked:true },
+    { emoji:'🥖', label:'Baker', need:'Bake 5 times', unlocked:true },
+    { emoji:'👑', label:'Streak Legend', need:'30-day streak', unlocked:false },
   ];
 
   let activeTab = 'home';
@@ -662,7 +895,116 @@
     renderMissions();
     renderFriends();
     renderProfile();
+    renderCommunity();
+    renderRewards();
     renderWidget();
+  }
+
+  function renderCommunity(){
+    const c = communities[activeCommunity];
+    const html = `
+      <div class="community-switch" id="communitySwitch">
+        <button data-c="friends" class="${activeCommunity === 'friends' ? 'sel' : ''}">My Crew</button>
+        <button data-c="local" class="${activeCommunity === 'local' ? 'sel' : ''}">Local · Paris</button>
+      </div>
+      <div class="community-header">
+        <div>
+          <h2>${c.name}</h2>
+          <div class="sub">${c.size} members · combined 🔥 ${c.streak}</div>
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:0">Who's cooked today</div>
+      <div class="member-grid">
+        ${c.members.map(m => `
+          <div class="member-tile">
+            <div class="member-avatar" style="background:${m.color}">
+              ${m.name[0]}
+              <span class="dot ${m.done ? 'done' : 'pending'}"></span>
+            </div>
+            <span class="mname">${m.name}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="section-label">Event</div>
+      <div class="event-card">
+        <div class="ev-top">
+          <div class="ev-icon"><svg><use href="#ic-calendar"/></svg></div>
+          <div>
+            <div class="ev-title">${c.event.title}</div>
+            <div class="ev-when">${c.event.when} · ${c.event.going} going</div>
+          </div>
+        </div>
+        <div class="ev-foot">
+          <span class="bonus-pill">🔥 +${c.event.bonus} streak bonus</span>
+          <button class="join-btn" id="communityJoinBtn">I'm in</button>
+        </div>
+      </div>
+      <div class="section-label">Chat</div>
+      <div class="chat-row" id="communityChatRow">
+        <div class="ci"><svg><use href="#ic-chat"/></svg></div>
+        <div class="cbody">
+          <div class="cname">${c.chatPreview.name}</div>
+          <div class="cmsg">${c.chatPreview.msg}</div>
+        </div>
+        <svg style="width:14px;height:14px;opacity:.5"><use href="#ic-chevron-left" style="transform:rotate(180deg)"/></svg>
+      </div>
+      <div class="section-label">Challenges</div>
+      ${challenges.map(ch => `
+        <div class="challenge-card">
+          <div class="ch-top">
+            <div><div class="ch-title">${ch.title}</div><div class="ch-from">${ch.from}</div></div>
+            <div class="ch-frac">${ch.progress}/${ch.total}</div>
+          </div>
+          <div class="ch-track"><div class="ch-fill" style="width:${Math.round(ch.progress/ch.total*100)}%; background:${ch.color}"></div></div>
+        </div>
+      `).join('')}
+    `;
+    document.getElementById('communityContent').innerHTML = html;
+
+    document.querySelectorAll('#communitySwitch button').forEach(btn => {
+      btn.addEventListener('click', () => { activeCommunity = btn.dataset.c; renderCommunity(); });
+    });
+    document.getElementById('communityJoinBtn').addEventListener('click', (e) => {
+      e.target.textContent = "You're in 🎉";
+      e.target.disabled = true;
+    });
+    document.getElementById('communityChatRow').addEventListener('click', openCommunityChat);
+    document.getElementById('communityBoostBtn').addEventListener('click', () => {
+      const firstIncomplete = resolutions.find(r => !r.completedToday);
+      if (firstIncomplete) openCapture(firstIncomplete.id);
+    });
+  }
+
+  function openCommunityChat(){
+    const c = communities[activeCommunity];
+    document.getElementById('chatTitle').textContent = c.name;
+    const mock = [
+      { from: c.members[0].name, color: c.members[0].color, text: 'starting tonight\'s dinner prep 🔪' },
+      { from: c.members[1].name, color: c.members[1].color, text: c.chatPreview.msg },
+      { from: c.members[2].name, color: c.members[2].color, text: 'count me in, bringing dessert' },
+      { from: 'You', color: 'var(--accent)', text: 'can\'t wait 🔥' },
+    ];
+    document.getElementById('chatMessages').innerHTML = mock.map(m => `
+      <div class="chat-bubble-row" style="${m.from === 'You' ? 'flex-direction:row-reverse;' : ''}">
+        <div class="cb-avatar" style="background:${m.color}">${m.from[0]}</div>
+        <div class="chat-bubble">
+          <div class="cb-name">${m.from}</div>
+          <div class="cb-text">${m.text}</div>
+        </div>
+      </div>
+    `).join('');
+    openSheet(document.getElementById('sheetChat'));
+  }
+  document.getElementById('chatClose').addEventListener('click', closeSheets);
+
+  function renderRewards(){
+    document.getElementById('rewardsRow').innerHTML = rewards.map(r => `
+      <div class="reward-badge ${r.unlocked ? '' : 'locked'}">
+        <div class="remoji">${r.emoji}</div>
+        <div class="rlabel">${r.label}</div>
+        <div class="rneed">${r.need}</div>
+      </div>
+    `).join('');
   }
 
   function renderMissions(){
@@ -819,6 +1161,32 @@
 
     document.getElementById('widgetMedium').innerHTML =
       photoTileHtml({ seed:'me-today', streak:best, completed:myCompletedToday, name:'You' }) + partnerTile;
+
+    // Community widget 1: a random member who posted today, picked
+    // fresh on every widget refresh — "look who's cooking".
+    const community = communities[activeCommunity];
+    const postedToday = community.members.filter(m => m.done);
+    const spotlight = postedToday[Math.floor(Math.random() * postedToday.length)] || community.members[0];
+    document.getElementById('widgetCommunityPhoto').innerHTML = photoTileHtml({
+      seed: 'community-' + spotlight.name, streak: spotlight.streak, completed: spotlight.done, name: spotlight.name
+    });
+
+    // Community widget 2: cumulative community streak vs. yours —
+    // tapping it (in the real widget, deep-linking into the app) is
+    // meant to nudge "go boost the number".
+    document.getElementById('widgetCommunityStreak').innerHTML = `
+      <div class="stat-split">
+        <span class="ss-lbl">You</span>
+        <span class="ss-num">🔥${best}</span>
+        <span class="ss-sub">${myCompletedToday ? 'Done today' : 'Missing today'}</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-split">
+        <span class="ss-lbl">${community.name}</span>
+        <span class="ss-num">🔥${community.streak}</span>
+        <span class="ss-sub">${community.size} members</span>
+      </div>
+    `;
   }
 
   // ---- Tab switching ----
@@ -837,7 +1205,7 @@
   function openSheet(el){ scrim.classList.add('active'); el.classList.add('active'); }
   function closeSheets(){
     scrim.classList.remove('active');
-    ['sheetCapture','sheetProgress','sheetCreate','sheetPartner'].forEach(id => document.getElementById(id).classList.remove('active'));
+    ['sheetCapture','sheetProgress','sheetCreate','sheetPartner','sheetChat'].forEach(id => document.getElementById(id).classList.remove('active'));
   }
   scrim.addEventListener('click', closeSheets);
 
@@ -1061,6 +1429,28 @@
     document.getElementById('clock').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
   }
   tick(); setInterval(tick, 30000);
+
+  // ---- Push notification banner ----
+  // Fires when an accepted partner completes their proof — nudges the
+  // user to do theirs too, BeReal-style. Tapping it jumps straight to
+  // capturing today's proof, same as tapping the notification would on
+  // a real phone.
+  const pushToast = document.getElementById('pushToast');
+  function showPushNotification(name, streakEmojiOn){
+    document.getElementById('pushTitle').textContent = `${name} completed today's proof! ${streakEmojiOn ? '🎉' : ''}`.trim();
+    document.getElementById('pushMsg').textContent = 'Complete yours to check it out.';
+    document.getElementById('pushTime').textContent = 'now';
+    pushToast.classList.add('show');
+    clearTimeout(showPushNotification._t);
+    showPushNotification._t = setTimeout(() => pushToast.classList.remove('show'), 5000);
+  }
+  pushToast.addEventListener('click', () => {
+    pushToast.classList.remove('show');
+    switchTab('home');
+    const firstIncomplete = resolutions.find(r => !r.completedToday);
+    if (firstIncomplete) openCapture(firstIncomplete.id);
+  });
+  setTimeout(() => showPushNotification('Marco', true), 1800);
 
   render();
 })();
