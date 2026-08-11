@@ -542,7 +542,7 @@
           </div>
           <div class="content">
             <div class="field-label" style="margin-top:4px">Crew name</div>
-            <input class="text-input" id="newCrewName" placeholder="e.g. No Gluten Gang">
+            <input class="text-input" id="newCrewName" placeholder="e.g. Family Recipes">
             <div class="field-label">Vibe</div>
             <input class="text-input" id="newCrewVibe" placeholder="e.g. cozy Sunday dinners, spicy & bold, slow weeknight comfort">
             <div class="field-label">Icon</div>
@@ -693,88 +693,50 @@
   // ---------------- Data ----------------
   const crews = [
     {
-      id:'mycrew', name:'My Cooking Crew', icon:'ic-chefhat', color:'#1982C4', size:14, private:true, vibe:'Slow weeknight comfort cooking, no pressure',
+      id:'mycrew', name:'My Crew', icon:'ic-chefhat', color:'#D9713C', size:4, private:true, vibe:'Slow weeknight comfort cooking, no pressure',
       myStreak:12, longestStreak:15,
       members:[
-        {name:'Marco', color:'#1982C4', done:true}, {name:'Léa', color:'#6A4C93', done:true},
-        {name:'Sam', color:'#E7414C', done:true}, {name:'Nina', color:'#2EC4B6', done:false},
-        {name:'Tom', color:'#FFB703', done:true}, {name:'Ana', color:'#8AC926', done:false},
+        {name:'Marco', color:'#D9713C', done:true}, {name:'Léa', color:'#7A9169', done:true},
+        {name:'Sam', color:'#A5644E', done:true}, {name:'Nina', color:'#6B8CAE', done:false},
       ],
       event:{ title:'Sunday Potluck', when:'Sun · 6:00 PM', bonus:3, going:['Marco','Léa','Sam'] },
-      challenge:{ title:'7-day veggie challenge', from:'Léa challenged you', progress:4, total:7, color:'#2EC4B6' },
+      challenge:{ title:'Cooking Vegetables', from:'Léa challenged you', progress:4, total:7, color:'#7A9169' },
       feed:[
-        {type:'proof', name:'Marco', color:'#1982C4', caption:'Sunday bread came out perfect 🍞', time:'2h', seed:'mc-1'},
-        {type:'msg', name:'Léa', color:'#6A4C93', text:'that crust though 😍', time:'1h'},
-        {type:'proof', name:'Sam', color:'#E7414C', caption:'Quick weeknight stir-fry', time:'4h', seed:'mc-2'},
-      ],
-    },
-    {
-      id:'nogluten', name:'No Gluten Gang', icon:'ic-wheat', color:'#2EC4B6', size:8, private:true, vibe:'Gluten-free everyday cooking, swaps & wins',
-      myStreak:5, longestStreak:9,
-      members:[
-        {name:'Priya', color:'#2EC4B6', done:true}, {name:'Owen', color:'#1982C4', done:true},
-        {name:'Zoe', color:'#E7414C', done:false}, {name:'Jules', color:'#FFB703', done:true},
-      ],
-      event:{ title:'GF Baking Workshop', when:'Wed · 7:00 PM', bonus:4, going:['Priya','Owen'] },
-      challenge:{ title:'5 new GF recipes', from:'Crew challenge · 8 joined', progress:2, total:5, color:'#FF6B35' },
-      feed:[
-        {type:'proof', name:'Priya', color:'#2EC4B6', caption:'Almond flour pancakes 🥞', time:'3h', seed:'ng-1'},
-        {type:'msg', name:'Owen', color:'#1982C4', text:'recipe please!!', time:'2h'},
-      ],
-    },
-    {
-      id:'mexican', name:'Mexican Food Lovers', icon:'ic-pepper', color:'#E7414C', size:22, private:true, vibe:'Bold, spicy, family-style Mexican cooking',
-      myStreak:0, longestStreak:6,
-      members:[
-        {name:'Carlos', color:'#E7414C', done:true}, {name:'Diego', color:'#FFB703', done:true},
-        {name:'Sofia', color:'#8AC926', done:true}, {name:'Maya', color:'#1982C4', done:false},
-        {name:'Ruby', color:'#6A4C93', done:true},
-      ],
-      event:{ title:'Taco Tuesday Meetup', when:'Tue · 7:30 PM', bonus:3, going:['Carlos','Diego','Sofia'] },
-      challenge:{ title:'Homemade salsa week', from:'Community challenge · 34 joined', progress:1, total:7, color:'#E7414C' },
-      feed:[
-        {type:'proof', name:'Carlos', color:'#E7414C', caption:'Al pastor from scratch 🌮', time:'5h', seed:'mx-1'},
+        {type:'proof', name:'Marco', color:'#D9713C', caption:'Sunday bread came out perfect 🍞', time:'2h', seed:'mc-1'},
+        {type:'msg', name:'Léa', color:'#7A9169', text:'that crust though 😍', time:'1h'},
+        {type:'proof', name:'Sam', color:'#A5644E', caption:'Quick weeknight stir-fry', time:'4h', seed:'mc-2'},
       ],
     },
   ];
 
   const local = {
-    name:'Paris — Home Cooks', size:38,
+    name:'Paris — Home Cooks', size:16,
     events:[
-      { title:'Pasta Night Meetup', when:'Fri · 7:30 PM', bonus:5, going:['Julien','Fatou'] },
-      { title:'Market Tour + Cook', when:'Sat · 10:00 AM', bonus:4, going:['Marie'] },
+      { title:'Community Potluck', when:'Fri · 7:30 PM', bonus:5, going:['Julien','Fatou'] },
     ],
     challenges:[
-      { title:'No-takeout week', from:'Community challenge · 212 joined', progress:2, total:7, color:'#FF6B35' },
+      { title:'Cooking Vegetables', from:'Community challenge · 24 joined', progress:2, total:7, color:'#D9713C' },
     ],
     chats:[
-      { id:'kosher', name:'Kosher Shabbat Prep', icon:'ic-candle', color:'#6A4C93', size:16, private:false,
-        members:[{name:'Rina',color:'#6A4C93',done:true},{name:'Eli',color:'#1982C4',done:true},{name:'Noa',color:'#E7414C',done:false}],
-        feed:[{type:'proof', name:'Rina', color:'#6A4C93', caption:'Challah dough resting 🍞', time:'6h', seed:'ks-1'}] },
-      { id:'pasta', name:'Pasta Night Regulars', icon:'ic-noodles', color:'#FFB703', size:24, private:false,
-        members:[{name:'Julien',color:'#E7414C',done:true},{name:'Fatou',color:'#1982C4',done:true},{name:'Marie',color:'#6A4C93',done:false}],
-        feed:[{type:'proof', name:'Julien', color:'#E7414C', caption:'Fresh tagliatelle 🍝', time:'1h', seed:'pn-1'}] },
+      { id:'cookingathome', name:'Cooking at Home', icon:'ic-bowl', color:'#C9A15A', size:16, private:false,
+        members:[
+          {name:'Julien', color:'#A5644E', done:true}, {name:'Fatou', color:'#6B8CAE', done:true},
+          {name:'Marie', color:'#7A9169', done:false}, {name:'Rina', color:'#D9713C', done:true},
+        ],
+        feed:[
+          {type:'proof', name:'Julien', color:'#A5644E', caption:'Fresh tagliatelle 🍝', time:'1h', seed:'coh-1'},
+          {type:'proof', name:'Rina', color:'#D9713C', caption:'Challah dough resting 🍞', time:'6h', seed:'coh-2'},
+        ] },
     ],
-    discover:[
-      { id:'vegan', name:'Vegan Paris Cooks', icon:'ic-leaf', color:'#7A9169', size:45, private:false,
-        members:[{name:'Sofia',color:'#7A9169',done:true},{name:'Tom',color:'#B08968',done:false}],
-        feed:[{type:'proof', name:'Sofia', color:'#7A9169', caption:'Jackfruit tacos tonight 🌮', time:'3h', seed:'vg-1'}] },
-      { id:'brunch', name:'Sunday Brunch Club', icon:'ic-croissant', color:'#C9A15A', size:29, private:false,
-        members:[{name:'Nina',color:'#C9A15A',done:true},{name:'Ana',color:'#A5644E',done:true}],
-        feed:[{type:'proof', name:'Nina', color:'#C9A15A', caption:'Shakshuka Sunday 🍳', time:'5h', seed:'br-1'}] },
-    ],
+    discover:[],
   };
 
   const recipes = [
     { id:'r1', name:'Miso Glazed Salmon', from:'Léa', crew:'mycrew', rating:4, tags:['dinner','fish'], seed:'r1',
       content:'- 2 salmon fillets\n- 2 tbsp miso paste\n- 1 tbsp honey\n- 1 tbsp soy sauce\n- 1 tsp sesame oil\n\n1. Whisk miso, honey, soy sauce and sesame oil.\n2. Coat the salmon and marinate 20 min.\n3. Broil 8-10 min until caramelized.' },
-    { id:'r2', name:"Grandma's Challah", from:'You', crew:'kosher', rating:5, tags:['baking','shabbat'], seed:'r2',
+    { id:'r2', name:"Grandma's Challah", from:'Rina', crew:'cookingathome', rating:5, tags:['baking'], seed:'r2',
       content:'- 500g flour\n- 2 eggs + 1 for egg wash\n- 80g sugar\n- 10g yeast\n- 100ml oil\n- 200ml warm water\n- 1 tsp salt\n\n1. Mix and knead 10 min into a smooth dough.\n2. Prove 1h until doubled.\n3. Braid into 3 or 6 strands, prove 30 min more.\n4. Egg wash and bake 25 min at 190°C.' },
-    { id:'r3', name:'Almond Flour Pancakes', from:'Priya', crew:'nogluten', rating:4, tags:['breakfast','gluten-free'], seed:'r3',
-      content:'- 1 cup almond flour\n- 2 eggs\n- 1/4 cup milk\n- 1 tsp baking powder\n- 1 tbsp maple syrup\n\n1. Whisk everything together into a smooth batter.\n2. Cook small pancakes 2 min per side on medium heat.' },
-    { id:'r4', name:'Al Pastor Tacos', from:'Carlos', crew:'mexican', rating:5, tags:['dinner','spicy'], seed:'r4',
-      content:'- 500g pork shoulder, thin sliced\n- 2 dried guajillo chiles\n- 1 chipotle in adobo\n- 1/4 pineapple, diced\n- Corn tortillas, onion, cilantro\n\n1. Blend chiles with adobo, garlic and spices into a marinade.\n2. Marinate pork 2h+.\n3. Sear hot and fast, chop, serve on tortillas with pineapple, onion, cilantro.' },
-    { id:'r5', name:'Fresh Tagliatelle', from:'Julien', crew:'pasta', rating:4, tags:['pasta','date-night'], seed:'r5',
+    { id:'r3', name:'Fresh Tagliatelle', from:'Julien', crew:'cookingathome', rating:4, tags:['pasta','date-night'], seed:'r3',
       content:'- 200g "00" flour\n- 2 eggs\n\n1. Mound flour, well in the center, add eggs.\n2. Knead 10 min until smooth, rest 30 min wrapped.\n3. Roll thin, cut into tagliatelle, cook 2-3 min in salted boiling water.' },
   ];
 
@@ -787,9 +749,9 @@
   ];
 
   const friends = [
-    { name:'Marco', color:'#D9713C', streak:9, mostActive:'My Cooking Crew' },
-    { name:'Léa', color:'#7A9169', streak:15, mostActive:'My Cooking Crew' },
-    { name:'Priya', color:'#C9A15A', streak:3, mostActive:'No Gluten Gang' },
+    { name:'Marco', color:'#D9713C', streak:9, mostActive:'My Crew' },
+    { name:'Léa', color:'#7A9169', streak:15, mostActive:'My Crew' },
+    { name:'Priya', color:'#C9A15A', streak:3, mostActive:'Cooking at Home' },
   ];
   const friendRequests = [
     { name:'Owen', color:'#A5644E' },
@@ -1270,10 +1232,11 @@
     document.getElementById('shareRecipeBtn').addEventListener('click', (e) => {
       const row = document.getElementById('shareCrewRow');
       row.style.display = 'flex';
-      row.innerHTML = crews.map(c => `<div class="cat-chip" data-share-crew="${c.id}"><svg style="width:13px;height:13px;color:${c.color}"><use href="#${c.icon||'ic-bowl'}"/></svg> ${c.name}</div>`).join('');
+      const targets = [...crews, ...local.chats];
+      row.innerHTML = targets.map(c => `<div class="cat-chip" data-share-crew="${c.id}"><svg style="width:13px;height:13px;color:${c.color}"><use href="#${c.icon||'ic-bowl'}"/></svg> ${c.name}</div>`).join('');
       row.querySelectorAll('[data-share-crew]').forEach(chip => {
         chip.addEventListener('click', () => {
-          const c = crews.find(x => x.id === chip.dataset.shareCrew);
+          const c = targets.find(x => x.id === chip.dataset.shareCrew);
           c.feed.unshift({ type:'recipe', name:'You', color:'#D9713C', recipeName:r.name, seed:r.seed, time:'now' });
           e.target.closest('button').innerHTML = `<svg><use href="#ic-friends"/></svg>✓ Shared to ${c.name}`;
           row.style.display = 'none';
