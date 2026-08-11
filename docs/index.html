@@ -509,6 +509,29 @@
           </div>
         </div>
 
+        <!-- FAB MENU -->
+        <div class="sheet" id="sheetFabMenu" style="top:auto; height:auto; bottom:0; border-radius:24px 24px 0 0;">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row"><div class="title">Create</div></div>
+          <div class="content" style="padding-bottom:26px;">
+            <div class="row" id="fabMenuCrew" style="cursor:pointer;">
+              <div class="ner-icon"><svg><use href="#ic-bowl"/></svg></div>
+              <div style="flex:1"><div class="name">New crew</div><div class="sub">A new cooking community to join or lead</div></div>
+              <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+            </div>
+            <div class="row" id="fabMenuEvent" style="cursor:pointer;">
+              <div class="ner-icon"><svg><use href="#ic-calendar"/></svg></div>
+              <div style="flex:1"><div class="name">New event</div><div class="sub">Plan a cook-together, meetup or workshop</div></div>
+              <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+            </div>
+            <div class="row" id="fabMenuChallenge" style="cursor:pointer;">
+              <div class="ner-icon"><svg><use href="#ic-trophy"/></svg></div>
+              <div style="flex:1"><div class="name">New challenge</div><div class="sub">Start a streak challenge for a crew</div></div>
+              <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+            </div>
+          </div>
+        </div>
+
         <!-- NEW CREW -->
         <div class="sheet" id="sheetCreateCrew">
           <div class="sheet-handle"></div>
@@ -533,6 +556,44 @@
               <div class="search-row"><svg><use href="#ic-search"/></svg><input id="inviteSearchInput" placeholder="Search friends…"></div>
               <div id="inviteFriendsList"></div>
             </div>
+          </div>
+        </div>
+
+        <!-- NEW EVENT -->
+        <div class="sheet" id="sheetCreateEvent">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="createEventCancel">Cancel</button>
+            <div class="title">New event</div>
+            <button class="nav-btn" id="createEventSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content">
+            <div class="field-label" style="margin-top:4px">For</div>
+            <div class="chip-row" id="eventForPicker"></div>
+            <div class="field-label">Event title</div>
+            <input class="text-input" id="newEventTitle" placeholder="e.g. Sunday Potluck">
+            <div class="field-label">When</div>
+            <input class="text-input" id="newEventWhen" placeholder="e.g. Sun · 6:00 PM">
+            <div class="field-label">Streak bonus</div>
+            <input class="text-input" id="newEventBonus" type="number" min="1" max="10" value="3">
+          </div>
+        </div>
+
+        <!-- NEW CHALLENGE -->
+        <div class="sheet" id="sheetCreateChallenge">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="createChallengeCancel">Cancel</button>
+            <div class="title">New challenge</div>
+            <button class="nav-btn" id="createChallengeSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content">
+            <div class="field-label" style="margin-top:4px">For</div>
+            <div class="chip-row" id="challengeForPicker"></div>
+            <div class="field-label">Challenge title</div>
+            <input class="text-input" id="newChallengeTitle" placeholder="e.g. 7-day veggie challenge">
+            <div class="field-label">Duration (days)</div>
+            <input class="text-input" id="newChallengeDays" type="number" min="1" max="60" value="7">
           </div>
         </div>
 
@@ -1042,12 +1103,24 @@
     }
   }
   document.getElementById('newCrewFab').addEventListener('click', () => {
+    openSheet(document.getElementById('sheetFabMenu'));
+  });
+  document.getElementById('fabMenuCrew').addEventListener('click', () => {
+    closeSheet('sheetFabMenu');
     document.getElementById('newCrewName').value = '';
     document.getElementById('newCrewVibe').value = '';
     creationContext = activeSwitch; // create from My Crews → private crew; from Local → public community
     selectedCrewColor = SWATCHES[0]; selectedCrewIcon = 'ic-bowl'; selectedInvitees = []; inviteSearch = '';
     renderCreateCrewForm();
     openSheet(document.getElementById('sheetCreateCrew'));
+  });
+  document.getElementById('fabMenuEvent').addEventListener('click', () => {
+    closeSheet('sheetFabMenu');
+    openCreateEvent();
+  });
+  document.getElementById('fabMenuChallenge').addEventListener('click', () => {
+    closeSheet('sheetFabMenu');
+    openCreateChallenge();
   });
   document.getElementById('createCrewCancel').addEventListener('click', closeSheets);
   document.getElementById('createCrewSave').addEventListener('click', () => {
@@ -1072,6 +1145,85 @@
     closeSheets();
     activeSwitch = creationContext;
     document.querySelectorAll('#topSwitch button').forEach(b => b.classList.toggle('sel', b.dataset.v === creationContext));
+    renderAll();
+  });
+
+  // ---------------- New event / New challenge ("for" target = a My Crew, or Local) ----------------
+  function forTargets(){
+    return [{ id:'local', name:'Local · Paris', color:'var(--accent)', icon:'ic-globe' }, ...crews];
+  }
+  let selectedEventFor = 'local';
+  function renderEventForPicker(){
+    const pickerEl = document.getElementById('eventForPicker');
+    pickerEl.innerHTML = forTargets().map(t => `
+      <div class="cat-chip ${t.id===selectedEventFor?'sel':''}" data-for="${t.id}"><svg style="width:13px;height:13px;color:${t.id===selectedEventFor ? 'currentColor' : t.color}"><use href="#${t.icon}"/></svg> ${t.name}</div>
+    `).join('');
+    pickerEl.querySelectorAll('[data-for]').forEach(chip => {
+      chip.addEventListener('click', () => { selectedEventFor = chip.dataset.for; renderEventForPicker(); });
+    });
+  }
+  function openCreateEvent(){
+    selectedEventFor = activeSwitch === 'local' ? 'local' : (crews[0] ? crews[0].id : 'local');
+    document.getElementById('newEventTitle').value = '';
+    document.getElementById('newEventWhen').value = '';
+    document.getElementById('newEventBonus').value = '3';
+    renderEventForPicker();
+    openSheet(document.getElementById('sheetCreateEvent'));
+  }
+  document.getElementById('createEventCancel').addEventListener('click', () => closeSheet('sheetCreateEvent'));
+  document.getElementById('createEventSave').addEventListener('click', () => {
+    const title = document.getElementById('newEventTitle').value.trim();
+    const when = document.getElementById('newEventWhen').value.trim();
+    if(!title || !when) return;
+    const bonus = Math.max(1, +document.getElementById('newEventBonus').value || 3);
+    const ev = { title, when, bonus, going:['You'] };
+    if(selectedEventFor === 'local'){
+      local.events.push(ev);
+    } else {
+      const c = crews.find(x => x.id === selectedEventFor);
+      if(c) c.event = ev;
+    }
+    closeSheet('sheetCreateEvent');
+    if(selectedEventFor === 'local'){
+      activeSwitch = 'local';
+      document.querySelectorAll('#topSwitch button').forEach(b => b.classList.toggle('sel', b.dataset.v === 'local'));
+    }
+    renderAll();
+  });
+
+  let selectedChallengeFor = 'local';
+  function renderChallengeForPicker(){
+    const pickerEl = document.getElementById('challengeForPicker');
+    pickerEl.innerHTML = forTargets().map(t => `
+      <div class="cat-chip ${t.id===selectedChallengeFor?'sel':''}" data-for="${t.id}"><svg style="width:13px;height:13px;color:${t.id===selectedChallengeFor ? 'currentColor' : t.color}"><use href="#${t.icon}"/></svg> ${t.name}</div>
+    `).join('');
+    pickerEl.querySelectorAll('[data-for]').forEach(chip => {
+      chip.addEventListener('click', () => { selectedChallengeFor = chip.dataset.for; renderChallengeForPicker(); });
+    });
+  }
+  function openCreateChallenge(){
+    selectedChallengeFor = activeSwitch === 'local' ? 'local' : (crews[0] ? crews[0].id : 'local');
+    document.getElementById('newChallengeTitle').value = '';
+    document.getElementById('newChallengeDays').value = '7';
+    renderChallengeForPicker();
+    openSheet(document.getElementById('sheetCreateChallenge'));
+  }
+  document.getElementById('createChallengeCancel').addEventListener('click', () => closeSheet('sheetCreateChallenge'));
+  document.getElementById('createChallengeSave').addEventListener('click', () => {
+    const title = document.getElementById('newChallengeTitle').value.trim();
+    if(!title) return;
+    const total = Math.max(1, +document.getElementById('newChallengeDays').value || 7);
+    if(selectedChallengeFor === 'local'){
+      local.challenges.push({ title, from:'Community challenge · 1 joined', progress:0, total, color:'#D9713C' });
+    } else {
+      const c = crews.find(x => x.id === selectedChallengeFor);
+      if(c) c.challenge = { title, from:'You started this challenge', progress:0, total, color:c.color };
+    }
+    closeSheet('sheetCreateChallenge');
+    if(selectedChallengeFor === 'local'){
+      activeSwitch = 'local';
+      document.querySelectorAll('#topSwitch button').forEach(b => b.classList.toggle('sel', b.dataset.v === 'local'));
+    }
     renderAll();
   });
 
@@ -1362,7 +1514,7 @@
 
   // ---------------- Sheets / tabs plumbing ----------------
   const scrim = document.getElementById('scrim');
-  const ALL_SHEETS = ['sheetCrewChat','sheetCapture','sheetCreateCrew','sheetAddRecipe','sheetRecipe','sheetEvent'];
+  const ALL_SHEETS = ['sheetCrewChat','sheetCapture','sheetFabMenu','sheetCreateCrew','sheetCreateEvent','sheetCreateChallenge','sheetAddRecipe','sheetRecipe','sheetEvent'];
   function openSheet(el){ scrim.classList.add('active'); el.classList.add('active'); }
   // Closes just one sheet — used when a sheet was opened *on top of*
   // another (Capture opened from within Crew Chat), so dismissing it
