@@ -128,6 +128,11 @@
   .crew-card{ display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--separator); border-radius:16px; padding:12px 13px; margin-bottom:9px; cursor:pointer; transition: transform .12s ease; }
   .crew-card:active{ transform: scale(0.98); }
   .crew-emoji{ width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:19px; flex:0 0 auto; }
+  .crew-emoji svg{ width:21px; height:21px; }
+  .icon-pick-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .icon-pick-row button{ width:38px; height:38px; border-radius:12px; border:2px solid transparent; background:var(--card-raised); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .icon-pick-row button svg{ width:18px; height:18px; }
+  .icon-pick-row button.sel{ border-color:var(--accent); color:var(--accent); }
   .crew-body{ flex:1; min-width:0; }
   .crew-name{ font-size:14.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .crew-sub{ font-size:11.5px; color:var(--text-secondary); margin-top:1px; }
@@ -320,6 +325,14 @@
   <symbol id="ic-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.8 12h16.4M12 3.8c2.4 2.2 3.7 5.2 3.7 8.2s-1.3 6-3.7 8.2c-2.4-2.2-3.7-5.2-3.7-8.2s1.3-6 3.7-8.2z" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
   <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M15.3 15.3L20 20" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
   <symbol id="ic-gift" viewBox="0 0 24 24"><rect x="4" y="9.5" width="16" height="10" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 9.5h16v3.5H4z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 9.5V19.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 9.5c0-2.4-1.6-4-3.4-4C7 5.5 6 6.6 6 7.8c0 1 .8 1.7 2 1.7h4zM12 9.5c0-2.4 1.6-4 3.4-4 1.6 0 2.6 1.1 2.6 2.3 0 1-.8 1.7-2 1.7h-4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-chefhat" viewBox="0 0 24 24"><path d="M12 3c-2 0-3.6 1.6-3.6 3.6 0 .3 0 .6.1.9C6.9 7.9 6 9 6 10.3c0 1.8 1.5 3.2 3.3 3.2h5.4c1.8 0 3.3-1.4 3.3-3.2 0-1.3-.9-2.4-2.5-2.8.1-.3.1-.6.1-.9C15.6 4.6 14 3 12 3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 13.5V18h8v-4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 16h8" stroke="currentColor" stroke-width="1.2"/></symbol>
+  <symbol id="ic-wheat" viewBox="0 0 24 24"><path d="M12 21V6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 7.5c-1.1-1.7-2.8-2-4-1M12 7.5c1.1-1.7 2.8-2 4-1M12 11c-1.1-1.7-2.8-2-4-1M12 11c1.1-1.7 2.8-2 4-1M12 14.5c-1.1-1.7-2.8-2-4-1M12 14.5c1.1-1.7 2.8-2 4-1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="4.5" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="ic-pepper" viewBox="0 0 24 24"><path d="M9 5.5c1-1 2.4-1.6 3.6-1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M8.5 7c-2 .2-3.5 2-3.5 4.2 0 4.4 3.8 9.3 7.6 9.3 3 0 5.4-2.8 5.4-6.6 0-3.6-2.2-6.5-5-6.9-1.6-.2-3.1.3-4.5 0z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-candle" viewBox="0 0 24 24"><path d="M12 3c1 1.4 1.6 2.4 1.6 3.3 0 1-.7 1.7-1.6 1.7s-1.6-.7-1.6-1.7c0-.9.6-1.9 1.6-3.3z" fill="currentColor"/><rect x="9.5" y="8.2" width="5" height="12" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9.5 12.5h5M9.5 16h5" stroke="currentColor" stroke-width="1.1"/></symbol>
+  <symbol id="ic-noodles" viewBox="0 0 24 24"><path d="M4 12.5h16c-.4 4-3.8 7-8 7s-7.6-3-8-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 12c-.6-1.6-.2-2.8.6-4M12 12c-.6-2-.1-3.4.9-4.8M16 12c-.4-1.5 0-2.6.8-3.7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="ic-leaf" viewBox="0 0 24 24"><path d="M19 5c-8.5 0-13 4.6-13 12.5 0 .5 0 1 .1 1.5.5.1 1 .1 1.5.1C15.4 19.1 19 14.4 19 5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 18c3-4 6.5-7 11-10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="ic-croissant" viewBox="0 0 24 24"><path d="M4 15c1-6 6.5-10.5 13-10 1.5.1 2.7 1 3 1.8-1 .1-2 .6-2.7 1.5 1 .1 1.8.6 2.2 1.3-1 0-2 .4-2.6 1.2 1 .2 1.7.7 2 1.5-1 0-1.9.4-2.5 1.1.9.3 1.5.8 1.8 1.6-3.6 3.4-9.7 4-14.2 1.7z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-bowl" viewBox="0 0 24 24"><path d="M3.5 11.5h17c-.3 4.7-4 8.3-8.5 8.3s-8.2-3.6-8.5-8.3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 11.5c0-3 2.2-5.5 5-5.5s5 2.5 5 5.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
 </svg>
 
 <div class="masthead">
@@ -509,14 +522,12 @@
             <input class="text-input" id="newCrewName" placeholder="e.g. No Gluten Gang">
             <div class="field-label">Vibe</div>
             <input class="text-input" id="newCrewVibe" placeholder="e.g. cozy Sunday dinners, spicy & bold, slow weeknight comfort">
+            <div class="field-label">Icon</div>
+            <div class="icon-pick-row" id="crewIconPicker"></div>
             <div class="field-label">Colour</div>
             <div class="swatch-row" id="crewSwatchRow"></div>
-            <div class="field-label">Visibility</div>
-            <div class="top-switch" id="crewVisibilitySwitch">
-              <button data-v="public" class="sel"><svg style="width:12px;height:12px;display:inline-block;vertical-align:-1px;margin-right:4px"><use href="#ic-globe"/></svg>Public</button>
-              <button data-v="private"><svg style="width:12px;height:12px;display:inline-block;vertical-align:-1px;margin-right:4px"><use href="#ic-lock"/></svg>Private</button>
-            </div>
-            <p class="note" id="visibilityNote">Anyone can find this crew and join.</p>
+            <div class="field-label" id="visibilityLabel">Visibility</div>
+            <p class="note" id="visibilityNote" style="display:flex; align-items:center; gap:6px;"></p>
             <div id="inviteFriendsBlock" style="display:none;">
               <div class="field-label">Add friends</div>
               <div class="search-row"><svg><use href="#ic-search"/></svg><input id="inviteSearchInput" placeholder="Search friends…"></div>
@@ -544,6 +555,8 @@
             <input class="text-input" id="addRecipeTags" placeholder="e.g. baking, shabbat, dinner">
             <div class="field-label">Your rating</div>
             <div class="star-row" id="addRecipeStars"></div>
+            <div class="field-label">Recipe</div>
+            <textarea class="caption-field" id="addRecipeContent" style="min-height:140px;" placeholder="Ingredients & steps…&#10;e.g.&#10;- 500g flour&#10;- 2 eggs&#10;1. Mix and knead 10 min&#10;2. Prove 1h, shape, bake 25 min at 190°C"></textarea>
           </div>
         </div>
 
@@ -619,7 +632,7 @@
   // ---------------- Data ----------------
   const crews = [
     {
-      id:'mycrew', name:'My Cooking Crew', emoji:'👨‍🍳', color:'#1982C4', size:14, private:true, vibe:'Slow weeknight comfort cooking, no pressure',
+      id:'mycrew', name:'My Cooking Crew', icon:'ic-chefhat', color:'#1982C4', size:14, private:true, vibe:'Slow weeknight comfort cooking, no pressure',
       myStreak:12, longestStreak:15,
       members:[
         {name:'Marco', color:'#1982C4', done:true}, {name:'Léa', color:'#6A4C93', done:true},
@@ -635,7 +648,7 @@
       ],
     },
     {
-      id:'nogluten', name:'No Gluten Gang', emoji:'🌾', color:'#2EC4B6', size:8, private:false, vibe:'Gluten-free everyday cooking, swaps & wins',
+      id:'nogluten', name:'No Gluten Gang', icon:'ic-wheat', color:'#2EC4B6', size:8, private:true, vibe:'Gluten-free everyday cooking, swaps & wins',
       myStreak:5, longestStreak:9,
       members:[
         {name:'Priya', color:'#2EC4B6', done:true}, {name:'Owen', color:'#1982C4', done:true},
@@ -649,7 +662,7 @@
       ],
     },
     {
-      id:'mexican', name:'Mexican Food Lovers', emoji:'🌮', color:'#E7414C', size:22, private:false, vibe:'Bold, spicy, family-style Mexican cooking',
+      id:'mexican', name:'Mexican Food Lovers', icon:'ic-pepper', color:'#E7414C', size:22, private:true, vibe:'Bold, spicy, family-style Mexican cooking',
       myStreak:0, longestStreak:6,
       members:[
         {name:'Carlos', color:'#E7414C', done:true}, {name:'Diego', color:'#FFB703', done:true},
@@ -674,29 +687,34 @@
       { title:'No-takeout week', from:'Community challenge · 212 joined', progress:2, total:7, color:'#FF6B35' },
     ],
     chats:[
-      { id:'kosher', name:'Kosher Shabbat Prep', emoji:'🕯️', color:'#6A4C93', size:16, private:true,
+      { id:'kosher', name:'Kosher Shabbat Prep', icon:'ic-candle', color:'#6A4C93', size:16, private:false,
         members:[{name:'Rina',color:'#6A4C93',done:true},{name:'Eli',color:'#1982C4',done:true},{name:'Noa',color:'#E7414C',done:false}],
         feed:[{type:'proof', name:'Rina', color:'#6A4C93', caption:'Challah dough resting 🍞', time:'6h', seed:'ks-1'}] },
-      { id:'pasta', name:'Pasta Night Regulars', emoji:'🍝', color:'#FFB703', size:24, private:false,
+      { id:'pasta', name:'Pasta Night Regulars', icon:'ic-noodles', color:'#FFB703', size:24, private:false,
         members:[{name:'Julien',color:'#E7414C',done:true},{name:'Fatou',color:'#1982C4',done:true},{name:'Marie',color:'#6A4C93',done:false}],
         feed:[{type:'proof', name:'Julien', color:'#E7414C', caption:'Fresh tagliatelle 🍝', time:'1h', seed:'pn-1'}] },
     ],
     discover:[
-      { id:'vegan', name:'Vegan Paris Cooks', emoji:'🥦', color:'#7A9169', size:45, private:false,
+      { id:'vegan', name:'Vegan Paris Cooks', icon:'ic-leaf', color:'#7A9169', size:45, private:false,
         members:[{name:'Sofia',color:'#7A9169',done:true},{name:'Tom',color:'#B08968',done:false}],
         feed:[{type:'proof', name:'Sofia', color:'#7A9169', caption:'Jackfruit tacos tonight 🌮', time:'3h', seed:'vg-1'}] },
-      { id:'brunch', name:'Sunday Brunch Club', emoji:'🥐', color:'#C9A15A', size:29, private:false,
+      { id:'brunch', name:'Sunday Brunch Club', icon:'ic-croissant', color:'#C9A15A', size:29, private:false,
         members:[{name:'Nina',color:'#C9A15A',done:true},{name:'Ana',color:'#A5644E',done:true}],
         feed:[{type:'proof', name:'Nina', color:'#C9A15A', caption:'Shakshuka Sunday 🍳', time:'5h', seed:'br-1'}] },
     ],
   };
 
   const recipes = [
-    { id:'r1', name:'Miso Glazed Salmon', from:'Léa', crew:'mycrew', rating:4, tags:['dinner','fish'], seed:'r1' },
-    { id:'r2', name:"Grandma's Challah", from:'You', crew:'kosher', rating:5, tags:['baking','shabbat'], seed:'r2' },
-    { id:'r3', name:'Almond Flour Pancakes', from:'Priya', crew:'nogluten', rating:4, tags:['breakfast','gluten-free'], seed:'r3' },
-    { id:'r4', name:'Al Pastor Tacos', from:'Carlos', crew:'mexican', rating:5, tags:['dinner','spicy'], seed:'r4' },
-    { id:'r5', name:'Fresh Tagliatelle', from:'Julien', crew:'pasta', rating:4, tags:['pasta','date-night'], seed:'r5' },
+    { id:'r1', name:'Miso Glazed Salmon', from:'Léa', crew:'mycrew', rating:4, tags:['dinner','fish'], seed:'r1',
+      content:'- 2 salmon fillets\n- 2 tbsp miso paste\n- 1 tbsp honey\n- 1 tbsp soy sauce\n- 1 tsp sesame oil\n\n1. Whisk miso, honey, soy sauce and sesame oil.\n2. Coat the salmon and marinate 20 min.\n3. Broil 8-10 min until caramelized.' },
+    { id:'r2', name:"Grandma's Challah", from:'You', crew:'kosher', rating:5, tags:['baking','shabbat'], seed:'r2',
+      content:'- 500g flour\n- 2 eggs + 1 for egg wash\n- 80g sugar\n- 10g yeast\n- 100ml oil\n- 200ml warm water\n- 1 tsp salt\n\n1. Mix and knead 10 min into a smooth dough.\n2. Prove 1h until doubled.\n3. Braid into 3 or 6 strands, prove 30 min more.\n4. Egg wash and bake 25 min at 190°C.' },
+    { id:'r3', name:'Almond Flour Pancakes', from:'Priya', crew:'nogluten', rating:4, tags:['breakfast','gluten-free'], seed:'r3',
+      content:'- 1 cup almond flour\n- 2 eggs\n- 1/4 cup milk\n- 1 tsp baking powder\n- 1 tbsp maple syrup\n\n1. Whisk everything together into a smooth batter.\n2. Cook small pancakes 2 min per side on medium heat.' },
+    { id:'r4', name:'Al Pastor Tacos', from:'Carlos', crew:'mexican', rating:5, tags:['dinner','spicy'], seed:'r4',
+      content:'- 500g pork shoulder, thin sliced\n- 2 dried guajillo chiles\n- 1 chipotle in adobo\n- 1/4 pineapple, diced\n- Corn tortillas, onion, cilantro\n\n1. Blend chiles with adobo, garlic and spices into a marinade.\n2. Marinate pork 2h+.\n3. Sear hot and fast, chop, serve on tortillas with pineapple, onion, cilantro.' },
+    { id:'r5', name:'Fresh Tagliatelle', from:'Julien', crew:'pasta', rating:4, tags:['pasta','date-night'], seed:'r5',
+      content:'- 200g "00" flour\n- 2 eggs\n\n1. Mound flour, well in the center, add eggs.\n2. Knead 10 min until smooth, rest 30 min wrapped.\n3. Roll thin, cut into tagliatelle, cook 2-3 min in salted boiling water.' },
   ];
 
   const REWARDS = [
@@ -765,12 +783,16 @@
       : `<span class="lock-tag"><svg><use href="#ic-globe"/></svg>Public</span>`;
   }
 
+  function iconTag(c){
+    return `<svg style="color:${c.color}"><use href="#${c.icon || 'ic-bowl'}"/></svg>`;
+  }
+
   function crewCardHtml(c){
     const cookedToday = c.members.filter(m => m.done).length;
     const streakBit = c.myStreak !== undefined ? `<div class="crew-streak">🔥${c.myStreak}</div>` : '';
     return `
       <div class="crew-card" data-crew="${c.id}">
-        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent)">${c.emoji}</div>
+        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent)">${iconTag(c)}</div>
         <div class="crew-body">
           <div class="crew-name">${c.name}</div>
           <div class="crew-sub">${cookedToday}/${c.size} cooked today · ${visTag(c)}</div>
@@ -784,7 +806,7 @@
   function discoverCardHtml(c){
     return `
       <div class="crew-card" style="cursor:default;">
-        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent)">${c.emoji}</div>
+        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent)">${iconTag(c)}</div>
         <div class="crew-body">
           <div class="crew-name">${c.name}</div>
           <div class="crew-sub">${c.size} members · ${visTag(c)}</div>
@@ -966,11 +988,20 @@
   });
 
   // ---------------- New crew ----------------
+  const CREW_ICONS = ['ic-bowl','ic-chefhat','ic-wheat','ic-pepper','ic-candle','ic-noodles','ic-leaf','ic-croissant'];
   let selectedCrewColor = SWATCHES[0];
-  let selectedVisibility = 'public';
+  let selectedCrewIcon = 'ic-bowl';
+  let creationContext = 'crews'; // 'crews' → private My Crew, 'local' → public local community
   let selectedInvitees = [];
   let inviteSearch = '';
   function renderCreateCrewForm(){
+    document.getElementById('crewIconPicker').innerHTML = CREW_ICONS.map(ic => `
+      <button class="${ic===selectedCrewIcon?'sel':''}" data-icon="${ic}"><svg><use href="#${ic}"/></svg></button>
+    `).join('');
+    document.querySelectorAll('#crewIconPicker button').forEach(btn => {
+      btn.addEventListener('click', () => { selectedCrewIcon = btn.dataset.icon; renderCreateCrewForm(); });
+    });
+
     document.getElementById('crewSwatchRow').innerHTML = SWATCHES.map(c => `
       <div class="swatch ${c===selectedCrewColor?'sel':''}" style="background:${c}" data-color="${c}"></div>
     `).join('');
@@ -978,16 +1009,17 @@
       sw.addEventListener('click', () => { selectedCrewColor = sw.dataset.color; renderCreateCrewForm(); });
     });
 
-    document.querySelectorAll('#crewVisibilitySwitch button').forEach(btn => {
-      btn.classList.toggle('sel', btn.dataset.v === selectedVisibility);
-      btn.onclick = () => { selectedVisibility = btn.dataset.v; renderCreateCrewForm(); };
-    });
-    document.getElementById('visibilityNote').textContent = selectedVisibility === 'public'
-      ? 'Anyone can find this crew and join.'
-      : 'Only people you add can see and join this crew.';
-    document.getElementById('inviteFriendsBlock').style.display = selectedVisibility === 'private' ? 'block' : 'none';
+    // Visibility is automatic, not a manual toggle: crews created from "My Crews"
+    // are private (you invite who's in); crews created from "Local" are public
+    // so anyone nearby can find and join them.
+    const isPrivate = creationContext === 'crews';
+    document.getElementById('visibilityLabel').textContent = 'Visibility';
+    document.getElementById('visibilityNote').innerHTML = isPrivate
+      ? `<svg style="width:13px;height:13px"><use href="#ic-lock"/></svg> Private — a My Crew, only people you add can join.`
+      : `<svg style="width:13px;height:13px"><use href="#ic-globe"/></svg> Public — a Local community, anyone nearby can find and join.`;
+    document.getElementById('inviteFriendsBlock').style.display = isPrivate ? 'block' : 'none';
 
-    if(selectedVisibility === 'private'){
+    if(isPrivate){
       const q = inviteSearch.trim().toLowerCase();
       const list = friends.filter(f => f.name.toLowerCase().includes(q));
       document.getElementById('inviteFriendsList').innerHTML = list.map(f => `
@@ -1012,7 +1044,8 @@
   document.getElementById('newCrewFab').addEventListener('click', () => {
     document.getElementById('newCrewName').value = '';
     document.getElementById('newCrewVibe').value = '';
-    selectedCrewColor = SWATCHES[0]; selectedVisibility = 'public'; selectedInvitees = []; inviteSearch = '';
+    creationContext = activeSwitch; // create from My Crews → private crew; from Local → public community
+    selectedCrewColor = SWATCHES[0]; selectedCrewIcon = 'ic-bowl'; selectedInvitees = []; inviteSearch = '';
     renderCreateCrewForm();
     openSheet(document.getElementById('sheetCreateCrew'));
   });
@@ -1021,22 +1054,24 @@
     const name = document.getElementById('newCrewName').value.trim();
     if(!name) return;
     const vibe = document.getElementById('newCrewVibe').value.trim();
+    const isPrivate = creationContext === 'crews';
     const members = [{name:'You', color:'#D9713C', done:false}];
-    if(selectedVisibility === 'private'){
+    if(isPrivate){
       selectedInvitees.forEach(n => {
         const f = friends.find(x => x.name === n);
         if(f) members.push({name:f.name, color:f.color, done:false});
       });
     }
-    crews.push({
-      id:'crew'+Date.now(), name, emoji:'🍽️', color:selectedCrewColor, size:members.length,
-      private: selectedVisibility === 'private', vibe: vibe || 'New crew',
-      myStreak:0, longestStreak:0,
+    const newCrew = {
+      id:'crew'+Date.now(), name, icon:selectedCrewIcon, color:selectedCrewColor, size:members.length,
+      private: isPrivate, vibe: vibe || 'New crew',
+      myStreak: isPrivate ? 0 : undefined, longestStreak:0,
       members, event:null, challenge:null, feed:[],
-    });
+    };
+    if(isPrivate){ crews.push(newCrew); } else { local.chats.push(newCrew); }
     closeSheets();
-    activeSwitch = 'crews';
-    document.querySelectorAll('#topSwitch button').forEach(b => b.classList.toggle('sel', b.dataset.v === 'crews'));
+    activeSwitch = creationContext;
+    document.querySelectorAll('#topSwitch button').forEach(b => b.classList.toggle('sel', b.dataset.v === creationContext));
     renderAll();
   });
 
@@ -1065,7 +1100,8 @@
       <div class="note">${r.from === 'You' ? 'Added by you' : 'Shared by ' + r.from}</div>
       <div class="star-row" id="recipeStars"></div>
       <div class="tag-row">${r.tags.map(t => `<span class="tag-pill">${t}</span>`).join('')}</div>
-      <div style="height:8px"></div>
+      <div class="field-label">Recipe</div>
+      <p style="white-space:pre-wrap; font-size:13.5px; line-height:1.55; color:var(--text); margin:0 0 14px;">${r.content ? r.content.replace(/</g,'&lt;') : 'No details added yet.'}</p>
       <button class="btn-primary" id="pimpBtn" style="margin-bottom:10px;"><svg><use href="#ic-sparkle"/></svg>Pimp it up</button>
       <button class="btn-primary" id="exportBtn" style="background:var(--card-raised); color:var(--text); border:1px solid var(--separator); margin-bottom:10px;"><svg style="color:var(--text)"><use href="#ic-download"/></svg>Export as PDF</button>
       <button class="btn-primary" id="shareRecipeBtn" style="background:var(--card-raised); color:var(--text); border:1px solid var(--separator);"><svg style="color:var(--text)"><use href="#ic-friends"/></svg>Share to a crew</button>
@@ -1082,7 +1118,7 @@
     document.getElementById('shareRecipeBtn').addEventListener('click', (e) => {
       const row = document.getElementById('shareCrewRow');
       row.style.display = 'flex';
-      row.innerHTML = crews.map(c => `<div class="cat-chip" data-share-crew="${c.id}">${c.emoji} ${c.name}</div>`).join('');
+      row.innerHTML = crews.map(c => `<div class="cat-chip" data-share-crew="${c.id}"><svg style="width:13px;height:13px;color:${c.color}"><use href="#${c.icon||'ic-bowl'}"/></svg> ${c.name}</div>`).join('');
       row.querySelectorAll('[data-share-crew]').forEach(chip => {
         chip.addEventListener('click', () => {
           const c = crews.find(x => x.id === chip.dataset.shareCrew);
@@ -1102,6 +1138,7 @@
   document.getElementById('addRecipeBtn').addEventListener('click', () => {
     document.getElementById('addRecipeName').value = '';
     document.getElementById('addRecipeTags').value = '';
+    document.getElementById('addRecipeContent').value = '';
     addRecipeRating = 4;
     addRecipeHasPhoto = false;
     const well = document.getElementById('addRecipeWell');
@@ -1126,10 +1163,11 @@
     const name = document.getElementById('addRecipeName').value.trim();
     if(!name) return;
     const tags = document.getElementById('addRecipeTags').value.split(',').map(t => t.trim()).filter(Boolean);
+    const content = document.getElementById('addRecipeContent').value.trim();
     recipes.unshift({
       id:'recipe'+Date.now(), name, from:'You', crew:null,
       rating: addRecipeRating, tags: tags.length ? tags : ['home'],
-      seed: 'you-recipe-'+Date.now(),
+      seed: 'you-recipe-'+Date.now(), content,
     });
     closeSheet('sheetAddRecipe');
     renderRecipes();
@@ -1142,7 +1180,7 @@
 
     const mostActive = [...crews].sort((a,b) => (b.myStreak||0)-(a.myStreak||0))[0];
     document.getElementById('mostActiveCard').innerHTML = mostActive ? `
-      <div class="crew-emoji" style="background:color-mix(in srgb, ${mostActive.color} 20%, transparent); width:36px; height:36px; font-size:16px;">${mostActive.emoji}</div>
+      <div class="crew-emoji" style="background:color-mix(in srgb, ${mostActive.color} 20%, transparent); width:36px; height:36px;">${iconTag(mostActive)}</div>
       <div style="flex:1"><div style="font-size:12.5px; font-weight:700;">Most active in ${mostActive.name}</div><div style="font-size:11px; color:var(--text-secondary)">🔥 ${mostActive.myStreak}-day streak there</div></div>
     ` : '';
 
@@ -1163,7 +1201,7 @@
 
     document.getElementById('crewStatsList').innerHTML = crews.map(c => `
       <div class="crew-stat-row">
-        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent); width:34px; height:34px; font-size:15px;">${c.emoji}</div>
+        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent); width:34px; height:34px;">${iconTag(c)}</div>
         <div class="csr-body">
           <div class="csr-name">${c.name}</div>
           <div class="csr-sub">${c.feed.filter(f => f.type === 'proof' && f.name === 'You').length} proofs posted · longest 🔥${c.longestStreak}</div>
@@ -1277,7 +1315,7 @@
   // ---------------- Widgets ----------------
   function renderWidgetPicker(){
     document.getElementById('widgetCrewPicker').innerHTML = crews.map(c => `
-      <button data-crew="${c.id}" class="${c.id===widgetCrewId?'sel':''}" style="background:color-mix(in srgb, ${c.color} 22%, transparent)">${c.emoji}</button>
+      <button data-crew="${c.id}" class="${c.id===widgetCrewId?'sel':''}" style="background:color-mix(in srgb, ${c.color} 22%, transparent); color:${c.color}"><svg style="width:16px;height:16px"><use href="#${c.icon||'ic-bowl'}"/></svg></button>
     `).join('');
     document.querySelectorAll('#widgetCrewPicker button').forEach(btn => {
       btn.addEventListener('click', () => { widgetCrewId = btn.dataset.crew; renderWidgets(); document.querySelectorAll('#widgetCrewPicker button').forEach(b => b.classList.toggle('sel', b===btn)); });
