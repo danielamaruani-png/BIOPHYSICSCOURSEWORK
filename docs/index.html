@@ -211,6 +211,8 @@
   .small-btn.ghost{ background:var(--card-raised); color:var(--text-secondary); border:1px solid var(--separator); }
   .lock-tag{ display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:700; color:var(--text-tertiary); }
   .lock-tag svg{ width:10px; height:10px; }
+  .boost-tag{ display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:800; color:var(--accent); }
+  .boost-tag svg{ width:10px; height:10px; }
 
   /* ---------- Toggle switch ---------- */
   .toggle-row{ display:flex; align-items:center; gap:11px; background:var(--card); border:1px solid var(--separator); border-radius:14px; padding:12px 13px; margin-bottom:10px; }
@@ -346,6 +348,8 @@
   <symbol id="ic-bolt" viewBox="0 0 24 24"><path d="M13 3L5 13.5h5.5L10 21l8.5-11.5H13z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
   <symbol id="ic-dumbbell" viewBox="0 0 24 24"><path d="M7 12h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="2.8" y="9" width="3.4" height="6" rx="1.3" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="17.8" y="9" width="3.4" height="6" rx="1.3" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
   <symbol id="ic-briefcase" viewBox="0 0 24 24"><rect x="3.5" y="8" width="17" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 8V6.3a1.8 1.8 0 0 1 1.8-1.8h3.4a1.8 1.8 0 0 1 1.8 1.8V8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3.5 13h17M10.5 13v1.6h3V13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3.5l7 2.8v5.2c0 4.6-3 7.8-7 9-4-1.2-7-4.4-7-9V6.3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-rocket" viewBox="0 0 24 24"><path d="M12 2.5c2.6 1.8 4.2 5 4.2 8.6 0 2-.5 3.8-1.3 5.2H9.1c-.8-1.4-1.3-3.2-1.3-5.2 0-3.6 1.6-6.8 4.2-8.6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="10" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M9 16.3l-2.3 4M15 16.3l2.3 4M10.3 20.5h3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
 <div class="masthead">
@@ -479,6 +483,16 @@
 
               <div class="section-label">Challenges</div>
               <div id="profileChallenges"></div>
+
+              <div class="section-label">&nbsp;</div>
+              <div class="next-event-row" id="creatorToolsRow">
+                <div class="ner-icon"><svg><use href="#ic-shield"/></svg></div>
+                <div class="ner-body">
+                  <div class="ner-title">Creator tools</div>
+                  <div class="ner-sub">Manage rewards & boosted communities</div>
+                </div>
+                <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+              </div>
 
               <div class="section-label">&nbsp;</div>
               <div class="row" style="justify-content:center; color:#E7414C; font-weight:700; cursor:pointer;">Sign out</div>
@@ -639,6 +653,65 @@
             <div class="field-label" style="margin-top:4px">City or region</div>
             <input class="text-input" id="changeLocalInput" placeholder="e.g. Paris, Brooklyn, Lisbon">
             <p class="note" style="margin-top:8px;">This is the local community you discover, search, and join people in.</p>
+          </div>
+        </div>
+
+        <!-- ADMIN: CREATOR TOOLS -->
+        <div class="sheet" id="sheetAdmin">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="adminClose"><svg style="width:20px;height:20px"><use href="#ic-chevron-left"/></svg>Close</button>
+            <div class="title">Creator Tools</div>
+            <span style="width:50px"></span>
+          </div>
+          <div class="content">
+            <p class="note" style="margin-bottom:12px;">Only visible to app creators — manage global rewards and promote official communities.</p>
+            <div class="section-label">Rewards<button class="small-btn" id="addRewardBtn">+ Add</button></div>
+            <div id="adminRewardsList"></div>
+            <div class="section-label" style="margin-top:14px;">Boosted communities<svg style="width:14px;height:14px;color:var(--text-tertiary)"><use href="#ic-rocket"/></svg></div>
+            <p class="note" style="margin-bottom:10px;">Official public communities, pinned and highlighted in Local discovery.</p>
+            <div id="adminBoostedList"></div>
+            <button class="btn-primary" id="createBoostedBtn" style="margin-top:8px;"><svg><use href="#ic-rocket"/></svg>Create boosted community</button>
+          </div>
+        </div>
+
+        <!-- EDIT REWARD -->
+        <div class="sheet" id="sheetEditReward" style="top:auto; height:auto; bottom:0; border-radius:24px 24px 0 0;">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="editRewardCancel">Cancel</button>
+            <div class="title" id="editRewardTitle">Edit reward</div>
+            <button class="nav-btn" id="editRewardSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content" style="padding-bottom:26px;">
+            <div class="field-label" style="margin-top:4px">Streak needed (days)</div>
+            <input class="text-input" id="editRewardDays" type="number" min="1" max="365">
+            <div class="field-label">Icon (emoji)</div>
+            <input class="text-input" id="editRewardIcon" maxlength="4" placeholder="🎁">
+            <div class="field-label">Reward</div>
+            <input class="text-input" id="editRewardLabel" placeholder="e.g. 1 month HelloFresh at -10%">
+            <button class="btn-primary" id="editRewardDelete" style="background:var(--card-raised); color:#E7414C; border:1px solid var(--separator); margin-top:16px;">Delete reward</button>
+          </div>
+        </div>
+
+        <!-- CREATE BOOSTED COMMUNITY -->
+        <div class="sheet" id="sheetCreateBoosted">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="createBoostedCancel">Cancel</button>
+            <div class="title">Boosted community</div>
+            <button class="nav-btn" id="createBoostedSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content">
+            <div class="field-label" style="margin-top:4px">Name</div>
+            <input class="text-input" id="newBoostedName" placeholder="e.g. Proof Official Runners">
+            <div class="field-label">Vibe</div>
+            <input class="text-input" id="newBoostedVibe" placeholder="e.g. Official crew, curated events every week">
+            <div class="field-label">Icon</div>
+            <div class="icon-pick-row" id="boostedIconPicker"></div>
+            <div class="field-label">Colour</div>
+            <div class="swatch-row" id="boostedSwatchRow"></div>
+            <p class="note" style="margin-top:10px;">🚀 Boosted communities are public and pinned at the top of Local discovery.</p>
           </div>
         </div>
 
@@ -847,8 +920,9 @@
       el.innerHTML = crews.map(crewCardHtml).join('') || `<p class="note">No crews yet — tap + to start one.</p>`;
     } else {
       const q = localSearch.trim().toLowerCase();
+      const boostedFirst = [...local.discover].sort((a,b) => (b.boosted?1:0) - (a.boosted?1:0));
       const chatMatches = local.chats.filter(c => c.name.toLowerCase().includes(q));
-      const discoverMatches = local.discover.filter(c => c.name.toLowerCase().includes(q));
+      const discoverMatches = boostedFirst.filter(c => c.name.toLowerCase().includes(q));
       el.innerHTML = `
         <div class="search-row"><svg><use href="#ic-search"/></svg><input id="localSearchInput" placeholder="Search local communities…" value="${localSearch}"></div>
         ${q ? `
@@ -864,7 +938,7 @@
           <div class="section-label">Chats</div>
           ${local.chats.map(crewCardHtml).join('')}
           <div class="section-label">Discover more nearby</div>
-          ${local.discover.map(discoverCardHtml).join('')}
+          ${boostedFirst.map(discoverCardHtml).join('')}
         `}
       `;
     }
@@ -898,12 +972,13 @@
   }
 
   function discoverCardHtml(c){
+    const boostBit = c.boosted ? `<span class="boost-tag"><svg><use href="#ic-rocket"/></svg>Boosted</span> · ` : '';
     return `
-      <div class="crew-card" style="cursor:default;">
+      <div class="crew-card" style="cursor:default; ${c.boosted ? 'border-color:var(--accent);' : ''}">
         <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent)">${iconTag(c)}</div>
         <div class="crew-body">
           <div class="crew-name">${c.name}</div>
-          <div class="crew-sub">${c.size} members · ${visTag(c)}</div>
+          <div class="crew-sub">${boostBit}${c.size} members · ${visTag(c)}</div>
         </div>
         <button class="small-btn" data-join="${c.id}">Join</button>
       </div>
@@ -1267,6 +1342,113 @@
     renderAll();
   });
 
+  // ---------------- Creator tools: Rewards + Boosted communities ----------------
+  document.getElementById('creatorToolsRow').addEventListener('click', () => {
+    renderAdmin();
+    openSheet(document.getElementById('sheetAdmin'));
+  });
+  document.getElementById('adminClose').addEventListener('click', closeSheets);
+
+  function renderAdmin(){
+    document.getElementById('adminRewardsList').innerHTML = REWARDS.map((r,i) => `
+      <div class="row" data-reward-idx="${i}" style="cursor:pointer;">
+        <div class="avatar" style="background:var(--card-raised); font-size:16px;">${r.icon}</div>
+        <div style="flex:1"><div class="name">${r.label}</div><div class="sub">🔥 ${r.days}-day streak</div></div>
+        <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+      </div>
+    `).join('');
+    document.querySelectorAll('#adminRewardsList [data-reward-idx]').forEach(row => {
+      row.addEventListener('click', () => openEditReward(+row.dataset.rewardIdx));
+    });
+
+    const boosted = local.discover.filter(c => c.boosted);
+    document.getElementById('adminBoostedList').innerHTML = boosted.map(c => `
+      <div class="row">
+        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent); width:34px; height:34px;">${iconTag(c)}</div>
+        <div style="flex:1"><div class="name">${c.name}</div><div class="sub">${c.size} members</div></div>
+        <button class="small-btn ghost" data-remove-boosted="${c.id}">Remove</button>
+      </div>
+    `).join('') || `<p class="note">No boosted communities yet.</p>`;
+    document.querySelectorAll('[data-remove-boosted]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = local.discover.findIndex(c => c.id === btn.dataset.removeBoosted);
+        if(idx > -1) local.discover.splice(idx, 1);
+        renderAdmin();
+        renderAll();
+      });
+    });
+  }
+
+  let editingRewardIndex = -1;
+  function openEditReward(idx){
+    editingRewardIndex = idx;
+    const r = idx === -1 ? { days:7, icon:'🎁', label:'' } : REWARDS[idx];
+    document.getElementById('editRewardTitle').textContent = idx === -1 ? 'New reward' : 'Edit reward';
+    document.getElementById('editRewardDays').value = r.days;
+    document.getElementById('editRewardIcon').value = r.icon;
+    document.getElementById('editRewardLabel').value = r.label;
+    document.getElementById('editRewardDelete').style.display = idx === -1 ? 'none' : 'block';
+    openSheet(document.getElementById('sheetEditReward'));
+  }
+  document.getElementById('addRewardBtn').addEventListener('click', () => openEditReward(-1));
+  document.getElementById('editRewardCancel').addEventListener('click', () => closeSheet('sheetEditReward'));
+  document.getElementById('editRewardSave').addEventListener('click', () => {
+    const days = Math.max(1, +document.getElementById('editRewardDays').value || 7);
+    const icon = document.getElementById('editRewardIcon').value.trim() || '🎁';
+    const label = document.getElementById('editRewardLabel').value.trim();
+    if(!label) return;
+    const reward = { days, icon, label };
+    if(editingRewardIndex === -1){ REWARDS.push(reward); } else { REWARDS[editingRewardIndex] = reward; }
+    REWARDS.sort((a,b) => a.days - b.days);
+    closeSheet('sheetEditReward');
+    renderAdmin();
+    renderAll();
+  });
+  document.getElementById('editRewardDelete').addEventListener('click', () => {
+    if(editingRewardIndex > -1) REWARDS.splice(editingRewardIndex, 1);
+    closeSheet('sheetEditReward');
+    renderAdmin();
+    renderAll();
+  });
+
+  let selectedBoostedIcon = 'ic-rocket';
+  let selectedBoostedColor = SWATCHES[0];
+  function renderBoostedForm(){
+    document.getElementById('boostedIconPicker').innerHTML = CREW_ICONS.map(ic => `
+      <button class="${ic===selectedBoostedIcon?'sel':''}" data-icon="${ic}"><svg><use href="#${ic}"/></svg></button>
+    `).join('');
+    document.querySelectorAll('#boostedIconPicker button').forEach(btn => {
+      btn.addEventListener('click', () => { selectedBoostedIcon = btn.dataset.icon; renderBoostedForm(); });
+    });
+    document.getElementById('boostedSwatchRow').innerHTML = SWATCHES.map(c => `
+      <div class="swatch ${c===selectedBoostedColor?'sel':''}" style="background:${c}" data-color="${c}"></div>
+    `).join('');
+    document.querySelectorAll('#boostedSwatchRow .swatch').forEach(sw => {
+      sw.addEventListener('click', () => { selectedBoostedColor = sw.dataset.color; renderBoostedForm(); });
+    });
+  }
+  document.getElementById('createBoostedBtn').addEventListener('click', () => {
+    document.getElementById('newBoostedName').value = '';
+    document.getElementById('newBoostedVibe').value = '';
+    selectedBoostedIcon = 'ic-rocket'; selectedBoostedColor = SWATCHES[0];
+    renderBoostedForm();
+    openSheet(document.getElementById('sheetCreateBoosted'));
+  });
+  document.getElementById('createBoostedCancel').addEventListener('click', () => closeSheet('sheetCreateBoosted'));
+  document.getElementById('createBoostedSave').addEventListener('click', () => {
+    const name = document.getElementById('newBoostedName').value.trim();
+    if(!name) return;
+    const vibe = document.getElementById('newBoostedVibe').value.trim();
+    local.discover.unshift({
+      id:'boosted'+Date.now(), name, icon:selectedBoostedIcon, color:selectedBoostedColor,
+      size:1, private:false, boosted:true, vibe: vibe || 'Official Proof community',
+      members:[{name:'You', color:'#D9713C', done:false}], feed:[],
+    });
+    closeSheet('sheetCreateBoosted');
+    renderAdmin();
+    renderAll();
+  });
+
   // ---------------- Profile ----------------
   function renderProfile(){
     const total = crews.reduce((s,c) => s + (c.myStreak||0), 0);
@@ -1518,7 +1700,7 @@
 
   // ---------------- Sheets / tabs plumbing ----------------
   const scrim = document.getElementById('scrim');
-  const ALL_SHEETS = ['sheetCrewChat','sheetCapture','sheetFabMenu','sheetCreateCrew','sheetCreateEvent','sheetCreateChallenge','sheetChangeLocal','sheetEvent','sheetFeedComments'];
+  const ALL_SHEETS = ['sheetCrewChat','sheetCapture','sheetFabMenu','sheetCreateCrew','sheetCreateEvent','sheetCreateChallenge','sheetChangeLocal','sheetAdmin','sheetEditReward','sheetCreateBoosted','sheetEvent','sheetFeedComments'];
   function openSheet(el){ scrim.classList.add('active'); el.classList.add('active'); }
   // Closes just one sheet — used when a sheet was opened *on top of*
   // another (Capture opened from within Crew Chat), so dismissing it
