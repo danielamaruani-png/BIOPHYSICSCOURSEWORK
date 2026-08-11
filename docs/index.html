@@ -252,20 +252,6 @@
   .sheet.active{ transform: translateY(0); pointer-events:auto; }
   .sheet-handle{ width:36px; height:5px; border-radius:3px; background:var(--separator); margin:8px auto 2px; flex:0 0 auto; }
 
-  /* ---------- Recipes ---------- */
-  .recipe-grid{ display:grid; grid-template-columns:1fr 1fr; gap:11px; }
-  .recipe-card{ background:var(--card); border:1px solid var(--separator); border-radius:16px; overflow:hidden; cursor:pointer; }
-  .recipe-photo{ aspect-ratio:1.1; }
-  .recipe-info{ padding:9px 10px 11px; }
-  .recipe-name{ font-size:12.5px; font-weight:700; line-height:1.25; }
-  .recipe-from{ font-size:10.5px; color:var(--text-secondary); margin-top:3px; }
-  .recipe-stars{ font-size:10px; color:var(--accent); margin-top:2px; }
-  .recipe-hero{ aspect-ratio:1.5; border-radius:16px; margin-bottom:12px; }
-  .star-row{ display:flex; gap:4px; margin:4px 0 2px; }
-  .star-row svg{ width:20px; height:20px; color:var(--track-empty); }
-  .star-row svg.filled{ color:var(--accent); }
-  .tag-row{ display:flex; gap:6px; flex-wrap:wrap; margin:8px 0 4px; }
-  .tag-pill{ background:var(--card-raised); border:1px solid var(--separator); border-radius:20px; padding:4px 10px; font-size:11px; font-weight:600; color:var(--text-secondary); }
 
   /* ---------- Profile ---------- */
   .row{ display:flex; align-items:center; gap:11px; background:var(--card); border-radius:14px; padding:11px 12px; margin-bottom:8px; border:1px solid var(--separator); }
@@ -336,7 +322,6 @@
   <symbol id="ic-chevron-right" viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="ic-xmark" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="ic-community" viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="9.5" r="2.7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 19c.4-2.8 2.2-4.4 4.5-4.4M21.5 19c-.4-2.8-2.2-4.4-4.5-4.4M8 19c.4-3 2-4.6 4-4.6s3.6 1.6 4 4.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
-  <symbol id="ic-recipebook" viewBox="0 0 24 24"><path d="M5 4.5h11a2 2 0 0 1 2 2V19H7a2 2 0 0 0-2 2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M5 19V6.5a2 2 0 0 1 2-2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 9h6M9 12.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
   <symbol id="ic-profile" viewBox="0 0 24 24"><circle cx="12" cy="8.3" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.8 19c.9-3.7 3.4-5.7 7.2-5.7s6.3 2 7.2 5.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
   <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/></symbol>
   <symbol id="ic-chat" viewBox="0 0 24 24"><path d="M4 5.5h16v11H9l-4 3.5v-3.5H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
@@ -365,7 +350,7 @@
 
 <div class="masthead">
   <h1><span class="flame">🔥</span>Proof</h1>
-  <p>Que des communautés : pas d'objectif solo, chaque crew EST l'objectif — sport, bouffe, travail, ce que tu veux. Explore My Crews / Local, un chat de crew, le Recipe Book, tes Friends, ton Profil — et des vraies rewards à chaque palier de streak.</p>
+  <p>Que des communautés : pas d'objectif solo, chaque crew EST l'objectif — sport, bouffe, travail, ce que tu veux. Explore My Crews / Local, un chat de crew, tes Friends, ton Profil — et des vraies rewards à chaque palier de streak.</p>
 </div>
 
 <div class="stage">
@@ -396,7 +381,7 @@
             <div class="content" style="padding-bottom:90px;">
               <div class="top-switch" id="topSwitch">
                 <button data-v="crews" class="sel">My Crews</button>
-                <button data-v="local">Local · Paris</button>
+                <button data-v="local" id="localSwitchBtn">Local · Paris</button>
               </div>
               <div id="homeContent"></div>
             </div>
@@ -404,7 +389,6 @@
             <nav class="tabbar">
               <button class="tab active" data-tab="home"><svg><use href="#ic-community"/></svg>Communities</button>
               <button class="tab" data-tab="feed"><svg><use href="#ic-bolt"/></svg>Feed</button>
-              <button class="tab" data-tab="recipes"><svg><use href="#ic-recipebook"/></svg>Recipes</button>
               <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
               <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
             </nav>
@@ -420,26 +404,6 @@
             <nav class="tabbar">
               <button class="tab" data-tab="home"><svg><use href="#ic-community"/></svg>Communities</button>
               <button class="tab active" data-tab="feed"><svg><use href="#ic-bolt"/></svg>Feed</button>
-              <button class="tab" data-tab="recipes"><svg><use href="#ic-recipebook"/></svg>Recipes</button>
-              <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
-              <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
-            </nav>
-          </section>
-
-          <!-- RECIPE BOOK -->
-          <section class="app-screen" data-screen="recipes">
-            <div class="navbar-row" style="padding-top:6px;">
-              <div class="large-title" style="font-size:28px;">Recipe Book</div>
-              <button class="nav-icon-btn" id="addRecipeBtn"><svg><use href="#ic-plus"/></svg></button>
-            </div>
-            <div class="content">
-              <p class="note" style="margin-bottom:12px">Saved from your crews' chats, or added by hand. Tap one to pimp it up, export it, or share it to a crew.</p>
-              <div class="recipe-grid" id="recipeGrid"></div>
-            </div>
-            <nav class="tabbar">
-              <button class="tab" data-tab="home"><svg><use href="#ic-community"/></svg>Communities</button>
-              <button class="tab" data-tab="feed"><svg><use href="#ic-bolt"/></svg>Feed</button>
-              <button class="tab active" data-tab="recipes"><svg><use href="#ic-recipebook"/></svg>Recipes</button>
               <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
               <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
             </nav>
@@ -459,7 +423,6 @@
             <nav class="tabbar">
               <button class="tab" data-tab="home"><svg><use href="#ic-community"/></svg>Communities</button>
               <button class="tab" data-tab="feed"><svg><use href="#ic-bolt"/></svg>Feed</button>
-              <button class="tab" data-tab="recipes"><svg><use href="#ic-recipebook"/></svg>Recipes</button>
               <button class="tab active" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
               <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
             </nav>
@@ -480,6 +443,15 @@
               <div class="total-streak-card">
                 <div><div class="tsc-lbl">Total streak</div><div class="tsc-num" id="totalStreakNum">🔥 0</div></div>
                 <svg style="width:34px;height:34px;opacity:.85"><use href="#ic-trophy"/></svg>
+              </div>
+
+              <div class="next-event-row" id="changeLocalRow">
+                <div class="ner-icon"><svg><use href="#ic-globe"/></svg></div>
+                <div class="ner-body">
+                  <div class="ner-title">Local</div>
+                  <div class="ner-sub" id="currentLocalLabel">Paris</div>
+                </div>
+                <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
               </div>
 
               <div class="toggle-row">
@@ -514,7 +486,6 @@
             <nav class="tabbar">
               <button class="tab" data-tab="home"><svg><use href="#ic-community"/></svg>Communities</button>
               <button class="tab" data-tab="feed"><svg><use href="#ic-bolt"/></svg>Feed</button>
-              <button class="tab" data-tab="recipes"><svg><use href="#ic-recipebook"/></svg>Recipes</button>
               <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
               <button class="tab active" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
             </nav>
@@ -601,7 +572,7 @@
           </div>
           <div class="content">
             <div class="field-label" style="margin-top:4px">Crew name</div>
-            <input class="text-input" id="newCrewName" placeholder="e.g. Family Recipes">
+            <input class="text-input" id="newCrewName" placeholder="e.g. Book Club">
             <div class="field-label">Vibe</div>
             <input class="text-input" id="newCrewVibe" placeholder="e.g. cozy Sunday dinners, spicy & bold, slow weeknight comfort">
             <div class="field-label">Icon</div>
@@ -656,39 +627,19 @@
           </div>
         </div>
 
-        <!-- ADD RECIPE -->
-        <div class="sheet" id="sheetAddRecipe">
+        <!-- CHANGE LOCAL -->
+        <div class="sheet" id="sheetChangeLocal" style="top:auto; height:auto; bottom:0; border-radius:24px 24px 0 0;">
           <div class="sheet-handle"></div>
           <div class="navbar-row">
-            <button class="nav-btn" id="addRecipeCancel">Cancel</button>
-            <div class="title">New recipe</div>
-            <button class="nav-btn" id="addRecipeSave" style="font-weight:800;">Save</button>
+            <button class="nav-btn" id="changeLocalCancel">Cancel</button>
+            <div class="title">Local</div>
+            <button class="nav-btn" id="changeLocalSave" style="font-weight:800;">Save</button>
           </div>
-          <div class="content">
-            <div class="photo-well" id="addRecipeWell">
-              <svg><use href="#ic-photo"/></svg>
-              <span>Add a photo</span>
-            </div>
-            <div class="field-label" style="margin-top:4px">Recipe name</div>
-            <input class="text-input" id="addRecipeName" placeholder="e.g. Grandma's Challah">
-            <div class="field-label">Tags</div>
-            <input class="text-input" id="addRecipeTags" placeholder="e.g. baking, shabbat, dinner">
-            <div class="field-label">Your rating</div>
-            <div class="star-row" id="addRecipeStars"></div>
-            <div class="field-label">Recipe</div>
-            <textarea class="caption-field" id="addRecipeContent" style="min-height:140px;" placeholder="Ingredients & steps…&#10;e.g.&#10;- 500g flour&#10;- 2 eggs&#10;1. Mix and knead 10 min&#10;2. Prove 1h, shape, bake 25 min at 190°C"></textarea>
+          <div class="content" style="padding-bottom:26px;">
+            <div class="field-label" style="margin-top:4px">City or region</div>
+            <input class="text-input" id="changeLocalInput" placeholder="e.g. Paris, Brooklyn, Lisbon">
+            <p class="note" style="margin-top:8px;">This is the local community you discover, search, and join people in.</p>
           </div>
-        </div>
-
-        <!-- RECIPE DETAIL -->
-        <div class="sheet" id="sheetRecipe">
-          <div class="sheet-handle"></div>
-          <div class="navbar-row">
-            <button class="nav-btn" id="recipeClose"><svg style="width:20px;height:20px"><use href="#ic-chevron-left"/></svg>Close</button>
-            <div class="title">Recipe</div>
-            <span style="width:50px"></span>
-          </div>
-          <div class="content" id="recipeDetailContent"></div>
         </div>
 
         <!-- EVENT DETAIL -->
@@ -723,7 +674,6 @@
       <div class="legend-row"><svg><use href="#ic-community"/></svg>Tape un crew → chat avec bannière "checked in today"</div>
       <div class="legend-row"><svg><use href="#ic-plus"/></svg>Bouton + → créer un crew : vibe libre, public ou privé + amis</div>
       <div class="legend-row"><svg><use href="#ic-search"/></svg>Local → cherche des communautés, events, challenges, chats</div>
-      <div class="legend-row"><svg><use href="#ic-recipebook"/></svg>Recipes → ajoute les tiennes, pimp up ✨, export PDF ⬇, share 👥</div>
       <div class="legend-row"><svg><use href="#ic-friends"/></svg>Friends → cherche, invite, accepte tes partenaires</div>
       <div class="legend-row"><svg><use href="#ic-gift"/></svg>Profile → rewards réelles débloquées à chaque palier</div>
     </div>
@@ -747,7 +697,7 @@
 
     <div>
       <div class="panel-title" style="margin-bottom:10px">Ce que montre cet aperçu</div>
-      <p class="note">Structure : plus d'onglet "objectifs solo" — <b>Communities</b> est l'accueil (My Crews + Local), <b>Recipes</b>, et <b>Profile</b> avec les stats par crew. Rendu en HTML pour que tu puisses le voir avant le build Xcode.</p>
+      <p class="note">Structure : plus d'onglet "objectifs solo" — <b>Communities</b> est l'accueil (My Crews + Local), <b>Feed</b>, <b>Friends</b>, et <b>Profile</b> avec les stats par crew. Rendu en HTML pour que tu puisses le voir avant le build Xcode.</p>
     </div>
   </div>
 </div>
@@ -835,15 +785,6 @@
     discover:[],
   };
 
-  const recipes = [
-    { id:'r1', name:'Miso Glazed Salmon', from:'Léa', crew:'mycrew', rating:4, tags:['dinner','fish'], seed:'r1',
-      content:'- 2 salmon fillets\n- 2 tbsp miso paste\n- 1 tbsp honey\n- 1 tbsp soy sauce\n- 1 tsp sesame oil\n\n1. Whisk miso, honey, soy sauce and sesame oil.\n2. Coat the salmon and marinate 20 min.\n3. Broil 8-10 min until caramelized.' },
-    { id:'r2', name:"Grandma's Challah", from:'Rina', crew:'cookingathome', rating:5, tags:['baking'], seed:'r2',
-      content:'- 500g flour\n- 2 eggs + 1 for egg wash\n- 80g sugar\n- 10g yeast\n- 100ml oil\n- 200ml warm water\n- 1 tsp salt\n\n1. Mix and knead 10 min into a smooth dough.\n2. Prove 1h until doubled.\n3. Braid into 3 or 6 strands, prove 30 min more.\n4. Egg wash and bake 25 min at 190°C.' },
-    { id:'r3', name:'Fresh Tagliatelle', from:'Julien', crew:'cookingathome', rating:4, tags:['pasta','date-night'], seed:'r3',
-      content:'- 200g "00" flour\n- 2 eggs\n\n1. Mound flour, well in the center, add eggs.\n2. Knead 10 min until smooth, rest 30 min wrapped.\n3. Roll thin, cut into tagliatelle, cook 2-3 min in salted boiling water.' },
-  ];
-
   const REWARDS = [
     { days:7,   icon:'🥄', label:'Wooden spoon set' },
     { days:14,  icon:'👕', label:'Proof apron' },
@@ -887,9 +828,16 @@
   let activeCrewId = null; // crew currently open in chat (could be from crews[] or local.chats[])
   let captureCrewId = null;
   let widgetCrewId = 'mycrew';
+  let localCity = 'Paris';
 
   function allCrewLike(){ return [...crews, ...local.chats, ...local.discover]; }
   function findCrewLike(id){ return allCrewLike().find(c => c.id === id); }
+
+  function localLabel(){ return 'Local · ' + localCity; }
+  function renderLocalLabel(){
+    document.getElementById('localSwitchBtn').textContent = localLabel();
+    document.getElementById('currentLocalLabel').textContent = localCity;
+  }
 
   // ---------------- Render: Home (Communities) ----------------
   let localSearch = '';
@@ -1056,19 +1004,6 @@
           </div>
           <div class="fp-photo" style="${thumbStyle(seedFromString(item.seed))}"></div>
           <div class="fp-caption">${item.caption}</div>
-        </div>
-      `;
-    }
-    if(item.type === 'recipe'){
-      return `
-        <div class="feed-post">
-          <div class="fp-head">
-            <div class="fp-avatar" style="background:${item.color}">${item.name[0]}</div>
-            <div class="fp-name">${item.name} shared a recipe</div>
-            <div class="fp-time">${item.time}</div>
-          </div>
-          <div class="fp-photo" style="${thumbStyle(seedFromString(item.seed))}"></div>
-          <div class="fp-caption">🍽️ ${item.recipeName}</div>
         </div>
       `;
     }
@@ -1239,7 +1174,7 @@
 
   // ---------------- New event / New challenge ("for" target = a My Crew, or Local) ----------------
   function forTargets(){
-    return [{ id:'local', name:'Local · Paris', color:'var(--accent)', icon:'ic-globe' }, ...crews];
+    return [{ id:'local', name:localLabel(), color:'var(--accent)', icon:'ic-globe' }, ...crews];
   }
   let selectedEventFor = 'local';
   function renderEventForPicker(){
@@ -1316,103 +1251,20 @@
     renderAll();
   });
 
-  // ---------------- Recipes ----------------
-  function renderRecipes(){
-    document.getElementById('recipeGrid').innerHTML = recipes.map(r => `
-      <div class="recipe-card" data-recipe="${r.id}">
-        <div class="recipe-photo" style="${thumbStyle(seedFromString(r.seed))}"></div>
-        <div class="recipe-info">
-          <div class="recipe-name">${r.name}</div>
-          <div class="recipe-from">from ${r.from}</div>
-          <div class="recipe-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
-        </div>
-      </div>
-    `).join('');
-    document.querySelectorAll('.recipe-card').forEach(card => {
-      card.addEventListener('click', () => openRecipe(card.dataset.recipe));
-    });
-  }
-
-  function openRecipe(id){
-    const r = recipes.find(x => x.id === id);
-    document.getElementById('recipeDetailContent').innerHTML = `
-      <div class="recipe-hero" style="${thumbStyle(seedFromString(r.seed))}"></div>
-      <h2 style="margin:0 0 2px; font-size:20px;">${r.name}</h2>
-      <div class="note">${r.from === 'You' ? 'Added by you' : 'Shared by ' + r.from}</div>
-      <div class="star-row" id="recipeStars"></div>
-      <div class="tag-row">${r.tags.map(t => `<span class="tag-pill">${t}</span>`).join('')}</div>
-      <div class="field-label">Recipe</div>
-      <p style="white-space:pre-wrap; font-size:13.5px; line-height:1.55; color:var(--text); margin:0 0 14px;">${r.content ? r.content.replace(/</g,'&lt;') : 'No details added yet.'}</p>
-      <button class="btn-primary" id="pimpBtn" style="margin-bottom:10px;"><svg><use href="#ic-sparkle"/></svg>Pimp it up</button>
-      <button class="btn-primary" id="exportBtn" style="background:var(--card-raised); color:var(--text); border:1px solid var(--separator); margin-bottom:10px;"><svg style="color:var(--text)"><use href="#ic-download"/></svg>Export as PDF</button>
-      <button class="btn-primary" id="shareRecipeBtn" style="background:var(--card-raised); color:var(--text); border:1px solid var(--separator);"><svg style="color:var(--text)"><use href="#ic-friends"/></svg>Share to a crew</button>
-      <div class="chip-row" id="shareCrewRow" style="display:none; margin-top:10px;"></div>
-    `;
-    const starsEl = document.getElementById('recipeStars');
-    starsEl.innerHTML = Array.from({length:5}).map((_,i) => `<svg class="${i < r.rating ? 'filled' : ''}"><use href="#ic-star"/></svg>`).join('');
-    document.getElementById('pimpBtn').addEventListener('click', (e) => {
-      e.target.closest('button').innerHTML = '<svg><use href="#ic-sparkle"/></svg>✨ Pimped: try smoked paprika + lime zest';
-    });
-    document.getElementById('exportBtn').addEventListener('click', (e) => {
-      e.target.closest('button').textContent = '✓ Exported to Files';
-    });
-    document.getElementById('shareRecipeBtn').addEventListener('click', (e) => {
-      const row = document.getElementById('shareCrewRow');
-      row.style.display = 'flex';
-      const targets = [...crews, ...local.chats];
-      row.innerHTML = targets.map(c => `<div class="cat-chip" data-share-crew="${c.id}"><svg style="width:13px;height:13px;color:${c.color}"><use href="#${c.icon||'ic-bowl'}"/></svg> ${c.name}</div>`).join('');
-      row.querySelectorAll('[data-share-crew]').forEach(chip => {
-        chip.addEventListener('click', () => {
-          const c = targets.find(x => x.id === chip.dataset.shareCrew);
-          c.feed.unshift({ type:'recipe', name:'You', color:'#D9713C', recipeName:r.name, seed:r.seed, time:'now' });
-          e.target.closest('button').innerHTML = `<svg><use href="#ic-friends"/></svg>✓ Shared to ${c.name}`;
-          row.style.display = 'none';
-        });
-      });
-    });
-    openSheet(document.getElementById('sheetRecipe'));
-  }
-  document.getElementById('recipeClose').addEventListener('click', closeSheets);
-
-  // ---------------- Add recipe (self-saved) ----------------
-  let addRecipeRating = 4;
-  let addRecipeHasPhoto = false;
-  document.getElementById('addRecipeBtn').addEventListener('click', () => {
-    document.getElementById('addRecipeName').value = '';
-    document.getElementById('addRecipeTags').value = '';
-    document.getElementById('addRecipeContent').value = '';
-    addRecipeRating = 4;
-    addRecipeHasPhoto = false;
-    const well = document.getElementById('addRecipeWell');
-    well.className = 'photo-well';
-    well.innerHTML = `<svg><use href="#ic-photo"/></svg><span>Add a photo</span>`;
-    renderAddRecipeStars();
-    openSheet(document.getElementById('sheetAddRecipe'));
+  // ---------------- Change Local ----------------
+  document.getElementById('changeLocalRow').addEventListener('click', () => {
+    document.getElementById('changeLocalInput').value = localCity;
+    openSheet(document.getElementById('sheetChangeLocal'));
   });
-  document.getElementById('addRecipeWell').addEventListener('click', () => {
-    const well = document.getElementById('addRecipeWell');
-    well.className = 'photo-well filled';
-    well.innerHTML = warmPhotoFill();
-    addRecipeHasPhoto = true;
-  });
-  function renderAddRecipeStars(){
-    const el = document.getElementById('addRecipeStars');
-    el.innerHTML = Array.from({length:5}).map((_,i) => `<svg data-star="${i+1}" class="${i < addRecipeRating ? 'filled' : ''}"><use href="#ic-star"/></svg>`).join('');
-    el.querySelectorAll('svg').forEach(s => s.addEventListener('click', () => { addRecipeRating = +s.dataset.star; renderAddRecipeStars(); }));
-  }
-  document.getElementById('addRecipeCancel').addEventListener('click', () => closeSheet('sheetAddRecipe'));
-  document.getElementById('addRecipeSave').addEventListener('click', () => {
-    const name = document.getElementById('addRecipeName').value.trim();
-    if(!name) return;
-    const tags = document.getElementById('addRecipeTags').value.split(',').map(t => t.trim()).filter(Boolean);
-    const content = document.getElementById('addRecipeContent').value.trim();
-    recipes.unshift({
-      id:'recipe'+Date.now(), name, from:'You', crew:null,
-      rating: addRecipeRating, tags: tags.length ? tags : ['home'],
-      seed: 'you-recipe-'+Date.now(), content,
-    });
-    closeSheet('sheetAddRecipe');
-    renderRecipes();
+  document.getElementById('changeLocalCancel').addEventListener('click', () => closeSheet('sheetChangeLocal'));
+  document.getElementById('changeLocalSave').addEventListener('click', () => {
+    const city = document.getElementById('changeLocalInput').value.trim();
+    if(!city) return;
+    localCity = city;
+    local.name = city + ' Community';
+    closeSheet('sheetChangeLocal');
+    renderLocalLabel();
+    renderAll();
   });
 
   // ---------------- Profile ----------------
@@ -1454,7 +1306,7 @@
 
     const nextEvents = [
       ...crews.filter(c => c.event).map(c => ({...c.event, source: c.name, key: c.id})),
-      ...local.events.map((e,i) => ({...e, source: 'Local · Paris', key: 'local-'+i})),
+      ...local.events.map((e,i) => ({...e, source: localLabel(), key: 'local-'+i})),
     ];
     document.getElementById('nextEventsList').innerHTML = nextEvents.map(e => `
       <div class="next-event-row" data-event-key="${e.key}">
@@ -1466,7 +1318,7 @@
         <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
       </div>
     `).join('');
-    document.querySelectorAll('.next-event-row').forEach(row => {
+    document.querySelectorAll('#nextEventsList .next-event-row').forEach(row => {
       row.addEventListener('click', () => openEventDetail(nextEvents.find(e => e.key === row.dataset.eventKey)));
     });
 
@@ -1666,7 +1518,7 @@
 
   // ---------------- Sheets / tabs plumbing ----------------
   const scrim = document.getElementById('scrim');
-  const ALL_SHEETS = ['sheetCrewChat','sheetCapture','sheetFabMenu','sheetCreateCrew','sheetCreateEvent','sheetCreateChallenge','sheetAddRecipe','sheetRecipe','sheetEvent','sheetFeedComments'];
+  const ALL_SHEETS = ['sheetCrewChat','sheetCapture','sheetFabMenu','sheetCreateCrew','sheetCreateEvent','sheetCreateChallenge','sheetChangeLocal','sheetEvent','sheetFeedComments'];
   function openSheet(el){ scrim.classList.add('active'); el.classList.add('active'); }
   // Closes just one sheet — used when a sheet was opened *on top of*
   // another (Capture opened from within Crew Chat), so dismissing it
@@ -1692,9 +1544,9 @@
   switchTab('home');
 
   function renderAll(){
+    renderLocalLabel();
     renderHome();
     renderFeed();
-    renderRecipes();
     renderProfile();
     renderFriends();
     renderWidgetPicker();
