@@ -7,6 +7,13 @@ enum PartnerState {
     case accepted
 }
 
+/// Backs the Friends tab — accountability partners only. There's no
+/// separate lightweight "follow" concept anymore: `PublicProfile` (name,
+/// total streak, crew count) is already visible to any signed-in user
+/// via search, so following someone just to see that would have been
+/// redundant. Becoming partners is the one meaningful relationship left
+/// to model here — same shape as the interactive mockup's Friends tab
+/// (search, add, accept/decline).
 @MainActor
 final class FriendsViewModel: ObservableObject {
     @Published var friends: [PublicProfile] = []
@@ -16,23 +23,20 @@ final class FriendsViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private var followingIds: Set<String> = []
     private var partnerRequestsByOtherUid: [String: PartnerRequest] = [:]
 
     func loadFriends(uid: String) async {
         isLoading = true
         defer { isLoading = false }
         do {
-            async let followingTask = FirestoreService.shared.fetchFollowingIds(followerId: uid)
-            async let partnerTask = FirestoreService.shared.fetchPartnerRequests(uid: uid)
-            let (ids, requests) = try await (followingTask, partnerTask)
-
-            followingIds = Set(ids)
-            friends = try await FirestoreService.shared.fetchPublicProfiles(uids: ids)
-
+            let requests = try await FirestoreService.shared.fetchPartnerRequests(uid: uid)
             partnerRequestsByOtherUid = Dictionary(
                 uniqueKeysWithValues: requests.map { ($0.otherUid(from: uid), $0) }
             )
+
+            let acceptedIds = requests.filter { $0.status == .accepted }.map { $0.otherUid(from: uid) }
+            friends = try await FirestoreService.shared.fetchPublicProfiles(uids: acceptedIds)
+
             let incomingIds = requests
                 .filter { $0.status == .pending && $0.fromUid != uid }
                 .map { $0.otherUid(from: uid) }
@@ -51,26 +55,6 @@ final class FriendsViewModel: ObservableObject {
         }
     }
 
-    func isFollowing(_ profile: PublicProfile) -> Bool {
-        followingIds.contains(profile.uid)
-    }
-
-    func toggleFollow(uid: String, target: PublicProfile) async {
-        do {
-            if isFollowing(target) {
-                try await FirestoreService.shared.unfollow(followerId: uid, followingId: target.uid)
-                followingIds.remove(target.uid)
-                friends.removeAll { $0.uid == target.uid }
-            } else {
-                try await FirestoreService.shared.follow(followerId: uid, followingId: target.uid)
-                followingIds.insert(target.uid)
-                friends.append(target)
-            }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
     func partnerState(for profile: PublicProfile, uid: String) -> PartnerState {
         guard let request = partnerRequestsByOtherUid[profile.uid] else { return .none }
         switch request.status {
@@ -80,8 +64,6 @@ final class FriendsViewModel: ObservableObject {
         }
     }
 
-    /// Asks `target` for permission to see each other's actual proof
-    /// photos — a separate, explicit step from following.
     func requestPartnership(uid: String, target: PublicProfile) async {
         do {
             try await FirestoreService.shared.sendPartnerRequest(from: uid, to: target.uid)

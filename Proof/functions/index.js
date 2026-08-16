@@ -6,20 +6,23 @@ const { getMessaging } = require("firebase-admin/messaging");
 initializeApp();
 
 /**
- * Fires when someone posts today's proof, and notifies their
- * *accepted* accountability partners only — plain followers never get
- * pinged, the same boundary firestore.rules already draws around who
- * can see actual proof photos vs. just today's ✅/⭕.
+ * Fires when someone posts a proof to a crew's feed, and notifies their
+ * *accepted* accountability partners — a partnership no longer unlocks
+ * any data access (crew feed visibility is membership-based now), but
+ * it's still what the Friends tab uses to decide who gets nudged with
+ * "X completed today's proof!" when they post anywhere.
  *
- * Deliberately the only server-side logic in Phase 1: everything else
- * (streaks, resolutions) stays client-side per the read-only rules
- * already in place. This one needs to run server-side because it has
- * to fan out to *other* people's devices, which a client can't do.
+ * Deliberately still the only server-side logic in the app: everything
+ * else (streaks, crews, reactions) stays client-side per the read-only
+ * rules already in place. This one has to run server-side because it
+ * fans out to *other* people's devices, which a client can't do.
  */
 exports.notifyPartnersOnProof = onDocumentCreated(
-  "users/{uid}/resolutions/{resolutionId}/proofs/{day}",
+  "crews/{crewId}/feed/{itemId}",
   async (event) => {
-    const { uid } = event.params;
+    const item = event.data.data();
+    if (item.type !== "proof") return;
+    const uid = item.authorUid;
     const db = getFirestore();
 
     const [profileSnap, asA, asB] = await Promise.all([

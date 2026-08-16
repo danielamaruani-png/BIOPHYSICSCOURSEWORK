@@ -13,8 +13,12 @@ enum PartnerStatus: String, Codable {
 /// two people partners" with a single `exists`/`get`, and guarantees
 /// there's only ever one relationship per pair.
 ///
-/// Being partners is strictly more than following: it's what unlocks
-/// reading each other's actual proof photos, not just today's ✅/⭕.
+/// Unlike Phase 1, becoming partners no longer unlocks any special data
+/// access — crew feed visibility is membership-based now, not
+/// partnership-based. This is purely the Friends tab's "we're
+/// accountability partners" relationship (search → add → accept), and
+/// `notifyPartnersOnProof` (functions/index.js) still uses it to decide
+/// who gets nudged when someone posts.
 struct PartnerRequest: Codable, Identifiable {
     @DocumentID var id: String?
     var uidA: String // lexicographically smaller uid

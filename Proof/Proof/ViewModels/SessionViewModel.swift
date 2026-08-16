@@ -8,10 +8,22 @@ import Foundation
 final class SessionViewModel: ObservableObject {
     @Published var userId: String?
     @Published var profile: UserProfile?
-    @Published var resolutions: [Resolution] = []
+    @Published var myCrews: [Crew] = []
+    /// This user's own membership doc (streak, doneToday, …) in each of
+    /// `myCrews`, keyed by crew id — fetched alongside `myCrews` since a
+    /// crew doc itself doesn't carry a per-member streak.
+    @Published var myMemberships: [String: CrewMember] = [:]
     @Published var partnerProfiles: [PublicProfile] = []
     @Published var isLoading = true
     @Published var errorMessage: String?
+
+    /// Set by ProofApp's `onOpenURL` handler when the widget's "post
+    /// proof" button deep-links in (`proof://capture?crewId=...`).
+    /// RootView/CommunitiesView observes this to auto-present Capture
+    /// for that crew, then clears it back to nil once handled.
+    @Published var pendingCaptureCrewId: String?
+
+    var totalStreak: Int { myMemberships.values.map(\.streak).reduce(0, +) }
 
     private var authHandle: AuthStateDidChangeListenerHandle?
 
@@ -23,7 +35,8 @@ final class SessionViewModel: ObservableObject {
                     await self?.loadUserData(uid: user.uid, displayName: user.displayName)
                 } else {
                     self?.profile = nil
-                    self?.resolutions = []
+                    self?.myCrews = []
+                    self?.myMemberships = [:]
                 }
                 self?.isLoading = false
             }
@@ -52,70 +65,89 @@ final class SessionViewModel: ObservableObject {
         }
     }
 
-    func refreshResolutions() async {
+    func refreshCrews() async {
         guard let userId else { return }
         do {
-            resolutions = try await FirestoreService.shared.fetchResolutions(uid: userId)
+            myCrews = try await FirestoreService.shared.fetchMyCrews(uid: userId)
+            myMemberships = await fetchMemberships(userId: userId)
             await refreshPartners()
+            await updatePublicProfileStats(userId: userId)
             syncWidgetSnapshot()
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
+    /// Fetches this user's membership doc from every crew in
+    /// `myCrews` in parallel, rather than one crew at a time.
+    private func fetchMemberships(userId: String) async -> [String: CrewMember] {
+        await withTaskGroup(of: (String, CrewMember?).self) { group in
+            for crew in myCrews {
+                guard let crewId = crew.id else { continue }
+                group.addTask {
+                    let member = try? await FirestoreService.shared.fetchMyCrewMembership(crewId: crewId, uid: userId)
+                    return (crewId, member)
+                }
+            }
+            var result: [String: CrewMember] = [:]
+            for await (crewId, member) in group {
+                if let member { result[crewId] = member }
+            }
+            return result
+        }
+    }
+
     /// Accepted accountability partners only — never plain followers.
-    /// Called after resolutions so the widget snapshot below always has
-    /// both halves of its data ready at once.
     func refreshPartners() async {
         guard let userId else { return }
         do {
             let partnerIds = try await FirestoreService.shared.fetchAcceptedPartnerIds(uid: userId)
             partnerProfiles = try await FirestoreService.shared.fetchPublicProfiles(uids: partnerIds)
-            await cachePartnerPhotosForWidget()
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    /// Pulls down today's proof photo for each accepted partner who has
-    /// one, so the widget can show it without ever talking to Storage
-    /// itself. Skipped entirely for anyone who hasn't posted today —
-    /// that's also what keeps a stale, previously-cached photo from
-    /// ever being mistaken for today's: the widget only renders a
-    /// partner's cached photo when `completedToday` says it's fresh.
-    private func cachePartnerPhotosForWidget() async {
-        let today = FirestoreService.dayString()
-        for partner in partnerProfiles where partner.todayCompleted {
-            guard let partnerResolutions = try? await FirestoreService.shared.fetchResolutions(uid: partner.uid),
-                  let completed = partnerResolutions.first(where: { $0.lastProofDate == today }),
-                  let resolutionId = completed.id,
-                  let proof = try? await FirestoreService.shared.fetchProof(
-                      uid: partner.uid, resolutionId: resolutionId, day: today
-                  ),
-                  let url = URL(string: proof.photoURL)
-            else { continue }
-            await WidgetPhotoCache.downloadAndSave(from: url, forUid: partner.uid)
-        }
+    /// Keeps `publicProfiles/{uid}` in sync so Friends search and
+    /// results show current totals.
+    private func updatePublicProfileStats(userId: String) async {
+        try? await FirestoreService.shared.refreshPublicProfileStats(
+            uid: userId, totalStreak: totalStreak, crewCount: myCrews.count
+        )
     }
 
-    /// Recomputes the shared widget snapshot from in-memory state so the
-    /// home screen widget stays fresh right after this device changes
-    /// something, without waiting on a background refresh.
+    /// Recomputes the shared widget snapshot from in-memory state so
+    /// the home screen widget stays fresh right after this device
+    /// changes something, without waiting on a background refresh.
+    /// Picks whichever crew has the highest streak as the widget's
+    /// featured crew — see WidgetDataBridge.swift for why that's
+    /// automatic rather than user-choosable for now.
     func syncWidgetSnapshot() {
-        let today = FirestoreService.dayString()
-        let completedToday = resolutions.filter { $0.lastProofDate == today }.count
-        let bestStreak = resolutions.map(\.currentStreak).max() ?? 0
-        let partnerStreaks = partnerProfiles.map {
-            PartnerStreakSummary(id: $0.uid, name: $0.name, streak: $0.bestCurrentStreak, completedToday: $0.todayCompleted)
+        guard let userId else { return }
+        guard let featured = myCrews.max(by: { (myMemberships[$0.id ?? ""]?.streak ?? 0) < (myMemberships[$1.id ?? ""]?.streak ?? 0) }),
+              let crewId = featured.id
+        else { return }
+
+        Task {
+            let members = (try? await FirestoreService.shared.fetchCrewMembers(crewId: crewId)) ?? []
+            let checkedInToday = members.filter(\.doneToday).count
+            let spotlight = members.first { $0.doneToday && $0.uid != userId } ?? members.first { $0.doneToday }
+
+            WidgetSnapshot(
+                myUid: userId,
+                totalStreak: totalStreak,
+                selectedCrewId: crewId,
+                selectedCrewName: featured.name,
+                selectedCrewColorHex: featured.colorHex,
+                myStreakInSelectedCrew: myMemberships[crewId]?.streak ?? 0,
+                crewCheckedInToday: checkedInToday,
+                crewSize: featured.memberCount,
+                spotlightMemberUid: spotlight?.uid,
+                spotlightMemberName: spotlight?.name,
+                spotlightDoneToday: spotlight?.doneToday ?? false,
+                updatedAt: Date()
+            ).save()
         }
-        WidgetSnapshot(
-            myUid: userId ?? "",
-            bestCurrentStreak: bestStreak,
-            totalResolutions: resolutions.count,
-            completedToday: completedToday,
-            updatedAt: Date(),
-            partnerStreaks: partnerStreaks
-        ).save()
     }
 
     private func run(_ action: @escaping () async throws -> Void) async {
@@ -142,7 +174,7 @@ final class SessionViewModel: ObservableObject {
                 photoURL: nil
             )
             profile = try await FirestoreService.shared.fetchUserProfile(uid: uid)
-            await refreshResolutions()
+            await refreshCrews()
             // Best-effort: a declined permission prompt just means this
             // device never gets the "partner completed today" nudge.
             PushNotificationService.shared.requestAuthorizationAndRegister()

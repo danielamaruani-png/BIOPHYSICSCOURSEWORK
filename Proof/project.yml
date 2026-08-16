@@ -42,8 +42,7 @@ targets:
       properties:
         CFBundleDisplayName: Proof
         UILaunchScreen: {}
-        NSCameraUsageDescription: "Proof uses your camera to capture today's proof photo."
-        NSPhotoLibraryUsageDescription: "Proof lets you pick a photo from your library as today's proof."
+        NSCameraUsageDescription: "Proof uses your camera to capture today's proof photo. Proof is a live-camera-only app — no photo library import is offered, so this is the only way to post."
         UIBackgroundModes:
           - remote-notification
         CFBundleURLTypes:
@@ -52,6 +51,12 @@ targets:
               # GoogleService-Info.plist after generating the project
               # (see Proof/README.md, step 4).
               - "REPLACE_WITH_REVERSED_CLIENT_ID"
+          - CFBundleURLSchemes:
+              # Lets the widget's "post proof" button deep-link straight
+              # into that crew's capture sheet (proof://capture?crewId=...)
+              # instead of just opening the app on whatever screen it was
+              # left on.
+              - "proof"
     dependencies:
       - package: Firebase
         product: FirebaseAuth

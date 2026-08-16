@@ -29,8 +29,10 @@ private struct ProgressIndicatorView: View {
 struct MainTabView: View {
     var body: some View {
         TabView {
-            HomeView()
-                .tabItem { Label("Today", systemImage: "checkmark.circle") }
+            CommunitiesView()
+                .tabItem { Label("Communities", systemImage: "person.3.fill") }
+            FeedView()
+                .tabItem { Label("Feed", systemImage: "bolt.fill") }
             FriendsView()
                 .tabItem { Label("Friends", systemImage: "person.2") }
             ProfileView()

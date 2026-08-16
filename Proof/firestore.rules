@@ -15,53 +15,154 @@ service cloud.firestore {
       return a < b ? a + '_' + b : b + '_' + a;
     }
 
-    // True once `otherUid` and `uid` have an accepted PartnerRequest —
-    // the mutual, explicit-consent link that unlocks reading each
-    // other's actual proof photos (following alone never does).
-    function isAcceptedPartner(uid, otherUid) {
-      let id = pairId(uid, otherUid);
+    // Grants access to Creator Tools (editable Rewards, boosted
+    // communities). There is no client-side way to become a creator —
+    // `users/{uid}.isCreator` can only ever be toggled by someone who
+    // is already one (see the update rule below), so the very first
+    // creator has to be flipped on directly in the Firebase console.
+    function isCreator() {
       return signedIn() &&
-        exists(/databases/$(database)/documents/partnerRequests/$(id)) &&
-        get(/databases/$(database)/documents/partnerRequests/$(id)).data.status == 'accepted';
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isCreator == true;
     }
 
-    // Private profile: owner only. Resolutions + proofs are also
-    // readable by an accepted partner — that's the whole point of
-    // partnering — but still only writable by the owner.
+    function isCrewMember(crewId) {
+      return exists(/databases/$(database)/documents/crews/$(crewId)) &&
+        request.auth.uid in get(/databases/$(database)/documents/crews/$(crewId)).data.memberUids;
+    }
+
+    function crewIsPublic(crewId) {
+      return exists(/databases/$(database)/documents/crews/$(crewId)) &&
+        get(/databases/$(database)/documents/crews/$(crewId)).data.isPrivate == false;
+    }
+
+    // Private profile: owner only, with one carve-out — `isCreator`
+    // can never be set by the owner themselves, only left unchanged
+    // (or changed by a Cloud Function / console edit with admin
+    // privileges, which bypasses these rules entirely).
     match /users/{uid} {
-      allow read, write: if isOwner(uid);
-
-      match /resolutions/{resolutionId} {
-        allow read: if isOwner(uid) || isAcceptedPartner(uid, request.auth.uid);
-        allow write: if isOwner(uid);
-
-        match /proofs/{day} {
-          allow read: if isOwner(uid) || isAcceptedPartner(uid, request.auth.uid);
-          allow write: if isOwner(uid);
-        }
-      }
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && request.resource.data.isCreator == false;
+      allow update: if isOwner(uid) &&
+        request.resource.data.isCreator == resource.data.isCreator;
     }
 
-    // Thin, denormalized summary any signed-in user can read (needed
-    // for friend search + today's-status), but only the owner can write.
+    // Thin, denormalized summary (name, total streak, crew count) any
+    // signed-in user can read — needed for Friends search — but only
+    // the owner can write.
     match /publicProfiles/{uid} {
       allow read: if signedIn();
       allow write: if isOwner(uid);
     }
 
-    // Follow graph: anyone can read (used to resolve who follows whom
-    // for the friends list); only the follower can create/delete their
-    // own edge. Following alone only ever exposes today's ✅/⭕ via
-    // publicProfiles — never the proof photo itself.
-    match /follows/{edgeId} {
+    // Crews are the only "goal" in the app. Private ones are readable
+    // only by their members; public ones (including boosted) are
+    // readable by anyone signed in, matching Local discovery showing
+    // member count/vibe before you've joined.
+    match /crews/{crewId} {
+      allow read: if signedIn() &&
+        (resource.data.isPrivate == false || request.auth.uid in resource.data.memberUids);
+
+      // boosted:true is a Creator Tools-only capability — enforced
+      // here, not just by the button being hard to find client-side.
+      allow create: if signedIn() &&
+        request.resource.data.ownerUid == request.auth.uid &&
+        (request.resource.data.boosted == false || isCreator());
+
+      // Covers both "someone joins" (arrayUnion on memberUids +
+      // memberCount bump) and "the owner edits vibe/event/challenge" —
+      // never a change of ownerUid, isPrivate, or city, and boosted can
+      // only ever be flipped by a creator.
+      allow update: if signedIn() &&
+        request.resource.data.ownerUid == resource.data.ownerUid &&
+        request.resource.data.isPrivate == resource.data.isPrivate &&
+        request.resource.data.city == resource.data.city &&
+        (request.resource.data.boosted == resource.data.boosted || isCreator());
+
+      allow delete: if signedIn() && (resource.data.ownerUid == request.auth.uid || isCreator());
+
+      // Per-member streak. A member can always write their own doc
+      // (streak updates, joining a public crew). The crew owner can
+      // also *create* — never overwrite — any member's doc, which is
+      // what seeds friends invited straight into a new private crew;
+      // after that initial seed, only the member themselves can change
+      // their own streak, so nobody can forge someone else's.
+      match /members/{memberUid} {
+        allow read: if signedIn() && (crewIsPublic(crewId) || isCrewMember(crewId));
+        allow create: if isOwner(memberUid) ||
+          (signedIn() && get(/databases/$(database)/documents/crews/$(crewId)).data.ownerUid == request.auth.uid);
+        allow update, delete: if isOwner(memberUid);
+      }
+
+      // Proof photos + chat messages. Readable by crew members only —
+      // being "public" controls who can *join* a crew, not who can
+      // read its feed before joining.
+      match /feed/{itemId} {
+        allow read: if signedIn() && isCrewMember(crewId);
+        allow create: if signedIn() && request.resource.data.authorUid == request.auth.uid && isCrewMember(crewId);
+        allow update, delete: if false;
+      }
+    }
+
+    // Local, city-wide events/challenges. Any signed-in user can read
+    // or propose one (same as the mockup's FAB menu); nothing is
+    // editable after creation yet — no "edit" UI exists for these.
+    match /localEvents/{id} {
       allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.followerId == request.auth.uid;
-      allow delete: if signedIn() && resource.data.followerId == request.auth.uid;
-      allow update: if false;
+      allow create: if signedIn() && request.resource.data.goingUids.hasOnly([request.auth.uid]);
+      allow update, delete: if false;
+    }
+    match /localChallenges/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if false;
+    }
+
+    // BeReal-style public feed. Only ever created by the author, and
+    // only if they've opted in — enforced here too, not just
+    // client-side, so a modified client can't post as someone else or
+    // bypass the opt-in.
+    match /publicFeed/{postId} {
+      allow read: if signedIn();
+      allow create: if signedIn() &&
+        request.resource.data.authorUid == request.auth.uid &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.publicFeedOptIn == true;
+      // Only reactionCounts/commentCount may change (the increments
+      // FirestoreService's transaction and addComment perform) — never
+      // authorUid/photoURL/caption.
+      allow update: if signedIn() &&
+        request.resource.data.authorUid == resource.data.authorUid &&
+        request.resource.data.photoURL == resource.data.photoURL &&
+        request.resource.data.caption == resource.data.caption;
+      allow delete: if false;
+
+      match /reactions/{reactionId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+        allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+        allow update: if false;
+      }
+
+      match /comments/{commentId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.authorUid == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    // The global Rewards ladder. Any signed-in user reads it; only
+    // creators can add, edit, or delete a reward.
+    match /rewards/{rewardId} {
+      allow read: if signedIn();
+      allow write: if isCreator();
     }
 
     // Accountability-partner requests, keyed by the sorted pair so
-    // there's exactly one relationship per pair of users.
+    // there's exactly one relationship per pair of users. Unchanged
+    // from Phase 1, except this no longer unlocks any special data
+    // access (crew feed access is membership-based, not
+    // partnership-based) — it's purely the Friends tab's "we're
+    // accountability partners" relationship now.
     match /partnerRequests/{docId} {
       allow read: if signedIn() &&
         (resource.data.uidA == request.auth.uid || resource.data.uidB == request.auth.uid);
@@ -73,8 +174,8 @@ service cloud.firestore {
         pairId(request.resource.data.uidA, request.resource.data.uidB) == docId;
 
       // Only the recipient (not the requester) can accept/decline —
-      // otherwise a user could grant themselves access to someone
-      // who never agreed.
+      // otherwise a user could grant themselves a partnership no one
+      // agreed to.
       allow update: if signedIn() &&
         (resource.data.uidA == request.auth.uid || resource.data.uidB == request.auth.uid) &&
         request.auth.uid != resource.data.fromUid &&

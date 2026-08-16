@@ -1,8 +1,9 @@
 import FirebaseFirestore
 
 /// Thin wrapper around Firestore access patterns. Kept as one service
-/// (rather than one per collection) because Phase 1's data model is
-/// small enough that splitting it further would just add indirection.
+/// (rather than one per collection) because the whole data model is
+/// still small enough that splitting it further would just add
+/// indirection — same call as Phase 1's version of this file.
 final class FirestoreService {
     static let shared = FirestoreService()
     private let db = Firestore.firestore()
@@ -28,14 +29,7 @@ final class FirestoreService {
         let profile = UserProfile(name: name, photoURL: photoURL, bio: nil, createdAt: Date())
         try ref.setData(from: profile)
 
-        let publicProfile = PublicProfile(
-            name: name,
-            photoURL: photoURL,
-            bestCurrentStreak: 0,
-            todayCompleted: false,
-            todayDate: Self.dayString(),
-            activeResolutionsCount: 0
-        )
+        let publicProfile = PublicProfile(name: name, photoURL: photoURL, totalStreak: 0, crewCount: 0)
         try db.collection("publicProfiles").document(uid).setData(from: publicProfile)
     }
 
@@ -65,92 +59,296 @@ final class FirestoreService {
         try await db.collection("users").document(uid).updateData(["pushToken": token])
     }
 
-    // MARK: - Resolutions
-
-    private func resolutionsRef(uid: String) -> CollectionReference {
-        db.collection("users").document(uid).collection("resolutions")
+    /// Profile → Local: which city/region this user discovers, searches,
+    /// and creates public crews and events/challenges in.
+    func updateLocalCity(uid: String, city: String) async throws {
+        try await db.collection("users").document(uid).updateData(["localCity": city])
     }
 
-    func fetchResolutions(uid: String) async throws -> [Resolution] {
-        let snapshot = try await resolutionsRef(uid: uid).order(by: "createdAt").getDocuments()
-        return try snapshot.documents.map { try $0.data(as: Resolution.self) }
+    /// Profile → "Public feed" toggle. Turning this off doesn't remove
+    /// posts already mirrored into `publicFeed` — same "doesn't rewrite
+    /// history" behavior as the interactive mockup.
+    func updatePublicFeedOptIn(uid: String, optedIn: Bool) async throws {
+        try await db.collection("users").document(uid).updateData(["publicFeedOptIn": optedIn])
     }
 
-    @discardableResult
-    func createResolution(uid: String, _ resolution: Resolution) async throws -> String {
-        let ref = resolutionsRef(uid: uid).document()
-        var withId = resolution
-        withId.id = ref.documentID
-        try ref.setData(from: withId)
-        try await bumpActiveResolutionsCount(uid: uid)
-        return ref.documentID
+    func fetchPublicProfile(uid: String) async throws -> PublicProfile {
+        try await db.collection("publicProfiles").document(uid).getDocument(as: PublicProfile.self)
     }
 
-    func deleteResolution(uid: String, resolutionId: String) async throws {
-        try await resolutionsRef(uid: uid).document(resolutionId).delete()
-        try await bumpActiveResolutionsCount(uid: uid)
-    }
-
-    private func bumpActiveResolutionsCount(uid: String) async throws {
-        let count = try await resolutionsRef(uid: uid).getDocuments().documents.count
+    /// Keeps `publicProfiles/{uid}` (name/photo aside) in sync with
+    /// crew activity — called after any crew join/create/proof so
+    /// friend search and search results show current totals.
+    func refreshPublicProfileStats(uid: String, totalStreak: Int, crewCount: Int) async throws {
         try await db.collection("publicProfiles").document(uid).updateData([
-            "activeResolutionsCount": count
+            "totalStreak": totalStreak,
+            "crewCount": crewCount
         ])
     }
 
-    // MARK: - Daily proofs
+    // MARK: - Crews
 
-    private func proofsRef(uid: String, resolutionId: String) -> CollectionReference {
-        resolutionsRef(uid: uid).document(resolutionId).collection("proofs")
+    private var crewsRef: CollectionReference { db.collection("crews") }
+    private func membersRef(crewId: String) -> CollectionReference { crewsRef.document(crewId).collection("members") }
+    private func feedRef(crewId: String) -> CollectionReference { crewsRef.document(crewId).collection("feed") }
+
+    /// Creates a crew and its `members` subcollection docs in one go.
+    /// `invitedMembers` is only used for private crews created with
+    /// friends pre-added (see Create Crew → "Add friends"); public
+    /// crews (including boosted ones) always start with just the owner.
+    @discardableResult
+    func createCrew(
+        _ crew: Crew,
+        ownerName: String,
+        ownerColorHex: String,
+        invitedMembers: [(uid: String, name: String, colorHex: String)] = []
+    ) async throws -> String {
+        let ref = crewsRef.document()
+        var withId = crew
+        withId.id = ref.documentID
+        withId.memberUids = [crew.ownerUid] + invitedMembers.map(\.uid)
+        withId.memberCount = withId.memberUids.count
+        try ref.setData(from: withId)
+
+        let ownerMember = CrewMember(name: ownerName, colorHex: ownerColorHex)
+        try membersRef(crewId: ref.documentID).document(crew.ownerUid).setData(from: ownerMember)
+        for invitee in invitedMembers {
+            let member = CrewMember(name: invitee.name, colorHex: invitee.colorHex)
+            try membersRef(crewId: ref.documentID).document(invitee.uid).setData(from: member)
+        }
+        return ref.documentID
     }
 
-    func fetchProof(uid: String, resolutionId: String, day: String) async throws -> DailyProof? {
-        let snapshot = try await proofsRef(uid: uid, resolutionId: resolutionId).document(day).getDocument()
+    /// My Crews: private crews this user belongs to.
+    func fetchMyCrews(uid: String) async throws -> [Crew] {
+        let snapshot = try await crewsRef
+            .whereField("isPrivate", isEqualTo: true)
+            .whereField("memberUids", arrayContains: uid)
+            .getDocuments()
+        return try snapshot.documents.map { try $0.data(as: Crew.self) }
+    }
+
+    /// All public crews for a city — callers split this into "already
+    /// joined" (→ Local "Chats") vs "not yet joined" (→ "Discover more
+    /// nearby") by checking `memberUids.contains(uid)` client-side,
+    /// same partition the interactive mockup does between
+    /// `local.chats` and `local.discover`.
+    func fetchLocalCrews(city: String) async throws -> [Crew] {
+        let snapshot = try await crewsRef
+            .whereField("isPrivate", isEqualTo: false)
+            .whereField("city", isEqualTo: city)
+            .getDocuments()
+        return try snapshot.documents.map { try $0.data(as: Crew.self) }
+            .sorted { a, b in
+                if a.boosted != b.boosted { return a.boosted && !b.boosted }
+                return a.name < b.name
+            }
+    }
+
+    func joinCrew(crewId: String, uid: String, name: String, colorHex: String) async throws {
+        try await crewsRef.document(crewId).updateData([
+            "memberUids": FieldValue.arrayUnion([uid]),
+            "memberCount": FieldValue.increment(Int64(1))
+        ])
+        let member = CrewMember(name: name, colorHex: colorHex)
+        try membersRef(crewId: crewId).document(uid).setData(from: member, merge: true)
+    }
+
+    func fetchCrewMembers(crewId: String) async throws -> [CrewMember] {
+        let snapshot = try await membersRef(crewId: crewId).getDocuments()
+        return try snapshot.documents.map { try $0.data(as: CrewMember.self) }
+    }
+
+    func fetchMyCrewMembership(crewId: String, uid: String) async throws -> CrewMember? {
+        let snapshot = try await membersRef(crewId: crewId).document(uid).getDocument()
         guard snapshot.exists else { return nil }
-        return try snapshot.data(as: DailyProof.self)
+        return try snapshot.data(as: CrewMember.self)
     }
 
-    func fetchAllProofs(uid: String, resolutionId: String) async throws -> [DailyProof] {
-        let snapshot = try await proofsRef(uid: uid, resolutionId: resolutionId)
-            .order(by: FieldPath.documentID())
+    func fetchCrewFeed(crewId: String) async throws -> [CrewFeedItem] {
+        let snapshot = try await feedRef(crewId: crewId)
+            .order(by: "createdAt", descending: true)
+            .limit(to: 100)
             .getDocuments()
-        return try snapshot.documents.map { try $0.data(as: DailyProof.self) }
+        return try snapshot.documents.map { try $0.data(as: CrewFeedItem.self) }
     }
 
-    /// Writes the proof doc for today. The date-string document ID is
-    /// what makes "one proof per resolution per day" a plain `set`
-    /// rather than a query-then-check.
-    func recordProof(uid: String, resolutionId: String, photoURL: String, caption: String?) async throws -> String {
+    /// Posts today's proof to a crew's chat feed and bumps the poster's
+    /// streak for that crew. Doesn't touch `publicFeed` — see
+    /// `postToPublicFeedIfOptedIn`, which callers invoke separately so a
+    /// crew post and its public mirror stay two explicit steps rather
+    /// than one method secretly doing both.
+    @discardableResult
+    func postCrewProof(
+        crewId: String,
+        uid: String,
+        name: String,
+        colorHex: String,
+        photoURL: String,
+        caption: String
+    ) async throws -> String {
         let day = Self.dayString()
-        let proof = DailyProof(photoURL: photoURL, caption: caption, completedAt: Date())
-        try proofsRef(uid: uid, resolutionId: resolutionId).document(day).setData(from: proof)
-        return day
+        let item = CrewFeedItem(
+            type: .proof, authorUid: uid, authorName: name, colorHex: colorHex,
+            photoURL: photoURL, caption: caption
+        )
+        let ref = feedRef(crewId: crewId).document()
+        try ref.setData(from: item)
+        try await StreakEngine.recordProofAndUpdateStreak(crewId: crewId, uid: uid, day: day)
+        return ref.documentID
     }
 
-    // MARK: - Follows / public profiles
-
-    func follow(followerId: String, followingId: String) async throws {
-        let id = FollowRelationship.documentId(follower: followerId, following: followingId)
-        let relationship = FollowRelationship(followerId: followerId, followingId: followingId, createdAt: Date())
-        try db.collection("follows").document(id).setData(from: relationship)
+    func setCrewEvent(crewId: String, event: CrewEvent) async throws {
+        try db.collection("crews").document(crewId).updateData(["event": try Firestore.Encoder().encode(event)])
     }
 
-    func unfollow(followerId: String, followingId: String) async throws {
-        let id = FollowRelationship.documentId(follower: followerId, following: followingId)
-        try await db.collection("follows").document(id).delete()
+    func setCrewChallenge(crewId: String, challenge: CrewChallenge) async throws {
+        try db.collection("crews").document(crewId).updateData(["challenge": try Firestore.Encoder().encode(challenge)])
     }
 
-    func fetchFollowingIds(followerId: String) async throws -> [String] {
-        let snapshot = try await db.collection("follows")
-            .whereField("followerId", isEqualTo: followerId)
+    /// Creator Tools → Boosted communities → Remove. Deletes the crew
+    /// doc outright rather than just clearing `boosted` — matches the
+    /// mockup's admin panel, which only ever lists (and removes) crews
+    /// it created itself, never regular public crews other users made.
+    func deleteCrew(crewId: String) async throws {
+        try await db.collection("crews").document(crewId).delete()
+    }
+
+    // MARK: - Local (city-wide events & challenges)
+
+    func fetchLocalEvents(city: String) async throws -> [LocalEvent] {
+        let snapshot = try await db.collection("localEvents")
+            .whereField("city", isEqualTo: city)
+            .order(by: "createdAt", descending: true)
             .getDocuments()
-        return snapshot.documents.compactMap { $0.data()["followingId"] as? String }
+        return try snapshot.documents.map { try $0.data(as: LocalEvent.self) }
     }
+
+    func fetchLocalChallenges(city: String) async throws -> [LocalChallenge] {
+        let snapshot = try await db.collection("localChallenges")
+            .whereField("city", isEqualTo: city)
+            .order(by: "createdAt", descending: true)
+            .getDocuments()
+        return try snapshot.documents.map { try $0.data(as: LocalChallenge.self) }
+    }
+
+    @discardableResult
+    func createLocalEvent(_ event: LocalEvent) async throws -> String {
+        let ref = db.collection("localEvents").document()
+        var withId = event
+        withId.id = ref.documentID
+        try ref.setData(from: withId)
+        return ref.documentID
+    }
+
+    @discardableResult
+    func createLocalChallenge(_ challenge: LocalChallenge) async throws -> String {
+        let ref = db.collection("localChallenges").document()
+        var withId = challenge
+        withId.id = ref.documentID
+        try ref.setData(from: withId)
+        return ref.documentID
+    }
+
+    // MARK: - Public feed (BeReal-style, opt-in)
+
+    func fetchPublicFeed(limit: Int = 50) async throws -> [PublicFeedPost] {
+        let snapshot = try await db.collection("publicFeed")
+            .order(by: "createdAt", descending: true)
+            .limit(to: limit)
+            .getDocuments()
+        return try snapshot.documents.map { try $0.data(as: PublicFeedPost.self) }
+    }
+
+    /// No-ops (and doesn't throw) if the author has opted out — callers
+    /// don't need to check `publicFeedOptIn` themselves before calling
+    /// this after a crew proof post.
+    func postToPublicFeedIfOptedIn(
+        authorUid: String, authorName: String, colorHex: String, photoURL: String, caption: String
+    ) async throws {
+        let profile = try await fetchUserProfile(uid: authorUid)
+        guard profile.publicFeedOptIn else { return }
+        let post = PublicFeedPost(
+            authorUid: authorUid, authorName: authorName, colorHex: colorHex,
+            photoURL: photoURL, caption: caption
+        )
+        try db.collection("publicFeed").document().setData(from: post)
+    }
+
+    /// Toggles one specific emoji for one specific user on one post —
+    /// tapping ❤️ twice removes just the ❤️, a 🔥 reacted alongside it
+    /// (if any) is untouched. See `FeedReaction`'s doc-comment for why
+    /// the subcollection is keyed by `{uid}_{emoji}` instead of `{uid}`.
+    func toggleReaction(postId: String, uid: String, emoji: String) async throws {
+        let postRef = db.collection("publicFeed").document(postId)
+        let reactionRef = postRef.collection("reactions").document(FeedReaction.docId(uid: uid, emoji: emoji))
+
+        try await db.runTransaction { transaction, errorPointer in
+            do {
+                let existing = try transaction.getDocument(reactionRef)
+                if existing.exists {
+                    transaction.deleteDocument(reactionRef)
+                    transaction.updateData(["reactionCounts.\(emoji)": FieldValue.increment(Int64(-1))], forDocument: postRef)
+                } else {
+                    transaction.setData(["uid": uid, "emoji": emoji], forDocument: reactionRef)
+                    transaction.updateData(["reactionCounts.\(emoji)": FieldValue.increment(Int64(1))], forDocument: postRef)
+                }
+            } catch {
+                errorPointer?.pointee = error as NSError
+                return nil
+            }
+            return nil
+        }
+    }
+
+    func fetchComments(postId: String) async throws -> [FeedComment] {
+        let snapshot = try await db.collection("publicFeed").document(postId).collection("comments")
+            .order(by: "createdAt")
+            .getDocuments()
+        return try snapshot.documents.map { try $0.data(as: FeedComment.self) }
+    }
+
+    func addComment(postId: String, authorUid: String, authorName: String, text: String) async throws {
+        let postRef = db.collection("publicFeed").document(postId)
+        let comment = FeedComment(authorUid: authorUid, authorName: authorName, text: text)
+        try postRef.collection("comments").document().setData(from: comment)
+        try await postRef.updateData(["commentCount": FieldValue.increment(Int64(1))])
+    }
+
+    // MARK: - Rewards (Creator Tools)
+
+    func fetchRewards() async throws -> [Reward] {
+        let snapshot = try await db.collection("rewards").order(by: "days").getDocuments()
+        return try snapshot.documents.map { try $0.data(as: Reward.self) }
+    }
+
+    /// Creates a new reward if `reward.id` is nil, otherwise overwrites
+    /// the existing one — same create-or-edit split the mockup's "Edit
+    /// reward" sheet uses (`editingRewardIndex == -1` vs. not).
+    @discardableResult
+    func saveReward(_ reward: Reward) async throws -> String {
+        if let id = reward.id {
+            try db.collection("rewards").document(id).setData(from: reward)
+            return id
+        } else {
+            let ref = db.collection("rewards").document()
+            var withId = reward
+            withId.id = ref.documentID
+            try ref.setData(from: withId)
+            return ref.documentID
+        }
+    }
+
+    func deleteReward(id: String) async throws {
+        try await db.collection("rewards").document(id).delete()
+    }
+
+    // MARK: - Public profiles
 
     func fetchPublicProfiles(uids: [String]) async throws -> [PublicProfile] {
         guard !uids.isEmpty else { return [] }
-        // Firestore 'in' queries cap at 30 ids, which is well above what
-        // a Phase 1 friends list needs.
+        // Firestore 'in' queries cap at 30 ids, well above what a
+        // friends list realistically needs at once.
         let snapshot = try await db.collection("publicProfiles")
             .whereField(FieldPath.documentID(), in: Array(uids.prefix(30)))
             .getDocuments()
@@ -169,12 +367,11 @@ final class FirestoreService {
         return try snapshot.documents.map { try $0.data(as: PublicProfile.self) }
     }
 
-    // MARK: - Accountability partners (mutual proof sharing)
+    // MARK: - Accountability partners (mutual, unchanged from Phase 1)
 
-    /// Sends (or re-sends after a decline) a request to share actual
-    /// proof photos with someone — distinct from `follow`, which never
-    /// needs the other person's consent because it only ever exposes
-    /// today's ✅/⭕.
+    /// Sends (or re-sends after a decline) a request to become
+    /// accountability partners — distinct from `follow`, which never
+    /// needs the other person's consent.
     func sendPartnerRequest(from: String, to: String) async throws {
         let id = PartnerRequest.pairId(from, to)
         let request = PartnerRequest(

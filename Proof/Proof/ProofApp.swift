@@ -32,11 +32,27 @@ struct ProofApp: App {
             RootView()
                 .environmentObject(session)
                 .onOpenURL { url in
-                    // Completes the Google Sign-In redirect back into the
-                    // app; without this the auth flow hangs after the
-                    // browser sheet dismisses.
-                    GIDSignIn.sharedInstance.handle(url)
+                    if url.scheme == "proof" {
+                        // The widget's "post proof" button deep-links
+                        // here (proof://capture?crewId=...) so tapping
+                        // it drops the user straight into that crew's
+                        // capture sheet instead of just opening the app.
+                        handleDeepLink(url)
+                    } else {
+                        // Completes the Google Sign-In redirect back into
+                        // the app; without this the auth flow hangs after
+                        // the browser sheet dismisses.
+                        GIDSignIn.sharedInstance.handle(url)
+                    }
                 }
         }
+    }
+
+    private func handleDeepLink(_ url: URL) {
+        guard url.host == "capture",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let crewId = components.queryItems?.first(where: { $0.name == "crewId" })?.value
+        else { return }
+        session.pendingCaptureCrewId = crewId
     }
 }

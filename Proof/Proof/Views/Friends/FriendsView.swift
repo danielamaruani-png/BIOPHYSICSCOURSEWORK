@@ -17,7 +17,7 @@ struct FriendsView: View {
                 }
 
                 if !viewModel.incomingRequests.isEmpty {
-                    Section("Proof-sharing requests") {
+                    Section("Requests") {
                         ForEach(viewModel.incomingRequests) { profile in
                             HStack(spacing: 12) {
                                 AvatarView(photoURL: profile.photoURL, size: 36)
@@ -45,9 +45,9 @@ struct FriendsView: View {
                     }
                 }
 
-                Section("Friends") {
+                Section("Your accountability partners") {
                     if viewModel.friends.isEmpty {
-                        Text("Follow people working on similar goals to see their daily status here.")
+                        Text("Search above to add some.")
                             .foregroundStyle(.secondary)
                     }
                     ForEach(viewModel.friends) { profile in
@@ -56,9 +56,6 @@ struct FriendsView: View {
                 }
             }
             .navigationTitle("Friends")
-            .navigationDestination(for: PublicProfile.self) { profile in
-                PartnerProofView(partner: profile)
-            }
             .task { await viewModel.loadFriends(uid: uid) }
         }
     }
@@ -69,20 +66,11 @@ struct FriendsView: View {
             AvatarView(photoURL: profile.photoURL, size: 40)
             VStack(alignment: .leading) {
                 Text(profile.name).font(.headline)
-                Text(profile.todayCompleted ? "Completed today ✅" : "Not completed yet")
+                Text("🔥 \(profile.totalStreak)-day streak · \(profile.crewCount) crew\(profile.crewCount == 1 ? "" : "s")")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            if profile.bestCurrentStreak > 0 {
-                StreakBadge(streak: profile.bestCurrentStreak)
-            }
-            Button(viewModel.isFollowing(profile) ? "Following" : "Follow") {
-                Task { await viewModel.toggleFollow(uid: uid, target: profile) }
-            }
-            .buttonStyle(.bordered)
-            .font(.footnote)
-
             partnerControl(state: state, profile: profile)
         }
     }
@@ -91,7 +79,7 @@ struct FriendsView: View {
     private func partnerControl(state: PartnerState, profile: PublicProfile) -> some View {
         switch state {
         case .none:
-            Button("Share proofs") {
+            Button("Add") {
                 Task { await viewModel.requestPartnership(uid: uid, target: profile) }
             }
             .buttonStyle(.bordered)
@@ -101,11 +89,9 @@ struct FriendsView: View {
         case .requestReceived:
             Text("Check requests above").font(.caption2).foregroundStyle(.secondary)
         case .accepted:
-            NavigationLink(value: profile) {
-                Label("Partners", systemImage: "checkmark.seal.fill")
-                    .font(.caption)
-                    .foregroundStyle(.green)
-            }
+            Label("Partners", systemImage: "checkmark.seal.fill")
+                .font(.caption)
+                .foregroundStyle(.green)
         }
     }
 }

@@ -1,29 +1,33 @@
 import Foundation
 import WidgetKit
 
-/// A friend's streak, only ever included here if they're an *accepted*
-/// accountability partner — following alone doesn't surface anyone in
-/// the widget, since the whole point of the widget is a quick glance
-/// at proof, and unconsented proof-adjacent data has no place in it.
-struct PartnerStreakSummary: Codable, Identifiable {
-    var id: String // partner's uid
-    var name: String
-    var streak: Int
-    var completedToday: Bool
-}
-
-/// Snapshot of just enough state for the home-screen widget, written
-/// by the main app into the shared App Group container. The widget
-/// itself never talks to Firestore directly — it just reads this file,
-/// which keeps the extension simple and avoids giving it its own auth
-/// session.
+/// Snapshot of just enough state for the home-screen widget, written by
+/// the main app into the shared App Group container after every crew
+/// refresh or proof post. The widget itself never talks to Firestore
+/// directly — it just reads this file, which keeps the extension
+/// simple and avoids giving it its own auth session.
+///
+/// `spotlightMemberUid`/`spotlightMemberName` describe whichever crew
+/// member the small "spotlight" photo tile shows — a random member who
+/// already checked in today, same as the interactive mockup's
+/// `widgetSpotlight`. There's currently no way to manually pick which
+/// crew the widget features (it auto-picks the one with the highest
+/// `myStreakInSelectedCrew`); making that user-choosable would need an
+/// `AppIntent`-backed interactive widget control (iOS 17+) — worth
+/// adding as a follow-up, called out here rather than half-built.
 struct WidgetSnapshot: Codable {
     var myUid: String
-    var bestCurrentStreak: Int
-    var totalResolutions: Int
-    var completedToday: Int
+    var totalStreak: Int
+    var selectedCrewId: String
+    var selectedCrewName: String
+    var selectedCrewColorHex: String
+    var myStreakInSelectedCrew: Int
+    var crewCheckedInToday: Int
+    var crewSize: Int
+    var spotlightMemberUid: String?
+    var spotlightMemberName: String?
+    var spotlightDoneToday: Bool
     var updatedAt: Date
-    var partnerStreaks: [PartnerStreakSummary] = []
 
     static let appGroupId = "group.com.proofapp.shared"
     private static let key = "widgetSnapshot"

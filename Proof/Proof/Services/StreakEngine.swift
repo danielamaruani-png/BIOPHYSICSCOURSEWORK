@@ -1,23 +1,28 @@
 import FirebaseFirestore
 import Foundation
 
-/// Updates a resolution's denormalized streak counters right after a
-/// proof is recorded. Runs client-side as a Firestore transaction —
-/// Phase 1 has no Cloud Functions, and a transaction is enough to keep
-/// the counters correct even if two devices write around the same time.
+/// Updates a crew member's denormalized streak counters right after a
+/// proof is posted. Runs client-side as a Firestore transaction — same
+/// as Phase 1, there's still no Cloud Function computing streaks
+/// server-side, so a determined client could in principle forge one
+/// (called out in README's "Known gaps").
+///
+/// Known gap: `doneToday` is set `true` here but nothing ever flips it
+/// back to `false` at midnight — that needs a scheduled Cloud Function
+/// (or a "is lastProofDate == today" check computed at read time
+/// instead of trusting the stored flag) before this ships.
 enum StreakEngine {
-    static func recordProofAndUpdateStreak(uid: String, resolutionId: String, day: String) async throws {
+    static func recordProofAndUpdateStreak(crewId: String, uid: String, day: String) async throws {
         let db = Firestore.firestore()
-        let resolutionRef = db.collection("users").document(uid)
-            .collection("resolutions").document(resolutionId)
+        let memberRef = db.collection("crews").document(crewId)
+            .collection("members").document(uid)
 
         try await db.runTransaction { transaction, errorPointer in
             do {
-                let snapshot = try transaction.getDocument(resolutionRef)
+                let snapshot = try transaction.getDocument(memberRef)
                 let lastProofDate = snapshot.get("lastProofDate") as? String
-                let currentStreak = snapshot.get("currentStreak") as? Int ?? 0
+                let currentStreak = snapshot.get("streak") as? Int ?? 0
                 let longestStreak = snapshot.get("longestStreak") as? Int ?? 0
-                let totalProofs = snapshot.get("totalProofs") as? Int ?? 0
 
                 let newStreak: Int
                 if let lastProofDate, isYesterday(lastProofDate, relativeTo: day) {
@@ -29,11 +34,11 @@ enum StreakEngine {
                 }
 
                 transaction.updateData([
-                    "currentStreak": newStreak,
+                    "streak": newStreak,
                     "longestStreak": max(longestStreak, newStreak),
-                    "totalProofs": lastProofDate == day ? totalProofs : totalProofs + 1,
-                    "lastProofDate": day
-                ], forDocument: resolutionRef)
+                    "lastProofDate": day,
+                    "doneToday": true
+                ], forDocument: memberRef)
             } catch {
                 errorPointer?.pointee = error as NSError
                 return nil

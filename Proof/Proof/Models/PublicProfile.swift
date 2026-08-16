@@ -2,17 +2,16 @@ import FirebaseFirestore
 
 /// Denormalized, friend-readable summary at `publicProfiles/{uid}`.
 /// Any signed-in user can read this — it's deliberately thin (name,
-/// streak, today's ✅/⭕), not a feed. Seeing someone's actual proof
-/// photos requires a separate, mutual accountability-partner request
-/// (see PartnerRequest) — following alone never unlocks that.
+/// total streak, crew count), not a feed of actual proof photos.
+/// Seeing someone's real crew activity requires either sharing a crew
+/// with them, or a mutual accountability-partner request (see
+/// PartnerRequest) — following alone never unlocks either.
 struct PublicProfile: Codable, Identifiable {
     @DocumentID var id: String?
     var name: String
     var photoURL: String?
-    var bestCurrentStreak: Int
-    var todayCompleted: Bool
-    var todayDate: String // yyyy-MM-dd, lets readers detect staleness
-    var activeResolutionsCount: Int
+    var totalStreak: Int
+    var crewCount: Int
 
     var uid: String { id ?? "" }
 }

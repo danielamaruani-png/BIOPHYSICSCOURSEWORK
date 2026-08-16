@@ -1,7 +1,10 @@
 import SwiftUI
 
+/// Post today's proof to a specific crew. Camera-only — there is no
+/// "choose from library" option anywhere in this screen, matching the
+/// live-camera-only anti-cheat rule (see ImagePicker.swift).
 struct CaptureProofView: View {
-    let resolution: Resolution
+    let crew: Crew
 
     @EnvironmentObject var session: SessionViewModel
     @Environment(\.dismiss) private var dismiss
@@ -9,7 +12,6 @@ struct CaptureProofView: View {
 
     @State private var image: UIImage?
     @State private var showCamera = false
-    @State private var showLibrary = false
 
     var body: some View {
         NavigationStack {
@@ -25,18 +27,20 @@ struct CaptureProofView: View {
                     } else {
                         VStack(spacing: 8) {
                             Image(systemName: "camera.fill").font(.system(size: 36))
-                            Text("Add today's photo").foregroundStyle(.secondary)
+                            Text("Take today's photo").foregroundStyle(.secondary)
                         }
                     }
                 }
                 .frame(height: 320)
+                .clipped()
                 .onTapGesture { showCamera = true }
 
-                HStack(spacing: 12) {
-                    Button("Take photo") { showCamera = true }
-                    Button("Choose from library") { showLibrary = true }
-                }
-                .font(.subheadline)
+                Text("📸 Live camera only — proof can't be imported from your gallery.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Button("Take photo") { showCamera = true }
+                    .buttonStyle(.bordered)
 
                 TextField("Caption (optional)", text: $viewModel.caption, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
@@ -61,26 +65,27 @@ struct CaptureProofView: View {
                 .disabled(image == nil)
             }
             .padding()
-            .navigationTitle(resolution.name)
+            .navigationTitle("Post to \(crew.name)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
             }
-            .sheet(isPresented: $showCamera) {
-                ImagePicker(source: .camera, image: $image)
-            }
-            .sheet(isPresented: $showLibrary) {
-                ImagePicker(source: .library, image: $image)
+            .fullScreenCover(isPresented: $showCamera) {
+                ImagePicker(image: $image)
+                    .ignoresSafeArea()
             }
         }
     }
 
     private func submit() async {
-        guard let uid = session.userId, let image else { return }
-        if await viewModel.submit(uid: uid, resolution: resolution, image: image) {
-            await session.refreshResolutions()
+        guard let uid = session.userId, let crewId = crew.id, let image, let profile = session.profile else { return }
+        let ok = await viewModel.submit(
+            uid: uid, crewId: crewId, authorName: profile.name, colorHex: "#D9713C", image: image
+        )
+        if ok {
+            await session.refreshCrews()
             dismiss()
         }
     }

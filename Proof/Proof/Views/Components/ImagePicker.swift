@@ -1,17 +1,19 @@
 import SwiftUI
 import UIKit
 
-/// Thin UIKit bridge for photo capture. PHPicker/UIImagePickerController
-/// still needs a representable in SwiftUI as of iOS 17 for camera access.
+/// Thin UIKit bridge for camera capture. UIImagePickerController still
+/// needs a representable in SwiftUI as of iOS 17 for camera access.
+///
+/// Deliberately camera-only, with no photo-library source at all: proof
+/// has to be taken on the spot, matching BeReal-style anti-cheat — a
+/// user can't back-date proof by picking an old photo from their roll.
 struct ImagePicker: UIViewControllerRepresentable {
-    enum Source { case camera, library }
-    let source: Source
     @Binding var image: UIImage?
     @Environment(\.dismiss) private var dismiss
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
-        picker.sourceType = source == .camera ? .camera : .photoLibrary
+        picker.sourceType = .camera
         picker.delegate = context.coordinator
         return picker
     }
