@@ -1,0 +1,46 @@
+name: iOS build check
+
+# Compiles the Proof app in the cloud on every push that touches it —
+# no Mac needed on your end at all. This is a compile-only,
+# unsigned build against the simulator SDK: it exists purely to catch
+# Swift errors, since this codebase has never been built locally
+# (written without Xcode access). It does NOT sign, run tests, or
+# publish anywhere — see the README's "Path to the App Store" section
+# for the separate signed/TestFlight pipeline once you have an Apple
+# Developer account.
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "Proof/**"
+      - ".github/workflows/ios-build.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: Proof
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build for the simulator (unsigned, compile-only)
+        run: |
+          xcodebuild build \
+            -project Proof.xcodeproj \
+            -scheme Proof \
+            -destination "generic/platform=iOS Simulator" \
+            -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO
