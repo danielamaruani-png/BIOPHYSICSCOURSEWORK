@@ -11,7 +11,7 @@ struct FriendsView: View {
             List {
                 Section {
                     TextField("Search by name", text: $viewModel.searchText)
-                        .onChange(of: viewModel.searchText) { _, _ in
+                        .onChange(of: viewModel.searchText) { _ in
                             Task { await viewModel.search() }
                         }
                 }

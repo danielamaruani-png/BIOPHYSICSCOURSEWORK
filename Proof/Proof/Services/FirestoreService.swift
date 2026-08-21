@@ -199,11 +199,11 @@ final class FirestoreService {
     }
 
     func setCrewEvent(crewId: String, event: CrewEvent) async throws {
-        try db.collection("crews").document(crewId).updateData(["event": try Firestore.Encoder().encode(event)])
+        try await db.collection("crews").document(crewId).updateData(["event": try Firestore.Encoder().encode(event)])
     }
 
     func setCrewChallenge(crewId: String, challenge: CrewChallenge) async throws {
-        try db.collection("crews").document(crewId).updateData(["challenge": try Firestore.Encoder().encode(challenge)])
+        try await db.collection("crews").document(crewId).updateData(["challenge": try Firestore.Encoder().encode(challenge)])
     }
 
     /// Creator Tools → Boosted communities → Remove. Deletes the crew

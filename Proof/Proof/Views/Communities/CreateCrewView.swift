@@ -56,7 +56,7 @@ struct CreateCrewView: View {
                 if isPrivate {
                     Section("Add friends") {
                         TextField("Search friends…", text: $inviteSearch)
-                            .onChange(of: inviteSearch) { _, _ in Task { await searchInvitees() } }
+                            .onChange(of: inviteSearch) { _ in Task { await searchInvitees() } }
                         ForEach(inviteResults) { profile in
                             Button {
                                 toggle(profile)

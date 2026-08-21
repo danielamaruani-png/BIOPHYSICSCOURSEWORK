@@ -53,7 +53,7 @@ struct CrewChatView: View {
             .sheet(isPresented: $showCapture, onDismiss: { Task { await load() } }) {
                 CaptureProofView(crew: crew)
             }
-            .onChange(of: session.pendingCaptureCrewId) { _, crewId in
+            .onChange(of: session.pendingCaptureCrewId) { crewId in
                 guard crewId == crew.id else { return }
                 showCapture = true
                 session.pendingCaptureCrewId = nil

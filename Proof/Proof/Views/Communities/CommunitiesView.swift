@@ -95,7 +95,7 @@ struct CommunitiesView: View {
             .sheet(item: $openedCrew) { crew in
                 CrewChatView(crew: crew)
             }
-            .onChange(of: session.pendingCaptureCrewId) { _, crewId in
+            .onChange(of: session.pendingCaptureCrewId) { crewId in
                 // Widget deep-link: jump straight into that crew's chat
                 // (which owns the capture button) instead of just
                 // landing on Communities.
