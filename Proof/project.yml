@@ -47,10 +47,7 @@ targets:
           - remote-notification
         CFBundleURLTypes:
           - CFBundleURLSchemes:
-              # Replace with the REVERSED_CLIENT_ID from your
-              # GoogleService-Info.plist after generating the project
-              # (see Proof/README.md, step 4).
-              - "REPLACE_WITH_REVERSED_CLIENT_ID"
+              - "com.googleusercontent.apps.53305321410-88v547baka2hs86li6d6gkrn1g4tcd0a"
           - CFBundleURLSchemes:
               # Lets the widget's "post proof" button deep-link straight
               # into that crew's capture sheet (proof://capture?crewId=...)
