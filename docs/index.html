@@ -1,0 +1,1762 @@
+<title>Proof — App Preview</title>
+<style>
+  :root{
+    --bg: #FBF1E3;
+    --bg-grid-dot: #6B4A2A12;
+    --card: #FFFBF3;
+    --card-raised: #F7EBD9;
+    --text: #3A281C;
+    --text-secondary: #8A6F5C;
+    --text-tertiary: #C7AF97;
+    --separator: #E9D9C0;
+    --accent: #D9713C;
+    --accent-text: #FFF8EF;
+    --green: #6E8F5C;
+    --track-empty: #EEE0C7;
+    --sheet-scrim: rgba(58,40,26,0.4);
+    --phone-bezel: #2B1E14;
+    --phone-bezel-edge: #4a3524;
+    --shadow-color: 25 40% 14%;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg: #1C140D;
+      --bg-grid-dot: #ffffff12;
+      --card: #2A2018;
+      --card-raised: #342820;
+      --text: #F3E9DB;
+      --text-secondary: #C4AE96;
+      --text-tertiary: #8A7461;
+      --separator: #3D2E20;
+      --accent: #E8834F;
+      --accent-text: #241608;
+      --green: #8FB37A;
+      --track-empty: #3D2E20;
+      --sheet-scrim: rgba(0,0,0,0.55);
+      --phone-bezel: #0D0906;
+      --phone-bezel-edge: #0D0906;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #1C140D; --bg-grid-dot: #ffffff12; --card: #2A2018; --card-raised: #342820;
+    --text: #F3E9DB; --text-secondary: #C4AE96; --text-tertiary: #8A7461; --separator: #3D2E20;
+    --accent: #E8834F; --accent-text: #241608; --green: #8FB37A; --track-empty: #3D2E20;
+    --sheet-scrim: rgba(0,0,0,0.55); --phone-bezel: #0D0906; --phone-bezel-edge: #0D0906;
+  }
+  :root[data-theme="light"]{
+    --bg: #FBF1E3; --bg-grid-dot: #6B4A2A12; --card: #FFFBF3; --card-raised: #F7EBD9;
+    --text: #3A281C; --text-secondary: #8A6F5C; --text-tertiary: #C7AF97; --separator: #E9D9C0;
+    --accent: #D9713C; --accent-text: #FFF8EF; --green: #6E8F5C; --track-empty: #EEE0C7;
+    --sheet-scrim: rgba(58,40,26,0.4); --phone-bezel: #2B1E14; --phone-bezel-edge: #4a3524;
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ height:100%; }
+  body{
+    margin:0; min-height:100vh;
+    background: radial-gradient(circle at 1px 1px, var(--bg-grid-dot) 1px, transparent 0) 0 0/22px 22px, var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    display:flex; flex-direction:column; align-items:center;
+    padding: 28px 16px 60px; overflow-x:hidden;
+  }
+
+  .masthead{ width:100%; max-width: 960px; display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom: 22px; flex-wrap:wrap; }
+  .masthead h1{ font-family: ui-rounded, -apple-system, sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin:0; display:flex; align-items:center; gap:8px; }
+  .masthead h1 .flame{ font-size:20px; }
+  .masthead p{ margin:0; font-size: 13px; color: var(--text-secondary); max-width: 46ch; }
+
+  .stage{ width:100%; max-width: 960px; display:grid; grid-template-columns: minmax(320px, 400px) minmax(240px, 300px); gap: 40px; align-items:start; justify-content:center; }
+  @media (max-width: 720px){ .stage{ grid-template-columns: 1fr; justify-items:center; } }
+
+  .phone-wrap{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .phone{
+    position:relative; width: 356px; height: 748px; background: var(--phone-bezel); border-radius: 54px; padding: 14px;
+    box-shadow: 0 2px 0 var(--phone-bezel-edge) inset, 0 30px 60px -20px hsl(var(--shadow-color) / 0.45), 0 10px 24px -12px hsl(var(--shadow-color) / 0.35);
+  }
+  .phone::before{ content:""; position:absolute; left:50%; top:14px; transform:translateX(-50%); width:100px; height:28px; background:#000; border-radius:20px; z-index:30; }
+  .screen{ position:relative; width:100%; height:100%; background: var(--bg); border-radius: 42px; overflow:hidden; display:flex; flex-direction:column; }
+  .statusbar{ height:46px; flex:0 0 auto; display:flex; align-items:flex-end; justify-content:space-between; padding: 0 26px 6px; font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; }
+  .statusbar .icons{ display:flex; gap:5px; align-items:center; opacity:.9; }
+
+  .push-toast{
+    position:absolute; left:8px; right:8px; top:8px; z-index:60;
+    background: color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter: blur(20px); border-radius:18px; padding:11px 12px;
+    display:flex; align-items:flex-start; gap:10px; box-shadow: 0 10px 24px -8px hsl(var(--shadow-color)/.4);
+    transform: translateY(-140%); transition: transform .45s cubic-bezier(.17,.89,.32,1.28); cursor:pointer;
+  }
+  .push-toast.show{ transform: translateY(0); }
+  .push-toast .pt-icon{ width:34px; height:34px; border-radius:9px; flex:0 0 auto; background: linear-gradient(135deg, var(--accent), #ffb27a); display:flex; align-items:center; justify-content:center; font-size:17px; }
+  .push-toast .pt-body{ flex:1; min-width:0; }
+  .push-toast .pt-appname{ font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.04em; display:flex; justify-content:space-between; }
+  .push-toast .pt-title{ font-size:13px; font-weight:700; color:var(--text); margin-top:1px; line-height:1.3; }
+  .push-toast .pt-msg{ font-size:12.5px; color:var(--text-secondary); margin-top:1px; line-height:1.3; }
+
+  .screens{ position:relative; flex:1 1 auto; overflow:hidden; }
+  .app-screen{ position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; pointer-events:none; transform: translateY(6px); transition: opacity .28s ease, transform .28s ease; }
+  .app-screen.active{ opacity:1; pointer-events:auto; transform:none; }
+
+  .navbar{ flex:0 0 auto; padding: 2px 20px 10px; }
+  .navbar .large-title{ font-size: 28px; font-weight:800; letter-spacing:-0.02em; text-wrap: balance; }
+  .navbar-row{ flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding: 6px 20px 8px; }
+  .navbar-row .title{ font-size:17px; font-weight:700; }
+  .nav-btn{ border:none; background:none; color: var(--accent); font-size:16px; font-weight:600; padding:6px 4px; cursor:pointer; display:flex; align-items:center; gap:2px; }
+  .nav-icon-btn{ border:none; background: var(--card-raised); color:var(--text); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto; }
+
+  .content{ flex:1 1 auto; overflow-y:auto; padding: 4px 16px 20px; }
+  .content::-webkit-scrollbar{ display:none; }
+
+  .tabbar{ flex:0 0 auto; display:flex; border-top:1px solid var(--separator); background: color-mix(in srgb, var(--card) 92%, transparent); backdrop-filter: blur(20px); padding: 8px 6px 18px; }
+  .tab{ flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; border:none; background:none; color:var(--text-tertiary); cursor:pointer; font-size:10.5px; font-weight:600; padding:4px 0; }
+  .tab svg{ width:23px; height:23px; }
+  .tab.active{ color: var(--accent); }
+
+  .btn-primary{ width:100%; border:none; border-radius:15px; background: var(--accent); color: var(--accent-text); font-size:16px; font-weight:700; padding:15px 0; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; }
+  .btn-primary:disabled{ opacity:.4; }
+  .btn-primary svg{ width:17px; height:17px; }
+  .cta-bar{ padding: 6px 16px 14px; flex:0 0 auto; }
+
+  .section-label{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-secondary); margin: 16px 4px 8px; display:flex; justify-content:space-between; align-items:center; }
+  .section-label:first-child{ margin-top:0; }
+
+  /* ---------- Switcher (My Crews / Local) ---------- */
+  .top-switch{ display:flex; background:var(--card-raised); border-radius:12px; padding:3px; margin-bottom:6px; }
+  .top-switch button{ flex:1; border:none; background:none; padding:9px 4px; border-radius:9px; font-size:13px; font-weight:700; color:var(--text-secondary); cursor:pointer; }
+  .top-switch button.sel{ background:var(--card); color:var(--text); box-shadow:0 1px 3px hsl(var(--shadow-color)/.2); }
+
+  /* ---------- Crew card (My Crews list + Local chats list) ---------- */
+  .crew-card{ display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--separator); border-radius:16px; padding:12px 13px; margin-bottom:9px; cursor:pointer; transition: transform .12s ease; }
+  .crew-card:active{ transform: scale(0.98); }
+  .crew-emoji{ width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:19px; flex:0 0 auto; }
+  .crew-emoji svg{ width:21px; height:21px; }
+  .icon-pick-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .icon-pick-row button{ width:38px; height:38px; border-radius:12px; border:2px solid transparent; background:var(--card-raised); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .icon-pick-row button svg{ width:18px; height:18px; }
+  .icon-pick-row button.sel{ border-color:var(--accent); color:var(--accent); }
+  .crew-body{ flex:1; min-width:0; }
+  .crew-name{ font-size:14.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .crew-sub{ font-size:11.5px; color:var(--text-secondary); margin-top:1px; }
+  .crew-streak{ display:flex; align-items:center; gap:3px; font-size:12.5px; font-weight:800; color:var(--accent); flex:0 0 auto; font-variant-numeric:tabular-nums; }
+  .crew-chev{ width:14px; height:14px; opacity:.4; flex:0 0 auto; }
+  .fab-new-crew{
+    position:absolute; right:16px; bottom:88px; width:52px; height:52px; border-radius:50%;
+    background:var(--accent); color:var(--accent-text); border:none; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 20px -6px hsl(var(--shadow-color)/.5); cursor:pointer; z-index:5;
+  }
+  .fab-new-crew svg{ width:22px; height:22px; }
+
+  /* ---------- Event / Challenge cards (reused across Local + Profile) ---------- */
+  .event-card{ background:var(--card); border:1px solid var(--separator); border-radius:16px; padding:13px; margin-bottom:10px; cursor:pointer; }
+  .event-card .ev-top{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .event-card .ev-icon{ width:30px; height:30px; border-radius:9px; background:color-mix(in srgb, var(--accent) 15%, transparent); color:var(--accent); display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  .event-card .ev-icon svg{ width:15px; height:15px; }
+  .event-card .ev-title{ font-size:14px; font-weight:700; }
+  .event-card .ev-when{ font-size:11.5px; color:var(--text-secondary); }
+  .event-card .ev-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+  .bonus-pill{ background:color-mix(in srgb, var(--green) 16%, transparent); color:var(--green); font-size:11px; font-weight:800; padding:3px 9px; border-radius:20px; }
+  .join-btn{ background:var(--accent); color:var(--accent-text); border:none; border-radius:20px; font-size:12px; font-weight:700; padding:6px 14px; cursor:pointer; }
+  .avatar-stack{ display:flex; }
+  .avatar-stack .as-dot{ width:20px; height:20px; border-radius:50%; border:2px solid var(--card); margin-left:-6px; display:flex; align-items:center; justify-content:center; font-size:8.5px; font-weight:800; color:#fff; }
+  .avatar-stack .as-dot:first-child{ margin-left:0; }
+
+  .challenge-card{ background:var(--card); border:1px solid var(--separator); border-radius:14px; padding:12px; margin-bottom:9px; }
+  .challenge-card .ch-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .challenge-card .ch-title{ font-size:13.5px; font-weight:700; }
+  .challenge-card .ch-from{ font-size:11px; color:var(--text-secondary); margin-top:1px; }
+  .challenge-card .ch-frac{ font-size:11.5px; font-weight:700; color:var(--text-secondary); }
+  .ch-track{ height:6px; border-radius:4px; background:var(--track-empty); overflow:hidden; }
+  .ch-fill{ height:100%; border-radius:4px; }
+
+  /* ---------- Crew chat ---------- */
+  .cooked-banner{
+    flex:0 0 auto; margin:0 16px 10px; padding:10px 12px; border-radius:14px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent); display:flex; align-items:center; gap:10px;
+  }
+  .cooked-banner .cb-avatars{ display:flex; }
+  .cooked-banner .cb-avatars .cbd{ width:24px; height:24px; border-radius:50%; border:2px solid var(--bg); margin-left:-7px; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:800; color:#fff; }
+  .cooked-banner .cb-avatars .cbd:first-child{ margin-left:0; }
+  .cooked-banner .cb-text{ font-size:12.5px; font-weight:700; color:var(--text); }
+  .feed-post{ background:var(--card); border:1px solid var(--separator); border-radius:16px; padding:11px; margin-bottom:12px; }
+  .feed-post .fp-head{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .fp-avatar{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:10.5px; font-weight:800; flex:0 0 auto; }
+  .fp-name{ font-size:12.5px; font-weight:700; flex:1; }
+  .fp-time{ font-size:10.5px; color:var(--text-tertiary); }
+  .fp-photo{ aspect-ratio:1.3; border-radius:12px; margin-bottom:7px; }
+  .fp-caption{ font-size:13px; color:var(--text); }
+  .chat-bubble-row{ display:flex; gap:8px; align-items:flex-end; margin-bottom:12px; }
+  .chat-bubble{ background:var(--card-raised); border-radius:14px 14px 14px 4px; padding:8px 12px; max-width:76%; }
+  .chat-bubble .cb-name{ font-size:10px; font-weight:700; color:var(--text-secondary); margin-bottom:1px; }
+  .chat-bubble .cb-text{ font-size:13px; color:var(--text); }
+
+  /* ---------- Capture ---------- */
+  .photo-well{ aspect-ratio: 1/1; border-radius:20px; background: var(--card-raised); border:1px dashed var(--separator); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; color:var(--text-secondary); font-size:13px; font-weight:600; margin-bottom:14px; cursor:pointer; overflow:hidden; position:relative; }
+  .photo-well svg{ width:30px; height:30px; }
+  .photo-well.filled{ border-style:solid; }
+  .capture-actions{ display:flex; gap:10px; margin-bottom:16px; }
+  .chip-btn{ flex:1; border:1px solid var(--separator); background:var(--card); border-radius:12px; padding:10px 8px; font-size:13px; font-weight:700; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .chip-btn svg{ width:15px; height:15px; }
+  .caption-field{ width:100%; border:1px solid var(--separator); background:var(--card); border-radius:12px; padding:11px 12px; font-size:14.5px; color:var(--text); resize:none; font-family:inherit; min-height:52px; }
+  .char-count{ font-size:11.5px; color:var(--text-tertiary); text-align:right; margin:5px 2px 16px; }
+  .text-input{ width:100%; border:1px solid var(--separator); background:var(--card); border-radius:12px; padding:12px 13px; font-size:15px; color:var(--text); font-family:inherit; }
+  .search-row{ display:flex; align-items:center; gap:8px; border:1px solid var(--separator); background:var(--card); border-radius:12px; padding:10px 12px; margin-bottom:10px; }
+  .search-row svg{ width:15px; height:15px; color:var(--text-tertiary); flex:0 0 auto; }
+  .search-row input{ border:none; outline:none; background:none; flex:1; font-size:14.5px; color:var(--text); font-family:inherit; padding:0; }
+  .pick-row{ display:flex; align-items:center; gap:11px; background:var(--card); border-radius:14px; padding:10px 12px; margin-bottom:7px; border:1px solid var(--separator); cursor:pointer; }
+  .pick-row.sel{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 8%, var(--card)); }
+  .pick-check{ width:20px; height:20px; border-radius:50%; border:2px solid var(--separator); flex:0 0 auto; display:flex; align-items:center; justify-content:center; }
+  .pick-row.sel .pick-check{ border-color:var(--accent); background:var(--accent); color:#fff; }
+  .pick-check svg{ width:11px; height:11px; opacity:0; }
+  .pick-row.sel .pick-check svg{ opacity:1; }
+  .small-btn{ border:none; background:var(--accent); color:var(--accent-text); font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:20px; cursor:pointer; flex:0 0 auto; }
+  .small-btn.ghost{ background:var(--card-raised); color:var(--text-secondary); border:1px solid var(--separator); }
+  .lock-tag{ display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:700; color:var(--text-tertiary); }
+  .lock-tag svg{ width:10px; height:10px; }
+  .boost-tag{ display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:800; color:var(--accent); }
+  .boost-tag svg{ width:10px; height:10px; }
+
+  /* ---------- Toggle switch ---------- */
+  .toggle-row{ display:flex; align-items:center; gap:11px; background:var(--card); border:1px solid var(--separator); border-radius:14px; padding:12px 13px; margin-bottom:10px; }
+  .toggle-row .trow-body{ flex:1; min-width:0; }
+  .toggle{ position:relative; width:46px; height:27px; flex:0 0 auto; display:inline-block; cursor:pointer; }
+  .toggle input{ opacity:0; width:0; height:0; position:absolute; }
+  .toggle .track{ position:absolute; inset:0; background:var(--track-empty); border-radius:20px; transition:background .2s ease; }
+  .toggle .thumb{ position:absolute; top:2.5px; left:2.5px; width:22px; height:22px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .2s ease; }
+  .toggle input:checked + .track{ background:var(--accent); }
+  .toggle input:checked + .track .thumb{ transform:translateX(19px); }
+
+  /* ---------- BeReal-style public Feed ---------- */
+  .feed-card{ background:var(--card); border:1px solid var(--separator); border-radius:18px; padding:12px; margin-bottom:14px; }
+  .feed-card .fc-head{ display:flex; align-items:center; gap:9px; margin-bottom:9px; }
+  .fc-avatar{ width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; flex:0 0 auto; }
+  .fc-name{ font-size:13px; font-weight:700; flex:1; }
+  .fc-time{ font-size:11px; color:var(--text-tertiary); }
+  .fc-photo{ aspect-ratio:1; border-radius:14px; margin-bottom:9px; }
+  .fc-caption{ font-size:13.5px; color:var(--text); margin-bottom:10px; }
+  .fc-actions{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .reaction-row{ display:flex; gap:6px; flex-wrap:wrap; }
+  .reaction-pill{ border:1px solid var(--separator); background:var(--card-raised); border-radius:20px; padding:5px 10px; font-size:12px; font-weight:700; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; gap:4px; }
+  .reaction-pill.mine{ background:color-mix(in srgb, var(--accent) 16%, transparent); border-color:var(--accent); color:var(--accent); }
+  .comment-btn{ display:flex; align-items:center; gap:5px; border:none; background:none; color:var(--text-secondary); font-size:12px; font-weight:700; cursor:pointer; flex:0 0 auto; }
+  .comment-btn svg{ width:16px; height:16px; }
+  .field-label{ font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.04em; margin: 16px 2px 8px; }
+  .chip-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .cat-chip{ border:1px solid var(--separator); background:var(--card); color:var(--text); padding:8px 12px; border-radius:20px; font-size:12.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; }
+  .cat-chip.sel{ background:var(--accent); border-color:var(--accent); color:var(--accent-text); }
+  .cat-chip svg{ width:13px; height:13px; }
+  .swatch-row{ display:flex; gap:10px; margin-top:4px; }
+  .swatch{ width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent; }
+  .swatch.sel{ border-color: var(--text); }
+
+  /* ---------- Sheets ---------- */
+  .sheet-scrim{ position:absolute; inset:0; background:var(--sheet-scrim); opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:40; }
+  .sheet-scrim.active{ opacity:1; pointer-events:auto; }
+  .sheet{ position:absolute; left:0; right:0; bottom:0; top:6%; background:var(--bg); border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform .32s cubic-bezier(.32,.72,0,1); display:flex; flex-direction:column; z-index:41; box-shadow: 0 -8px 30px hsl(var(--shadow-color)/.25); pointer-events:none; }
+  .sheet.active{ transform: translateY(0); pointer-events:auto; }
+  .sheet-handle{ width:36px; height:5px; border-radius:3px; background:var(--separator); margin:8px auto 2px; flex:0 0 auto; }
+
+
+  /* ---------- Profile ---------- */
+  .row{ display:flex; align-items:center; gap:11px; background:var(--card); border-radius:14px; padding:11px 12px; margin-bottom:8px; border:1px solid var(--separator); }
+  .avatar{ width:38px; height:38px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:#fff; }
+  .row .name{ font-size:14.5px; font-weight:700; }
+  .row .sub{ font-size:12px; color:var(--text-secondary); margin-top:1px; }
+  .total-streak-card{
+    background: linear-gradient(135deg, var(--accent), #ffb27a); color:#fff; border-radius:18px; padding:16px;
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;
+  }
+  .total-streak-card .tsc-num{ font-family: ui-rounded, -apple-system; font-size:30px; font-weight:800; }
+  .total-streak-card .tsc-lbl{ font-size:11px; opacity:.9; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .most-active-card{ background:var(--card); border:1px solid var(--separator); border-radius:14px; padding:11px 13px; margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+  .crew-stat-row{ display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--separator); border-radius:14px; padding:10px 12px; margin-bottom:8px; }
+  .crew-stat-row .csr-body{ flex:1; min-width:0; }
+  .csr-name{ font-size:13px; font-weight:700; }
+  .csr-sub{ font-size:10.5px; color:var(--text-secondary); margin-top:1px; }
+  .next-event-row{ display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--separator); border-radius:14px; padding:10px 12px; margin-bottom:8px; cursor:pointer; }
+  .ner-icon{ width:32px; height:32px; border-radius:10px; background:color-mix(in srgb, var(--accent) 15%, transparent); color:var(--accent); display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  .ner-icon svg{ width:15px; height:15px; }
+  .ner-body{ flex:1; min-width:0; }
+  .ner-title{ font-size:13px; font-weight:700; }
+  .ner-sub{ font-size:10.5px; color:var(--text-secondary); margin-top:1px; }
+
+  /* ---------- Widget preview panel ---------- */
+  .widget-col{ display:flex; flex-direction:column; gap:16px; padding-top:6px; }
+  .panel-title{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-secondary); }
+  .crew-picker{ display:flex; gap:8px; margin-bottom:2px; }
+  .crew-picker button{ width:34px; height:34px; border-radius:11px; border:2px solid transparent; font-size:15px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .crew-picker button.sel{ border-color:var(--accent); }
+  .widget-card{ width:155px; height:155px; border-radius:28px; background: var(--card); border:1px solid var(--separator); box-shadow: 0 14px 26px -14px hsl(var(--shadow-color)/.35); overflow:hidden; position:relative; }
+  .widget-card.widget-medium{ width:100%; max-width:330px; height:150px; display:flex; gap:3px; padding:3px; }
+  .photo-tile{ position:relative; width:100%; height:100%; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; flex:1; min-width:0; border-radius:22px; }
+  .widget-medium .photo-tile{ border-radius:19px; }
+  .photo-tile .pt-bg{ position:absolute; inset:0; }
+  .photo-tile .pt-bg.placeholder{ background:linear-gradient(160deg, var(--track-empty), var(--separator)); }
+  .photo-tile .pt-streak{ position:relative; align-self:flex-start; margin:9px; display:flex; align-items:baseline; gap:3px; background:rgba(0,0,0,0.38); color:#fff; backdrop-filter:blur(6px); padding:4px 9px; border-radius:20px; font-family: ui-rounded, -apple-system; font-size:12.5px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .photo-tile .pt-postbtn{
+    position:absolute; right:9px; bottom:9px; width:30px; height:30px; border-radius:50%;
+    background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; z-index:2;
+  }
+  .photo-tile .pt-postbtn svg{ width:14px; height:14px; }
+  .photo-tile .pt-foot{ position:relative; display:flex; align-items:center; justify-content:space-between; padding:7px 44px 7px 9px; color:#fff; font-size:11px; font-weight:700; background:linear-gradient(to top, rgba(0,0,0,0.55), transparent); }
+  .photo-tile .pt-foot .pt-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .stat-split{ flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:2px; border-radius:14px; padding:8px; }
+  .stat-split .ss-lbl{ font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--text-secondary); }
+  .stat-split .ss-num{ font-family: ui-rounded, -apple-system; font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .stat-split .ss-sub{ font-size:9px; color:var(--text-secondary); }
+  .stat-divider{ width:1px; background:var(--separator); align-self:stretch; margin:6px 0; }
+
+  .note{ font-size:12.5px; line-height:1.5; color:var(--text-secondary); max-width:34ch; }
+  .note b{ color:var(--text); }
+  .legend{ display:flex; flex-direction:column; gap:8px; }
+  .legend-row{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-secondary); }
+  .legend-row svg{ width:16px; height:16px; flex:0 0 auto; }
+
+  svg{ display:block; }
+</style>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="ic-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+  <symbol id="ic-check-fill" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="currentColor"/><path d="M8 12.3l2.6 2.6L16.2 9" fill="none" stroke="var(--card)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="M5.5 12.5l4.2 4.2L18.5 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-camera" viewBox="0 0 24 24"><path d="M4 8.2A1.8 1.8 0 0 1 5.8 6.4h1.7L8.6 4.6h6.8l1.1 1.8h1.7A1.8 1.8 0 0 1 20 8.2v9A1.8 1.8 0 0 1 18.2 19H5.8A1.8 1.8 0 0 1 4 17.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12.4" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="ic-photo" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.6" fill="currentColor"/><path d="M5 16.5l4.5-4.5 3 3 2.5-2.5 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-chevron-left" viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-chevron-right" viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-xmark" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-community" viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="9.5" r="2.7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 19c.4-2.8 2.2-4.4 4.5-4.4M21.5 19c-.4-2.8-2.2-4.4-4.5-4.4M8 19c.4-3 2-4.6 4-4.6s3.6 1.6 4 4.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="ic-profile" viewBox="0 0 24 24"><circle cx="12" cy="8.3" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.8 19c.9-3.7 3.4-5.7 7.2-5.7s6.3 2 7.2 5.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/></symbol>
+  <symbol id="ic-chat" viewBox="0 0 24 24"><path d="M4 5.5h16v11H9l-4 3.5v-3.5H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 9.5h16M8 3.5v3M16 3.5v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 5.5H4.5A2.5 2.5 0 0 0 7 9M17 5.5h2.5A2.5 2.5 0 0 1 17 9" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 14v3M9 20h6M9.5 20c0-1.8.8-2.6 2.5-2.6s2.5.8 2.5 2.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.7-4.3 4.1 1 5.9L12 16.7 6.8 19.6l1-5.9-4.3-4.1 5.9-.7z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-download" viewBox="0 0 24 24"><path d="M12 4v11M8 11l4 4 4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-sparkle" viewBox="0 0 24 24"><path d="M11 3l1.7 5.3L18 10l-5.3 1.7L11 17l-1.7-5.3L4 10l5.3-1.7z" fill="currentColor"/><path d="M18.5 14l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7z" fill="currentColor"/></symbol>
+  <symbol id="ic-friends" viewBox="0 0 24 24"><circle cx="8.5" cy="8.5" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="16.5" cy="9.7" r="2.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 19c.5-3.4 2.5-5.2 5.5-5.2s5 1.8 5.5 5.2M14.8 19c.3-2.6 1.7-4 3.9-4s3.4 1.4 3.8 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="ic-lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="ic-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.8 12h16.4M12 3.8c2.4 2.2 3.7 5.2 3.7 8.2s-1.3 6-3.7 8.2c-2.4-2.2-3.7-5.2-3.7-8.2s1.3-6 3.7-8.2z" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M15.3 15.3L20 20" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="ic-gift" viewBox="0 0 24 24"><rect x="4" y="9.5" width="16" height="10" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 9.5h16v3.5H4z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 9.5V19.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 9.5c0-2.4-1.6-4-3.4-4C7 5.5 6 6.6 6 7.8c0 1 .8 1.7 2 1.7h4zM12 9.5c0-2.4 1.6-4 3.4-4 1.6 0 2.6 1.1 2.6 2.3 0 1-.8 1.7-2 1.7h-4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-chefhat" viewBox="0 0 24 24"><path d="M12 3c-2 0-3.6 1.6-3.6 3.6 0 .3 0 .6.1.9C6.9 7.9 6 9 6 10.3c0 1.8 1.5 3.2 3.3 3.2h5.4c1.8 0 3.3-1.4 3.3-3.2 0-1.3-.9-2.4-2.5-2.8.1-.3.1-.6.1-.9C15.6 4.6 14 3 12 3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 13.5V18h8v-4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 16h8" stroke="currentColor" stroke-width="1.2"/></symbol>
+  <symbol id="ic-wheat" viewBox="0 0 24 24"><path d="M12 21V6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 7.5c-1.1-1.7-2.8-2-4-1M12 7.5c1.1-1.7 2.8-2 4-1M12 11c-1.1-1.7-2.8-2-4-1M12 11c1.1-1.7 2.8-2 4-1M12 14.5c-1.1-1.7-2.8-2-4-1M12 14.5c1.1-1.7 2.8-2 4-1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="4.5" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="ic-pepper" viewBox="0 0 24 24"><path d="M9 5.5c1-1 2.4-1.6 3.6-1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M8.5 7c-2 .2-3.5 2-3.5 4.2 0 4.4 3.8 9.3 7.6 9.3 3 0 5.4-2.8 5.4-6.6 0-3.6-2.2-6.5-5-6.9-1.6-.2-3.1.3-4.5 0z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-candle" viewBox="0 0 24 24"><path d="M12 3c1 1.4 1.6 2.4 1.6 3.3 0 1-.7 1.7-1.6 1.7s-1.6-.7-1.6-1.7c0-.9.6-1.9 1.6-3.3z" fill="currentColor"/><rect x="9.5" y="8.2" width="5" height="12" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9.5 12.5h5M9.5 16h5" stroke="currentColor" stroke-width="1.1"/></symbol>
+  <symbol id="ic-noodles" viewBox="0 0 24 24"><path d="M4 12.5h16c-.4 4-3.8 7-8 7s-7.6-3-8-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 12c-.6-1.6-.2-2.8.6-4M12 12c-.6-2-.1-3.4.9-4.8M16 12c-.4-1.5 0-2.6.8-3.7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="ic-leaf" viewBox="0 0 24 24"><path d="M19 5c-8.5 0-13 4.6-13 12.5 0 .5 0 1 .1 1.5.5.1 1 .1 1.5.1C15.4 19.1 19 14.4 19 5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 18c3-4 6.5-7 11-10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="ic-croissant" viewBox="0 0 24 24"><path d="M4 15c1-6 6.5-10.5 13-10 1.5.1 2.7 1 3 1.8-1 .1-2 .6-2.7 1.5 1 .1 1.8.6 2.2 1.3-1 0-2 .4-2.6 1.2 1 .2 1.7.7 2 1.5-1 0-1.9.4-2.5 1.1.9.3 1.5.8 1.8 1.6-3.6 3.4-9.7 4-14.2 1.7z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-bowl" viewBox="0 0 24 24"><path d="M3.5 11.5h17c-.3 4.7-4 8.3-8.5 8.3s-8.2-3.6-8.5-8.3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 11.5c0-3 2.2-5.5 5-5.5s5 2.5 5 5.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="ic-bolt" viewBox="0 0 24 24"><path d="M13 3L5 13.5h5.5L10 21l8.5-11.5H13z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 24 24"><path d="M7 12h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="2.8" y="9" width="3.4" height="6" rx="1.3" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="17.8" y="9" width="3.4" height="6" rx="1.3" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="ic-briefcase" viewBox="0 0 24 24"><rect x="3.5" y="8" width="17" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 8V6.3a1.8 1.8 0 0 1 1.8-1.8h3.4a1.8 1.8 0 0 1 1.8 1.8V8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3.5 13h17M10.5 13v1.6h3V13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3.5l7 2.8v5.2c0 4.6-3 7.8-7 9-4-1.2-7-4.4-7-9V6.3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-rocket" viewBox="0 0 24 24"><path d="M12 2.5c2.6 1.8 4.2 5 4.2 8.6 0 2-.5 3.8-1.3 5.2H9.1c-.8-1.4-1.3-3.2-1.3-5.2 0-3.6 1.6-6.8 4.2-8.6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="10" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M9 16.3l-2.3 4M15 16.3l2.3 4M10.3 20.5h3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="masthead">
+  <h1><span class="flame">🔥</span>Proof</h1>
+  <p>Que des communautés : pas d'objectif solo, chaque crew EST l'objectif — sport, bouffe, travail, ce que tu veux. Explore My Crews / Local, un chat de crew, tes Friends, ton Profil — et des vraies rewards à chaque palier de streak.</p>
+</div>
+
+<div class="stage">
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen">
+        <div class="statusbar">
+          <span id="clock">9:41</span>
+          <span class="icons">▮▮▮ 5G 🔋</span>
+        </div>
+
+        <div class="push-toast" id="pushToast">
+          <div class="pt-icon">🔥</div>
+          <div class="pt-body">
+            <div class="pt-appname"><span>Proof</span><span id="pushTime">now</span></div>
+            <div class="pt-title" id="pushTitle">Marco completed today's proof! 🎉</div>
+            <div class="pt-msg" id="pushMsg">Complete yours to check it out.</div>
+          </div>
+        </div>
+
+        <div class="screens">
+
+          <!-- HOME: COMMUNITIES -->
+          <section class="app-screen" data-screen="home">
+            <div class="navbar">
+              <div class="large-title">Communities</div>
+            </div>
+            <div class="content" style="padding-bottom:90px;">
+              <div class="top-switch" id="topSwitch">
+                <button data-v="crews" class="sel">My Crews</button>
+                <button data-v="local" id="localSwitchBtn">Local · Paris</button>
+              </div>
+              <div id="homeContent"></div>
+            </div>
+            <button class="fab-new-crew" id="newCrewFab"><svg><use href="#ic-plus"/></svg></button>
+            <nav class="tabbar">
+              <button class="tab active" data-tab="home"><svg><use href="#ic-community"/></svg>Communities</button>
+              <button class="tab" data-tab="feed"><svg><use href="#ic-bolt"/></svg>Feed</button>
+              <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
+              <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
+            </nav>
+          </section>
+
+          <!-- FEED (BeReal-style public feed) -->
+          <section class="app-screen" data-screen="feed">
+            <div class="navbar"><div class="large-title">Feed</div></div>
+            <div class="content">
+              <p class="note" style="margin-bottom:12px">Random photos from people with a public feed — anyone can post, react, and comment.</p>
+              <div id="feedList"></div>
+            </div>
+            <nav class="tabbar">
+              <button class="tab" data-tab="home"><svg><use href="#ic-community"/></svg>Communities</button>
+              <button class="tab active" data-tab="feed"><svg><use href="#ic-bolt"/></svg>Feed</button>
+              <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
+              <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
+            </nav>
+          </section>
+
+          <!-- FRIENDS -->
+          <section class="app-screen" data-screen="friends">
+            <div class="navbar"><div class="large-title">Friends</div></div>
+            <div class="content">
+              <div class="search-row"><svg><use href="#ic-search"/></svg><input id="friendSearchInput" placeholder="Search people to add…"></div>
+              <div id="friendSearchResults"></div>
+              <div class="section-label" id="requestsLabel" style="display:none;">Requests</div>
+              <div id="friendRequestsList"></div>
+              <div class="section-label">Your accountability partners</div>
+              <div id="friendsList"></div>
+            </div>
+            <nav class="tabbar">
+              <button class="tab" data-tab="home"><svg><use href="#ic-community"/></svg>Communities</button>
+              <button class="tab" data-tab="feed"><svg><use href="#ic-bolt"/></svg>Feed</button>
+              <button class="tab active" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
+              <button class="tab" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
+            </nav>
+          </section>
+
+          <!-- PROFILE -->
+          <section class="app-screen" data-screen="profile">
+            <div class="navbar"><div class="large-title">Profile</div></div>
+            <div class="content">
+              <div class="row" style="padding:14px 12px;">
+                <div class="avatar" style="width:52px;height:52px;font-size:18px;background:linear-gradient(135deg,var(--accent),#ffb27a)">D</div>
+                <div>
+                  <div class="name" style="font-size:16.5px">Daniela</div>
+                  <div class="sub">Building one habit at a time</div>
+                </div>
+              </div>
+
+              <div class="total-streak-card">
+                <div><div class="tsc-lbl">Total streak</div><div class="tsc-num" id="totalStreakNum">🔥 0</div></div>
+                <svg style="width:34px;height:34px;opacity:.85"><use href="#ic-trophy"/></svg>
+              </div>
+
+              <div class="next-event-row" id="changeLocalRow">
+                <div class="ner-icon"><svg><use href="#ic-globe"/></svg></div>
+                <div class="ner-body">
+                  <div class="ner-title">Local</div>
+                  <div class="ner-sub" id="currentLocalLabel">Paris</div>
+                </div>
+                <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+              </div>
+
+              <div class="toggle-row">
+                <div class="trow-body">
+                  <div class="name" style="font-size:13.5px;">Public feed</div>
+                  <div class="sub">Let your proof photos show up in everyone's random Feed</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="publicFeedToggle">
+                  <span class="track"><span class="thumb"></span></span>
+                </label>
+              </div>
+
+              <div class="most-active-card" id="mostActiveCard"></div>
+
+              <div class="section-label">Rewards<svg style="width:14px;height:14px;color:var(--text-tertiary)"><use href="#ic-gift"/></svg></div>
+              <p class="note" style="margin:-2px 4px 10px;">Real perks for real streaks — unlocked automatically as your total streak grows.</p>
+              <div id="rewardsList"></div>
+
+              <div class="section-label">Your crews</div>
+              <div id="crewStatsList"></div>
+
+              <div class="section-label">My next events</div>
+              <div id="nextEventsList"></div>
+
+              <div class="section-label">Challenges</div>
+              <div id="profileChallenges"></div>
+
+              <div class="section-label">&nbsp;</div>
+              <div class="next-event-row" id="creatorToolsRow">
+                <div class="ner-icon"><svg><use href="#ic-shield"/></svg></div>
+                <div class="ner-body">
+                  <div class="ner-title">Creator tools</div>
+                  <div class="ner-sub">Manage rewards & boosted communities</div>
+                </div>
+                <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+              </div>
+
+              <div class="section-label">&nbsp;</div>
+              <div class="row" style="justify-content:center; color:#E7414C; font-weight:700; cursor:pointer;">Sign out</div>
+            </div>
+            <nav class="tabbar">
+              <button class="tab" data-tab="home"><svg><use href="#ic-community"/></svg>Communities</button>
+              <button class="tab" data-tab="feed"><svg><use href="#ic-bolt"/></svg>Feed</button>
+              <button class="tab" data-tab="friends"><svg><use href="#ic-friends"/></svg>Friends</button>
+              <button class="tab active" data-tab="profile"><svg><use href="#ic-profile"/></svg>Profile</button>
+            </nav>
+          </section>
+
+        </div>
+
+        <!-- SHEET SCRIM -->
+        <div class="sheet-scrim" id="scrim"></div>
+
+        <!-- CREW CHAT -->
+        <div class="sheet" id="sheetCrewChat">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="crewChatBack"><svg style="width:20px;height:20px"><use href="#ic-chevron-left"/></svg>Back</button>
+            <div class="title" id="crewChatTitle">Crew</div>
+            <button class="nav-icon-btn" id="crewChatCameraBtn"><svg style="width:15px;height:15px"><use href="#ic-camera"/></svg></button>
+          </div>
+          <div class="cooked-banner" id="cookedBanner"></div>
+          <div class="content" id="crewFeed"></div>
+          <div class="cta-bar" style="display:flex; gap:8px; padding-top:8px;">
+            <input class="text-input" placeholder="Message the crew…" disabled style="flex:1">
+            <button class="nav-icon-btn"><svg style="width:16px;height:16px"><use href="#ic-chat"/></svg></button>
+          </div>
+        </div>
+
+        <!-- CAPTURE (scoped to a crew) -->
+        <div class="sheet" id="sheetCapture">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="captureCancel">Cancel</button>
+            <div class="title" id="captureTitle">Post to crew</div>
+            <span style="width:50px"></span>
+          </div>
+          <div class="content">
+            <div class="photo-well" id="photoWell">
+              <svg><use href="#ic-camera"/></svg>
+              <span>Take today's photo</span>
+            </div>
+            <p class="note" style="margin:-8px 2px 12px;">📸 Live camera only — proof can't be imported from your gallery.</p>
+            <div class="capture-actions">
+              <button class="chip-btn" id="takePhoto" style="flex:1;"><svg><use href="#ic-camera"/></svg>Take photo</button>
+            </div>
+            <textarea class="caption-field" id="captionInput" maxlength="100" placeholder="Caption (optional)"></textarea>
+            <div class="char-count"><span id="charCount">0</span>/100</div>
+          </div>
+          <div class="cta-bar">
+            <button class="btn-primary" id="postProof" disabled>
+              <svg><use href="#ic-check"/></svg> Post proof
+            </button>
+          </div>
+        </div>
+
+        <!-- FAB MENU -->
+        <div class="sheet" id="sheetFabMenu" style="top:auto; height:auto; bottom:0; border-radius:24px 24px 0 0;">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row"><div class="title">Create</div></div>
+          <div class="content" style="padding-bottom:26px;">
+            <div class="row" id="fabMenuCrew" style="cursor:pointer;">
+              <div class="ner-icon"><svg><use href="#ic-bowl"/></svg></div>
+              <div style="flex:1"><div class="name">New crew</div><div class="sub">A new community to join or lead — sport, food, work…</div></div>
+              <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+            </div>
+            <div class="row" id="fabMenuEvent" style="cursor:pointer;">
+              <div class="ner-icon"><svg><use href="#ic-calendar"/></svg></div>
+              <div style="flex:1"><div class="name">New event</div><div class="sub">Plan a meetup, session or workshop</div></div>
+              <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+            </div>
+            <div class="row" id="fabMenuChallenge" style="cursor:pointer;">
+              <div class="ner-icon"><svg><use href="#ic-trophy"/></svg></div>
+              <div style="flex:1"><div class="name">New challenge</div><div class="sub">Start a streak challenge for a crew</div></div>
+              <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEW CREW -->
+        <div class="sheet" id="sheetCreateCrew">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="createCrewCancel">Cancel</button>
+            <div class="title">New crew</div>
+            <button class="nav-btn" id="createCrewSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content">
+            <div class="field-label" style="margin-top:4px">Crew name</div>
+            <input class="text-input" id="newCrewName" placeholder="e.g. Book Club">
+            <div class="field-label">Vibe</div>
+            <input class="text-input" id="newCrewVibe" placeholder="e.g. cozy Sunday dinners, spicy & bold, slow weeknight comfort">
+            <div class="field-label">Icon</div>
+            <div class="icon-pick-row" id="crewIconPicker"></div>
+            <div class="field-label">Colour</div>
+            <div class="swatch-row" id="crewSwatchRow"></div>
+            <div class="field-label" id="visibilityLabel">Visibility</div>
+            <p class="note" id="visibilityNote" style="display:flex; align-items:center; gap:6px;"></p>
+            <div id="inviteFriendsBlock" style="display:none;">
+              <div class="field-label">Add friends</div>
+              <div class="search-row"><svg><use href="#ic-search"/></svg><input id="inviteSearchInput" placeholder="Search friends…"></div>
+              <div id="inviteFriendsList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEW EVENT -->
+        <div class="sheet" id="sheetCreateEvent">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="createEventCancel">Cancel</button>
+            <div class="title">New event</div>
+            <button class="nav-btn" id="createEventSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content">
+            <div class="field-label" style="margin-top:4px">For</div>
+            <div class="chip-row" id="eventForPicker"></div>
+            <div class="field-label">Event title</div>
+            <input class="text-input" id="newEventTitle" placeholder="e.g. Sunday Potluck">
+            <div class="field-label">When</div>
+            <input class="text-input" id="newEventWhen" placeholder="e.g. Sun · 6:00 PM">
+            <div class="field-label">Streak bonus</div>
+            <input class="text-input" id="newEventBonus" type="number" min="1" max="10" value="3">
+          </div>
+        </div>
+
+        <!-- NEW CHALLENGE -->
+        <div class="sheet" id="sheetCreateChallenge">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="createChallengeCancel">Cancel</button>
+            <div class="title">New challenge</div>
+            <button class="nav-btn" id="createChallengeSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content">
+            <div class="field-label" style="margin-top:4px">For</div>
+            <div class="chip-row" id="challengeForPicker"></div>
+            <div class="field-label">Challenge title</div>
+            <input class="text-input" id="newChallengeTitle" placeholder="e.g. 7-day veggie challenge">
+            <div class="field-label">Duration (days)</div>
+            <input class="text-input" id="newChallengeDays" type="number" min="1" max="60" value="7">
+          </div>
+        </div>
+
+        <!-- CHANGE LOCAL -->
+        <div class="sheet" id="sheetChangeLocal" style="top:auto; height:auto; bottom:0; border-radius:24px 24px 0 0;">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="changeLocalCancel">Cancel</button>
+            <div class="title">Local</div>
+            <button class="nav-btn" id="changeLocalSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content" style="padding-bottom:26px;">
+            <div class="field-label" style="margin-top:4px">City or region</div>
+            <input class="text-input" id="changeLocalInput" placeholder="e.g. Paris, Brooklyn, Lisbon">
+            <p class="note" style="margin-top:8px;">This is the local community you discover, search, and join people in.</p>
+          </div>
+        </div>
+
+        <!-- ADMIN: CREATOR TOOLS -->
+        <div class="sheet" id="sheetAdmin">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="adminClose"><svg style="width:20px;height:20px"><use href="#ic-chevron-left"/></svg>Close</button>
+            <div class="title">Creator Tools</div>
+            <span style="width:50px"></span>
+          </div>
+          <div class="content">
+            <p class="note" style="margin-bottom:12px;">Only visible to app creators — manage global rewards and promote official communities.</p>
+            <div class="section-label">Rewards<button class="small-btn" id="addRewardBtn">+ Add</button></div>
+            <div id="adminRewardsList"></div>
+            <div class="section-label" style="margin-top:14px;">Boosted communities<svg style="width:14px;height:14px;color:var(--text-tertiary)"><use href="#ic-rocket"/></svg></div>
+            <p class="note" style="margin-bottom:10px;">Official public communities, pinned and highlighted in Local discovery.</p>
+            <div id="adminBoostedList"></div>
+            <button class="btn-primary" id="createBoostedBtn" style="margin-top:8px;"><svg><use href="#ic-rocket"/></svg>Create boosted community</button>
+          </div>
+        </div>
+
+        <!-- EDIT REWARD -->
+        <div class="sheet" id="sheetEditReward" style="top:auto; height:auto; bottom:0; border-radius:24px 24px 0 0;">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="editRewardCancel">Cancel</button>
+            <div class="title" id="editRewardTitle">Edit reward</div>
+            <button class="nav-btn" id="editRewardSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content" style="padding-bottom:26px;">
+            <div class="field-label" style="margin-top:4px">Streak needed (days)</div>
+            <input class="text-input" id="editRewardDays" type="number" min="1" max="365">
+            <div class="field-label">Icon (emoji)</div>
+            <input class="text-input" id="editRewardIcon" maxlength="4" placeholder="🎁">
+            <div class="field-label">Reward</div>
+            <input class="text-input" id="editRewardLabel" placeholder="e.g. 1 month HelloFresh at -10%">
+            <button class="btn-primary" id="editRewardDelete" style="background:var(--card-raised); color:#E7414C; border:1px solid var(--separator); margin-top:16px;">Delete reward</button>
+          </div>
+        </div>
+
+        <!-- CREATE BOOSTED COMMUNITY -->
+        <div class="sheet" id="sheetCreateBoosted">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="createBoostedCancel">Cancel</button>
+            <div class="title">Boosted community</div>
+            <button class="nav-btn" id="createBoostedSave" style="font-weight:800;">Save</button>
+          </div>
+          <div class="content">
+            <div class="field-label" style="margin-top:4px">Name</div>
+            <input class="text-input" id="newBoostedName" placeholder="e.g. Proof Official Runners">
+            <div class="field-label">Vibe</div>
+            <input class="text-input" id="newBoostedVibe" placeholder="e.g. Official crew, curated events every week">
+            <div class="field-label">Icon</div>
+            <div class="icon-pick-row" id="boostedIconPicker"></div>
+            <div class="field-label">Colour</div>
+            <div class="swatch-row" id="boostedSwatchRow"></div>
+            <p class="note" style="margin-top:10px;">🚀 Boosted communities are public and pinned at the top of Local discovery.</p>
+          </div>
+        </div>
+
+        <!-- EVENT DETAIL -->
+        <div class="sheet" id="sheetEvent">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="eventClose"><svg style="width:20px;height:20px"><use href="#ic-chevron-left"/></svg>Close</button>
+            <div class="title">Event</div>
+            <span style="width:50px"></span>
+          </div>
+          <div class="content" id="eventDetailContent"></div>
+        </div>
+
+        <!-- FEED COMMENTS -->
+        <div class="sheet" id="sheetFeedComments">
+          <div class="sheet-handle"></div>
+          <div class="navbar-row">
+            <button class="nav-btn" id="feedCommentsClose"><svg style="width:20px;height:20px"><use href="#ic-chevron-left"/></svg>Close</button>
+            <div class="title">Comments</div>
+            <span style="width:50px"></span>
+          </div>
+          <div class="content" id="feedCommentsContent"></div>
+          <div class="cta-bar" style="display:flex; gap:8px; padding-top:8px;">
+            <input class="text-input" placeholder="Add a comment…" disabled style="flex:1">
+            <button class="nav-icon-btn"><svg style="width:16px;height:16px"><use href="#ic-chat"/></svg></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-row"><svg><use href="#ic-community"/></svg>Tape un crew → chat avec bannière "checked in today"</div>
+      <div class="legend-row"><svg><use href="#ic-plus"/></svg>Bouton + → créer un crew : vibe libre, public ou privé + amis</div>
+      <div class="legend-row"><svg><use href="#ic-search"/></svg>Local → cherche des communautés, events, challenges, chats</div>
+      <div class="legend-row"><svg><use href="#ic-friends"/></svg>Friends → cherche, invite, accepte tes partenaires</div>
+      <div class="legend-row"><svg><use href="#ic-gift"/></svg>Profile → rewards réelles débloquées à chaque palier</div>
+    </div>
+  </div>
+
+  <div class="widget-col">
+    <div class="panel-title" style="margin-bottom:8px">Widget — choisis le crew</div>
+    <div class="crew-picker" id="widgetCrewPicker"></div>
+
+    <div>
+      <div class="panel-title" style="margin-bottom:10px">Widget — spotlight du crew</div>
+      <div class="widget-card widget-photo" id="widgetSpotlight"></div>
+    </div>
+    <p class="note">Photo d'un membre du crew choisi qui a assuré <b>aujourd'hui</b>. Le bouton orange en bas à droite poste ta preuve <b>direct depuis le widget</b>, sans ouvrir l'app.</p>
+
+    <div>
+      <div class="panel-title" style="margin-bottom:10px">Widget — streak crew vs toi</div>
+      <div class="widget-card widget-medium" id="widgetStreakSplit"></div>
+    </div>
+    <p class="note">Le streak du crew choisi à côté du tien.</p>
+
+    <div>
+      <div class="panel-title" style="margin-bottom:10px">Ce que montre cet aperçu</div>
+      <p class="note">Structure : plus d'onglet "objectifs solo" — <b>Communities</b> est l'accueil (My Crews + Local), <b>Feed</b>, <b>Friends</b>, et <b>Profile</b> avec les stats par crew. Rendu en HTML pour que tu puisses le voir avant le build Xcode.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const SWATCHES = ['#D9713C','#7A9169','#B08968','#C9A15A','#A5644E','#6B8CAE'];
+  const WARM_HUES = [16, 26, 36, 46, 96, 150, 205];
+
+  function seedFromString(str){ return str.split('').reduce((a,c)=>a+c.charCodeAt(0), 7); }
+  function thumbStyle(seed){
+    const h1 = WARM_HUES[seed % WARM_HUES.length];
+    const h2 = WARM_HUES[(seed+2) % WARM_HUES.length];
+    return `background:linear-gradient(135deg, hsl(${h1} 52% 54%), hsl(${h2} 46% 38%))`;
+  }
+
+  // ---------------- Data ----------------
+  // One example crew per category: sport, food, work.
+  const crews = [
+    {
+      id:'sport', name:'Morning Runs', icon:'ic-dumbbell', color:'#6B8CAE', size:4, private:true, vibe:'Early runs, gym sessions, staying active together',
+      myStreak:8, longestStreak:11,
+      members:[
+        {name:'Marco', color:'#6B8CAE', done:true}, {name:'Léa', color:'#7A9169', done:false},
+        {name:'Sam', color:'#A5644E', done:true}, {name:'Nina', color:'#D9713C', done:true},
+      ],
+      event:{ title:'Saturday 10K', when:'Sat · 8:00 AM', bonus:4, going:['Marco','Sam'] },
+      challenge:{ title:'30 Workouts in 30 Days', from:'Marco challenged you', progress:18, total:30, color:'#6B8CAE' },
+      feed:[
+        {type:'proof', name:'Marco', color:'#6B8CAE', caption:'5k done before work 🏃', time:'2h', seed:'sp-1'},
+        {type:'msg', name:'Sam', color:'#A5644E', text:'legs are dead 😅', time:'1h'},
+        {type:'proof', name:'Nina', color:'#D9713C', caption:'Leg day, survived', time:'4h', seed:'sp-2'},
+      ],
+    },
+    {
+      id:'mycrew', name:'Home Cooking', icon:'ic-chefhat', color:'#D9713C', size:4, private:true, vibe:'Slow weeknight comfort cooking, no pressure',
+      myStreak:12, longestStreak:15,
+      members:[
+        {name:'Marco', color:'#D9713C', done:true}, {name:'Léa', color:'#7A9169', done:true},
+        {name:'Sam', color:'#A5644E', done:true}, {name:'Nina', color:'#6B8CAE', done:false},
+      ],
+      event:{ title:'Sunday Potluck', when:'Sun · 6:00 PM', bonus:3, going:['Marco','Léa','Sam'] },
+      challenge:{ title:'Cooking Vegetables', from:'Léa challenged you', progress:4, total:7, color:'#7A9169' },
+      feed:[
+        {type:'proof', name:'Marco', color:'#D9713C', caption:'Sunday bread came out perfect 🍞', time:'2h', seed:'mc-1'},
+        {type:'msg', name:'Léa', color:'#7A9169', text:'that crust though 😍', time:'1h'},
+        {type:'proof', name:'Sam', color:'#A5644E', caption:'Quick weeknight stir-fry', time:'4h', seed:'mc-2'},
+      ],
+    },
+    {
+      id:'work', name:'Deep Work Squad', icon:'ic-briefcase', color:'#B08968', size:4, private:true, vibe:'Focused work blocks, no meetings, just output',
+      myStreak:6, longestStreak:9,
+      members:[
+        {name:'Owen', color:'#B08968', done:true}, {name:'Priya', color:'#C9A15A', done:true},
+        {name:'Zoe', color:'#D9713C', done:false}, {name:'Rina', color:'#7A9169', done:true},
+      ],
+      event:{ title:'Co-working Session', when:'Wed · 9:00 AM', bonus:3, going:['Owen','Priya'] },
+      challenge:{ title:'5 Deep Work Blocks', from:'Community challenge · 12 joined', progress:3, total:5, color:'#B08968' },
+      feed:[
+        {type:'proof', name:'Owen', color:'#B08968', caption:'3h deep work, zero notifications 💻', time:'3h', seed:'wk-1'},
+        {type:'msg', name:'Priya', color:'#C9A15A', text:'what did you work on?', time:'2h'},
+      ],
+    },
+  ];
+
+  const local = {
+    name:'Paris Community', size:16,
+    events:[
+      { title:'Community Potluck', when:'Fri · 7:30 PM', bonus:5, going:['Julien','Fatou'] },
+    ],
+    challenges:[
+      { title:'Cooking Vegetables', from:'Community challenge · 24 joined', progress:2, total:7, color:'#D9713C' },
+    ],
+    chats:[
+      { id:'cookingathome', name:'Cooking at Home', icon:'ic-bowl', color:'#C9A15A', size:16, private:false,
+        members:[
+          {name:'Julien', color:'#A5644E', done:true}, {name:'Fatou', color:'#6B8CAE', done:true},
+          {name:'Marie', color:'#7A9169', done:false}, {name:'Rina', color:'#D9713C', done:true},
+        ],
+        feed:[
+          {type:'proof', name:'Julien', color:'#A5644E', caption:'Fresh tagliatelle 🍝', time:'1h', seed:'coh-1'},
+          {type:'proof', name:'Rina', color:'#D9713C', caption:'Challah dough resting 🍞', time:'6h', seed:'coh-2'},
+        ] },
+    ],
+    discover:[],
+  };
+
+  const REWARDS = [
+    { days:7,   icon:'🥄', label:'Wooden spoon set' },
+    { days:14,  icon:'👕', label:'Proof apron' },
+    { days:30,  icon:'🍳', label:'New non-stick pan' },
+    { days:60,  icon:'🎁', label:'1 month HelloFresh at -10%' },
+    { days:100, icon:'🔪', label:"Chef's knife set" },
+  ];
+
+  const friends = [
+    { name:'Marco', color:'#D9713C', streak:9, mostActive:'Morning Runs' },
+    { name:'Léa', color:'#7A9169', streak:15, mostActive:'Home Cooking' },
+    { name:'Priya', color:'#C9A15A', streak:3, mostActive:'Deep Work Squad' },
+  ];
+  const friendRequests = [
+    { name:'Owen', color:'#A5644E' },
+  ];
+  const discoverPeople = [
+    { name:'Sofia', color:'#6B8CAE' }, { name:'Tom', color:'#B08968' }, { name:'Zoe', color:'#D9713C' },
+  ];
+
+  // Random public-feed photos from people who turned on "Public feed" —
+  // strangers, not just friends or crew-mates, à la BeReal's discovery feed.
+  const publicFeed = [
+    { id:'pf1', name:'Sofia', color:'#6B8CAE', seed:'pf-1', time:'12m', caption:'5am spin class, no regrets 🚴',
+      reactions:{ '❤️':14, '😍':6, '🔥':3 }, myReactions:{},
+      comments:[ {name:'Tom', text:'how are you up that early'}, {name:'Zoe', text:'respect'} ] },
+    { id:'pf2', name:'Tom', color:'#B08968', seed:'pf-2', time:'34m', caption:'First time making dumplings, not bad!',
+      reactions:{ '❤️':9, '😂':2, '👏':7 }, myReactions:{},
+      comments:[ {name:'Sofia', text:'proud of you 👏'} ] },
+    { id:'pf3', name:'Zoe', color:'#D9713C', seed:'pf-3', time:'1h', caption:'Inbox zero before 9am 💻',
+      reactions:{ '😂':21, '🔥':4 }, myReactions:{},
+      comments:[] },
+    { id:'pf4', name:'Priya', color:'#C9A15A', seed:'pf-4', time:'2h', caption:'Meal-prepped for the whole week',
+      reactions:{ '❤️':11, '👏':13 }, myReactions:{},
+      comments:[ {name:'Marco', text:'teach me your ways'} ] },
+  ];
+  const REACTION_SET = ['❤️','😂','😮','🔥','👏'];
+  let publicFeedOn = true;
+
+  let activeSwitch = 'crews';
+  let activeCrewId = null; // crew currently open in chat (could be from crews[] or local.chats[])
+  let captureCrewId = null;
+  let widgetCrewId = 'mycrew';
+  let localCity = 'Paris';
+
+  function allCrewLike(){ return [...crews, ...local.chats, ...local.discover]; }
+  function findCrewLike(id){ return allCrewLike().find(c => c.id === id); }
+
+  function localLabel(){ return 'Local · ' + localCity; }
+  function renderLocalLabel(){
+    document.getElementById('localSwitchBtn').textContent = localLabel();
+    document.getElementById('currentLocalLabel').textContent = localCity;
+  }
+
+  // ---------------- Render: Home (Communities) ----------------
+  let localSearch = '';
+  function renderHome(){
+    const el = document.getElementById('homeContent');
+    if(activeSwitch === 'crews'){
+      el.innerHTML = crews.map(crewCardHtml).join('') || `<p class="note">No crews yet — tap + to start one.</p>`;
+    } else {
+      const q = localSearch.trim().toLowerCase();
+      const boostedFirst = [...local.discover].sort((a,b) => (b.boosted?1:0) - (a.boosted?1:0));
+      const chatMatches = local.chats.filter(c => c.name.toLowerCase().includes(q));
+      const discoverMatches = boostedFirst.filter(c => c.name.toLowerCase().includes(q));
+      el.innerHTML = `
+        <div class="search-row"><svg><use href="#ic-search"/></svg><input id="localSearchInput" placeholder="Search local communities…" value="${localSearch}"></div>
+        ${q ? `
+          <div class="section-label">Communities matching "${localSearch}"</div>
+          ${chatMatches.map(crewCardHtml).join('')}
+          ${discoverMatches.map(discoverCardHtml).join('')}
+          ${(!chatMatches.length && !discoverMatches.length) ? '<p class="note">No communities found.</p>' : ''}
+        ` : `
+          <div class="section-label">Events</div>
+          ${local.events.map((e,i) => eventCardHtml(e, 'local-'+i)).join('')}
+          <div class="section-label">Challenges</div>
+          ${local.challenges.map(challengeCardHtml).join('')}
+          <div class="section-label">Chats</div>
+          ${local.chats.map(crewCardHtml).join('')}
+          <div class="section-label">Discover more nearby</div>
+          ${boostedFirst.map(discoverCardHtml).join('')}
+        `}
+      `;
+    }
+    wireHomeInteractions();
+  }
+
+  function visTag(c){
+    return c.private
+      ? `<span class="lock-tag"><svg><use href="#ic-lock"/></svg>Private</span>`
+      : `<span class="lock-tag"><svg><use href="#ic-globe"/></svg>Public</span>`;
+  }
+
+  function iconTag(c){
+    return `<svg style="color:${c.color}"><use href="#${c.icon || 'ic-bowl'}"/></svg>`;
+  }
+
+  function crewCardHtml(c){
+    const cookedToday = c.members.filter(m => m.done).length;
+    const streakBit = c.myStreak !== undefined ? `<div class="crew-streak">🔥${c.myStreak}</div>` : '';
+    return `
+      <div class="crew-card" data-crew="${c.id}">
+        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent)">${iconTag(c)}</div>
+        <div class="crew-body">
+          <div class="crew-name">${c.name}</div>
+          <div class="crew-sub">${cookedToday}/${c.size} checked in today · ${visTag(c)}</div>
+        </div>
+        ${streakBit}
+        <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+      </div>
+    `;
+  }
+
+  function discoverCardHtml(c){
+    const boostBit = c.boosted ? `<span class="boost-tag"><svg><use href="#ic-rocket"/></svg>Boosted</span> · ` : '';
+    return `
+      <div class="crew-card" style="cursor:default; ${c.boosted ? 'border-color:var(--accent);' : ''}">
+        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent)">${iconTag(c)}</div>
+        <div class="crew-body">
+          <div class="crew-name">${c.name}</div>
+          <div class="crew-sub">${boostBit}${c.size} members · ${visTag(c)}</div>
+        </div>
+        <button class="small-btn" data-join="${c.id}">Join</button>
+      </div>
+    `;
+  }
+
+  function eventCardHtml(e, key){
+    const goingAvatars = e.going.map(n => `<div class="as-dot" style="background:${stableColor(n)}">${n[0]}</div>`).join('');
+    return `
+      <div class="event-card" data-event="${key}">
+        <div class="ev-top">
+          <div class="ev-icon"><svg><use href="#ic-calendar"/></svg></div>
+          <div><div class="ev-title">${e.title}</div><div class="ev-when">${e.when} · ${e.going.length}+ going</div></div>
+        </div>
+        <div class="ev-foot">
+          <span class="bonus-pill">🔥 +${e.bonus} streak bonus</span>
+          <div class="avatar-stack">${goingAvatars}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function challengeCardHtml(ch){
+    return `
+      <div class="challenge-card">
+        <div class="ch-top">
+          <div><div class="ch-title">${ch.title}</div><div class="ch-from">${ch.from}</div></div>
+          <div class="ch-frac">${ch.progress}/${ch.total}</div>
+        </div>
+        <div class="ch-track"><div class="ch-fill" style="width:${Math.round(ch.progress/ch.total*100)}%; background:${ch.color}"></div></div>
+      </div>
+    `;
+  }
+
+  const colorCache = {};
+  function stableColor(name){
+    if(!colorCache[name]) colorCache[name] = SWATCHES[seedFromString(name) % SWATCHES.length];
+    return colorCache[name];
+  }
+
+  function wireHomeInteractions(){
+    document.querySelectorAll('.crew-card[data-crew]').forEach(card => {
+      card.addEventListener('click', () => openCrewChat(card.dataset.crew));
+    });
+    const searchInput = document.getElementById('localSearchInput');
+    if(searchInput){
+      searchInput.addEventListener('input', () => { localSearch = searchInput.value; renderHome(); refocusSearch(); });
+    }
+    document.querySelectorAll('[data-join]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.join;
+        const idx = local.discover.findIndex(c => c.id === id);
+        if(idx === -1) return;
+        const [joined] = local.discover.splice(idx, 1);
+        joined.members.unshift({name:'You', color:'#D9713C', done:false});
+        joined.size += 1;
+        local.chats.push(joined);
+        renderHome();
+      });
+    });
+  }
+  function refocusSearch(){
+    const el = document.getElementById('localSearchInput');
+    if(el){ el.focus(); el.selectionStart = el.selectionEnd = el.value.length; }
+  }
+
+  document.querySelectorAll('#topSwitch button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeSwitch = btn.dataset.v;
+      document.querySelectorAll('#topSwitch button').forEach(b => b.classList.toggle('sel', b === btn));
+      renderHome();
+    });
+  });
+
+  // ---------------- Crew chat ----------------
+  function openCrewChat(id){
+    activeCrewId = id;
+    const c = findCrewLike(id);
+    document.getElementById('crewChatTitle').textContent = c.name;
+    const cookedToday = c.members.filter(m => m.done);
+    document.getElementById('cookedBanner').innerHTML = `
+      <div class="cb-avatars">${cookedToday.slice(0,5).map(m => `<div class="cbd" style="background:${m.color}">${m.name[0]}</div>`).join('')}</div>
+      <div class="cb-text">🔥 ${cookedToday.length} people showed up today</div>
+    `;
+    document.getElementById('crewFeed').innerHTML = c.feed.map(feedItemHtml).join('') || `<p class="note">No posts yet — be the first to show up!</p>`;
+    openSheet(document.getElementById('sheetCrewChat'));
+  }
+
+  function feedItemHtml(item){
+    if(item.type === 'proof'){
+      return `
+        <div class="feed-post">
+          <div class="fp-head">
+            <div class="fp-avatar" style="background:${item.color}">${item.name[0]}</div>
+            <div class="fp-name">${item.name}</div>
+            <div class="fp-time">${item.time}</div>
+          </div>
+          <div class="fp-photo" style="${thumbStyle(seedFromString(item.seed))}"></div>
+          <div class="fp-caption">${item.caption}</div>
+        </div>
+      `;
+    }
+    return `
+      <div class="chat-bubble-row">
+        <div class="fp-avatar" style="background:${item.color}; width:26px; height:26px; font-size:10.5px;">${item.name[0]}</div>
+        <div class="chat-bubble"><div class="cb-name">${item.name}</div><div class="cb-text">${item.text}</div></div>
+      </div>
+    `;
+  }
+
+  document.getElementById('crewChatBack').addEventListener('click', closeSheets);
+  document.getElementById('crewChatCameraBtn').addEventListener('click', () => openCapture(activeCrewId));
+
+  // ---------------- Capture (post proof to a crew) ----------------
+  function openCapture(crewId){
+    captureCrewId = crewId;
+    const c = findCrewLike(crewId);
+    document.getElementById('captureTitle').textContent = 'Post to ' + c.name;
+    const well = document.getElementById('photoWell');
+    well.className = 'photo-well';
+    well.innerHTML = `<svg><use href="#ic-camera"/></svg><span>Add today's photo</span>`;
+    document.getElementById('captionInput').value = '';
+    document.getElementById('charCount').textContent = '0';
+    document.getElementById('postProof').disabled = true;
+    openSheet(document.getElementById('sheetCapture'));
+  }
+  document.getElementById('captureCancel').addEventListener('click', () => closeSheet('sheetCapture'));
+
+  function warmPhotoFill(){
+    const h1 = WARM_HUES[Math.floor(Math.random()*WARM_HUES.length)];
+    const h2 = WARM_HUES[Math.floor(Math.random()*WARM_HUES.length)];
+    return `<div style="position:absolute;inset:0;background:linear-gradient(135deg, hsl(${h1} 55% 55%), hsl(${h2} 48% 38%))"></div>`;
+  }
+  function fillPhoto(){
+    const well = document.getElementById('photoWell');
+    well.className = 'photo-well filled';
+    well.innerHTML = warmPhotoFill();
+    document.getElementById('postProof').disabled = false;
+  }
+  document.getElementById('takePhoto').addEventListener('click', fillPhoto);
+
+  const captionInput = document.getElementById('captionInput');
+  captionInput.addEventListener('input', () => {
+    if(captionInput.value.length > 100) captionInput.value = captionInput.value.slice(0,100);
+    document.getElementById('charCount').textContent = captionInput.value.length;
+  });
+
+  document.getElementById('postProof').addEventListener('click', () => {
+    const c = findCrewLike(captureCrewId);
+    if(c.myStreak !== undefined) c.myStreak += 1;
+    const me = c.members.find(m => m.name === 'You');
+    if(me){ me.done = true; } else { c.members.unshift({name:'You', color:'#D9713C', done:true}); }
+    const caption = captionInput.value || 'Showed up today 🔥';
+    const photoSeed = 'you-'+Date.now();
+    c.feed.unshift({ type:'proof', name:'You', color:'#D9713C', caption, time:'now', seed:photoSeed });
+    if(publicFeedOn){
+      publicFeed.unshift({ id:'pf-you-'+Date.now(), name:'You', color:'#D9713C', seed:photoSeed, time:'now', caption, reactions:{}, myReactions:{}, comments:[] });
+    }
+    closeSheet('sheetCapture');
+    renderAll();
+    // If we posted from inside that crew's chat, refresh it in place
+    // so the new post shows up immediately instead of the feed going stale.
+    if(activeCrewId === captureCrewId && document.getElementById('sheetCrewChat').classList.contains('active')){
+      openCrewChat(activeCrewId);
+    }
+  });
+
+  // ---------------- New crew ----------------
+  const CREW_ICONS = ['ic-dumbbell','ic-briefcase','ic-bowl','ic-chefhat','ic-wheat','ic-pepper','ic-candle','ic-noodles','ic-leaf','ic-croissant'];
+  let selectedCrewColor = SWATCHES[0];
+  let selectedCrewIcon = 'ic-bowl';
+  let creationContext = 'crews'; // 'crews' → private My Crew, 'local' → public local community
+  let selectedInvitees = [];
+  let inviteSearch = '';
+  function renderCreateCrewForm(){
+    document.getElementById('crewIconPicker').innerHTML = CREW_ICONS.map(ic => `
+      <button class="${ic===selectedCrewIcon?'sel':''}" data-icon="${ic}"><svg><use href="#${ic}"/></svg></button>
+    `).join('');
+    document.querySelectorAll('#crewIconPicker button').forEach(btn => {
+      btn.addEventListener('click', () => { selectedCrewIcon = btn.dataset.icon; renderCreateCrewForm(); });
+    });
+
+    document.getElementById('crewSwatchRow').innerHTML = SWATCHES.map(c => `
+      <div class="swatch ${c===selectedCrewColor?'sel':''}" style="background:${c}" data-color="${c}"></div>
+    `).join('');
+    document.querySelectorAll('#crewSwatchRow .swatch').forEach(sw => {
+      sw.addEventListener('click', () => { selectedCrewColor = sw.dataset.color; renderCreateCrewForm(); });
+    });
+
+    // Visibility is automatic, not a manual toggle: crews created from "My Crews"
+    // are private (you invite who's in); crews created from "Local" are public
+    // so anyone nearby can find and join them.
+    const isPrivate = creationContext === 'crews';
+    document.getElementById('visibilityLabel').textContent = 'Visibility';
+    document.getElementById('visibilityNote').innerHTML = isPrivate
+      ? `<svg style="width:13px;height:13px"><use href="#ic-lock"/></svg> Private — a My Crew, only people you add can join.`
+      : `<svg style="width:13px;height:13px"><use href="#ic-globe"/></svg> Public — a Local community, anyone nearby can find and join.`;
+    document.getElementById('inviteFriendsBlock').style.display = isPrivate ? 'block' : 'none';
+
+    if(isPrivate){
+      const q = inviteSearch.trim().toLowerCase();
+      const list = friends.filter(f => f.name.toLowerCase().includes(q));
+      document.getElementById('inviteFriendsList').innerHTML = list.map(f => `
+        <div class="pick-row ${selectedInvitees.includes(f.name)?'sel':''}" data-invite="${f.name}">
+          <div class="avatar" style="width:32px;height:32px;font-size:13px;background:${f.color}">${f.name[0]}</div>
+          <div style="flex:1"><div class="name" style="font-size:13.5px">${f.name}</div></div>
+          <div class="pick-check"><svg><use href="#ic-check"/></svg></div>
+        </div>
+      `).join('') || `<p class="note">No friends match.</p>`;
+      document.querySelectorAll('#inviteFriendsList [data-invite]').forEach(row => {
+        row.addEventListener('click', () => {
+          const name = row.dataset.invite;
+          selectedInvitees = selectedInvitees.includes(name) ? selectedInvitees.filter(n=>n!==name) : [...selectedInvitees, name];
+          renderCreateCrewForm();
+        });
+      });
+      const inviteInput = document.getElementById('inviteSearchInput');
+      inviteInput.value = inviteSearch;
+      inviteInput.oninput = () => { inviteSearch = inviteInput.value; renderCreateCrewForm(); inviteInput.focus(); inviteInput.selectionStart = inviteInput.selectionEnd = inviteInput.value.length; };
+    }
+  }
+  document.getElementById('newCrewFab').addEventListener('click', () => {
+    openSheet(document.getElementById('sheetFabMenu'));
+  });
+  document.getElementById('fabMenuCrew').addEventListener('click', () => {
+    closeSheet('sheetFabMenu');
+    document.getElementById('newCrewName').value = '';
+    document.getElementById('newCrewVibe').value = '';
+    creationContext = activeSwitch; // create from My Crews → private crew; from Local → public community
+    selectedCrewColor = SWATCHES[0]; selectedCrewIcon = 'ic-bowl'; selectedInvitees = []; inviteSearch = '';
+    renderCreateCrewForm();
+    openSheet(document.getElementById('sheetCreateCrew'));
+  });
+  document.getElementById('fabMenuEvent').addEventListener('click', () => {
+    closeSheet('sheetFabMenu');
+    openCreateEvent();
+  });
+  document.getElementById('fabMenuChallenge').addEventListener('click', () => {
+    closeSheet('sheetFabMenu');
+    openCreateChallenge();
+  });
+  document.getElementById('createCrewCancel').addEventListener('click', closeSheets);
+  document.getElementById('createCrewSave').addEventListener('click', () => {
+    const name = document.getElementById('newCrewName').value.trim();
+    if(!name) return;
+    const vibe = document.getElementById('newCrewVibe').value.trim();
+    const isPrivate = creationContext === 'crews';
+    const members = [{name:'You', color:'#D9713C', done:false}];
+    if(isPrivate){
+      selectedInvitees.forEach(n => {
+        const f = friends.find(x => x.name === n);
+        if(f) members.push({name:f.name, color:f.color, done:false});
+      });
+    }
+    const newCrew = {
+      id:'crew'+Date.now(), name, icon:selectedCrewIcon, color:selectedCrewColor, size:members.length,
+      private: isPrivate, vibe: vibe || 'New crew',
+      myStreak: isPrivate ? 0 : undefined, longestStreak:0,
+      members, event:null, challenge:null, feed:[],
+    };
+    if(isPrivate){ crews.push(newCrew); } else { local.chats.push(newCrew); }
+    closeSheets();
+    activeSwitch = creationContext;
+    document.querySelectorAll('#topSwitch button').forEach(b => b.classList.toggle('sel', b.dataset.v === creationContext));
+    renderAll();
+  });
+
+  // ---------------- New event / New challenge ("for" target = a My Crew, or Local) ----------------
+  function forTargets(){
+    return [{ id:'local', name:localLabel(), color:'var(--accent)', icon:'ic-globe' }, ...crews];
+  }
+  let selectedEventFor = 'local';
+  function renderEventForPicker(){
+    const pickerEl = document.getElementById('eventForPicker');
+    pickerEl.innerHTML = forTargets().map(t => `
+      <div class="cat-chip ${t.id===selectedEventFor?'sel':''}" data-for="${t.id}"><svg style="width:13px;height:13px;color:${t.id===selectedEventFor ? 'currentColor' : t.color}"><use href="#${t.icon}"/></svg> ${t.name}</div>
+    `).join('');
+    pickerEl.querySelectorAll('[data-for]').forEach(chip => {
+      chip.addEventListener('click', () => { selectedEventFor = chip.dataset.for; renderEventForPicker(); });
+    });
+  }
+  function openCreateEvent(){
+    selectedEventFor = activeSwitch === 'local' ? 'local' : (crews[0] ? crews[0].id : 'local');
+    document.getElementById('newEventTitle').value = '';
+    document.getElementById('newEventWhen').value = '';
+    document.getElementById('newEventBonus').value = '3';
+    renderEventForPicker();
+    openSheet(document.getElementById('sheetCreateEvent'));
+  }
+  document.getElementById('createEventCancel').addEventListener('click', () => closeSheet('sheetCreateEvent'));
+  document.getElementById('createEventSave').addEventListener('click', () => {
+    const title = document.getElementById('newEventTitle').value.trim();
+    const when = document.getElementById('newEventWhen').value.trim();
+    if(!title || !when) return;
+    const bonus = Math.max(1, +document.getElementById('newEventBonus').value || 3);
+    const ev = { title, when, bonus, going:['You'] };
+    if(selectedEventFor === 'local'){
+      local.events.push(ev);
+    } else {
+      const c = crews.find(x => x.id === selectedEventFor);
+      if(c) c.event = ev;
+    }
+    closeSheet('sheetCreateEvent');
+    if(selectedEventFor === 'local'){
+      activeSwitch = 'local';
+      document.querySelectorAll('#topSwitch button').forEach(b => b.classList.toggle('sel', b.dataset.v === 'local'));
+    }
+    renderAll();
+  });
+
+  let selectedChallengeFor = 'local';
+  function renderChallengeForPicker(){
+    const pickerEl = document.getElementById('challengeForPicker');
+    pickerEl.innerHTML = forTargets().map(t => `
+      <div class="cat-chip ${t.id===selectedChallengeFor?'sel':''}" data-for="${t.id}"><svg style="width:13px;height:13px;color:${t.id===selectedChallengeFor ? 'currentColor' : t.color}"><use href="#${t.icon}"/></svg> ${t.name}</div>
+    `).join('');
+    pickerEl.querySelectorAll('[data-for]').forEach(chip => {
+      chip.addEventListener('click', () => { selectedChallengeFor = chip.dataset.for; renderChallengeForPicker(); });
+    });
+  }
+  function openCreateChallenge(){
+    selectedChallengeFor = activeSwitch === 'local' ? 'local' : (crews[0] ? crews[0].id : 'local');
+    document.getElementById('newChallengeTitle').value = '';
+    document.getElementById('newChallengeDays').value = '7';
+    renderChallengeForPicker();
+    openSheet(document.getElementById('sheetCreateChallenge'));
+  }
+  document.getElementById('createChallengeCancel').addEventListener('click', () => closeSheet('sheetCreateChallenge'));
+  document.getElementById('createChallengeSave').addEventListener('click', () => {
+    const title = document.getElementById('newChallengeTitle').value.trim();
+    if(!title) return;
+    const total = Math.max(1, +document.getElementById('newChallengeDays').value || 7);
+    if(selectedChallengeFor === 'local'){
+      local.challenges.push({ title, from:'Community challenge · 1 joined', progress:0, total, color:'#D9713C' });
+    } else {
+      const c = crews.find(x => x.id === selectedChallengeFor);
+      if(c) c.challenge = { title, from:'You started this challenge', progress:0, total, color:c.color };
+    }
+    closeSheet('sheetCreateChallenge');
+    if(selectedChallengeFor === 'local'){
+      activeSwitch = 'local';
+      document.querySelectorAll('#topSwitch button').forEach(b => b.classList.toggle('sel', b.dataset.v === 'local'));
+    }
+    renderAll();
+  });
+
+  // ---------------- Change Local ----------------
+  document.getElementById('changeLocalRow').addEventListener('click', () => {
+    document.getElementById('changeLocalInput').value = localCity;
+    openSheet(document.getElementById('sheetChangeLocal'));
+  });
+  document.getElementById('changeLocalCancel').addEventListener('click', () => closeSheet('sheetChangeLocal'));
+  document.getElementById('changeLocalSave').addEventListener('click', () => {
+    const city = document.getElementById('changeLocalInput').value.trim();
+    if(!city) return;
+    localCity = city;
+    local.name = city + ' Community';
+    closeSheet('sheetChangeLocal');
+    renderLocalLabel();
+    renderAll();
+  });
+
+  // ---------------- Creator tools: Rewards + Boosted communities ----------------
+  document.getElementById('creatorToolsRow').addEventListener('click', () => {
+    renderAdmin();
+    openSheet(document.getElementById('sheetAdmin'));
+  });
+  document.getElementById('adminClose').addEventListener('click', closeSheets);
+
+  function renderAdmin(){
+    document.getElementById('adminRewardsList').innerHTML = REWARDS.map((r,i) => `
+      <div class="row" data-reward-idx="${i}" style="cursor:pointer;">
+        <div class="avatar" style="background:var(--card-raised); font-size:16px;">${r.icon}</div>
+        <div style="flex:1"><div class="name">${r.label}</div><div class="sub">🔥 ${r.days}-day streak</div></div>
+        <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+      </div>
+    `).join('');
+    document.querySelectorAll('#adminRewardsList [data-reward-idx]').forEach(row => {
+      row.addEventListener('click', () => openEditReward(+row.dataset.rewardIdx));
+    });
+
+    const boosted = local.discover.filter(c => c.boosted);
+    document.getElementById('adminBoostedList').innerHTML = boosted.map(c => `
+      <div class="row">
+        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent); width:34px; height:34px;">${iconTag(c)}</div>
+        <div style="flex:1"><div class="name">${c.name}</div><div class="sub">${c.size} members</div></div>
+        <button class="small-btn ghost" data-remove-boosted="${c.id}">Remove</button>
+      </div>
+    `).join('') || `<p class="note">No boosted communities yet.</p>`;
+    document.querySelectorAll('[data-remove-boosted]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = local.discover.findIndex(c => c.id === btn.dataset.removeBoosted);
+        if(idx > -1) local.discover.splice(idx, 1);
+        renderAdmin();
+        renderAll();
+      });
+    });
+  }
+
+  let editingRewardIndex = -1;
+  function openEditReward(idx){
+    editingRewardIndex = idx;
+    const r = idx === -1 ? { days:7, icon:'🎁', label:'' } : REWARDS[idx];
+    document.getElementById('editRewardTitle').textContent = idx === -1 ? 'New reward' : 'Edit reward';
+    document.getElementById('editRewardDays').value = r.days;
+    document.getElementById('editRewardIcon').value = r.icon;
+    document.getElementById('editRewardLabel').value = r.label;
+    document.getElementById('editRewardDelete').style.display = idx === -1 ? 'none' : 'block';
+    openSheet(document.getElementById('sheetEditReward'));
+  }
+  document.getElementById('addRewardBtn').addEventListener('click', () => openEditReward(-1));
+  document.getElementById('editRewardCancel').addEventListener('click', () => closeSheet('sheetEditReward'));
+  document.getElementById('editRewardSave').addEventListener('click', () => {
+    const days = Math.max(1, +document.getElementById('editRewardDays').value || 7);
+    const icon = document.getElementById('editRewardIcon').value.trim() || '🎁';
+    const label = document.getElementById('editRewardLabel').value.trim();
+    if(!label) return;
+    const reward = { days, icon, label };
+    if(editingRewardIndex === -1){ REWARDS.push(reward); } else { REWARDS[editingRewardIndex] = reward; }
+    REWARDS.sort((a,b) => a.days - b.days);
+    closeSheet('sheetEditReward');
+    renderAdmin();
+    renderAll();
+  });
+  document.getElementById('editRewardDelete').addEventListener('click', () => {
+    if(editingRewardIndex > -1) REWARDS.splice(editingRewardIndex, 1);
+    closeSheet('sheetEditReward');
+    renderAdmin();
+    renderAll();
+  });
+
+  let selectedBoostedIcon = 'ic-rocket';
+  let selectedBoostedColor = SWATCHES[0];
+  function renderBoostedForm(){
+    document.getElementById('boostedIconPicker').innerHTML = CREW_ICONS.map(ic => `
+      <button class="${ic===selectedBoostedIcon?'sel':''}" data-icon="${ic}"><svg><use href="#${ic}"/></svg></button>
+    `).join('');
+    document.querySelectorAll('#boostedIconPicker button').forEach(btn => {
+      btn.addEventListener('click', () => { selectedBoostedIcon = btn.dataset.icon; renderBoostedForm(); });
+    });
+    document.getElementById('boostedSwatchRow').innerHTML = SWATCHES.map(c => `
+      <div class="swatch ${c===selectedBoostedColor?'sel':''}" style="background:${c}" data-color="${c}"></div>
+    `).join('');
+    document.querySelectorAll('#boostedSwatchRow .swatch').forEach(sw => {
+      sw.addEventListener('click', () => { selectedBoostedColor = sw.dataset.color; renderBoostedForm(); });
+    });
+  }
+  document.getElementById('createBoostedBtn').addEventListener('click', () => {
+    document.getElementById('newBoostedName').value = '';
+    document.getElementById('newBoostedVibe').value = '';
+    selectedBoostedIcon = 'ic-rocket'; selectedBoostedColor = SWATCHES[0];
+    renderBoostedForm();
+    openSheet(document.getElementById('sheetCreateBoosted'));
+  });
+  document.getElementById('createBoostedCancel').addEventListener('click', () => closeSheet('sheetCreateBoosted'));
+  document.getElementById('createBoostedSave').addEventListener('click', () => {
+    const name = document.getElementById('newBoostedName').value.trim();
+    if(!name) return;
+    const vibe = document.getElementById('newBoostedVibe').value.trim();
+    local.discover.unshift({
+      id:'boosted'+Date.now(), name, icon:selectedBoostedIcon, color:selectedBoostedColor,
+      size:1, private:false, boosted:true, vibe: vibe || 'Official Proof community',
+      members:[{name:'You', color:'#D9713C', done:false}], feed:[],
+    });
+    closeSheet('sheetCreateBoosted');
+    renderAdmin();
+    renderAll();
+  });
+
+  // ---------------- Profile ----------------
+  function renderProfile(){
+    const total = crews.reduce((s,c) => s + (c.myStreak||0), 0);
+    document.getElementById('totalStreakNum').textContent = '🔥 ' + total;
+
+    const mostActive = [...crews].sort((a,b) => (b.myStreak||0)-(a.myStreak||0))[0];
+    document.getElementById('mostActiveCard').innerHTML = mostActive ? `
+      <div class="crew-emoji" style="background:color-mix(in srgb, ${mostActive.color} 20%, transparent); width:36px; height:36px;">${iconTag(mostActive)}</div>
+      <div style="flex:1"><div style="font-size:12.5px; font-weight:700;">Most active in ${mostActive.name}</div><div style="font-size:11px; color:var(--text-secondary)">🔥 ${mostActive.myStreak}-day streak there</div></div>
+    ` : '';
+
+    const nextReward = REWARDS.find(r => r.days > total);
+    document.getElementById('rewardsList').innerHTML = REWARDS.map(r => {
+      const unlocked = total >= r.days;
+      return `
+        <div class="row" style="opacity:${unlocked ? 1 : .6}">
+          <div class="avatar" style="background:${unlocked ? 'linear-gradient(135deg,var(--accent),#ffb27a)' : 'var(--track-empty)'}; color:${unlocked ? '#fff' : 'var(--text-secondary)'}; font-size:16px;">${r.icon}</div>
+          <div style="flex:1">
+            <div class="name">${r.label}</div>
+            <div class="sub">${unlocked ? 'Unlocked · reached 🔥' + r.days : '🔥 ' + r.days + '-day streak' + (r === nextReward ? ' · ' + (r.days-total) + ' to go' : '')}</div>
+          </div>
+          ${unlocked ? '<svg style="width:18px;height:18px;color:var(--green)"><use href="#ic-check-fill"/></svg>' : '<svg style="width:15px;height:15px;color:var(--text-tertiary)"><use href="#ic-lock"/></svg>'}
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('crewStatsList').innerHTML = crews.map(c => `
+      <div class="crew-stat-row">
+        <div class="crew-emoji" style="background:color-mix(in srgb, ${c.color} 20%, transparent); width:34px; height:34px;">${iconTag(c)}</div>
+        <div class="csr-body">
+          <div class="csr-name">${c.name}</div>
+          <div class="csr-sub">${c.feed.filter(f => f.type === 'proof' && f.name === 'You').length} proofs posted · longest 🔥${c.longestStreak}</div>
+        </div>
+        <div class="crew-streak">🔥${c.myStreak}</div>
+      </div>
+    `).join('');
+
+    const nextEvents = [
+      ...crews.filter(c => c.event).map(c => ({...c.event, source: c.name, key: c.id})),
+      ...local.events.map((e,i) => ({...e, source: localLabel(), key: 'local-'+i})),
+    ];
+    document.getElementById('nextEventsList').innerHTML = nextEvents.map(e => `
+      <div class="next-event-row" data-event-key="${e.key}">
+        <div class="ner-icon"><svg><use href="#ic-calendar"/></svg></div>
+        <div class="ner-body">
+          <div class="ner-title">${e.title}</div>
+          <div class="ner-sub">${e.source} · ${e.when} · ${e.going.join(', ')} going</div>
+        </div>
+        <svg class="crew-chev"><use href="#ic-chevron-right"/></svg>
+      </div>
+    `).join('');
+    document.querySelectorAll('#nextEventsList .next-event-row').forEach(row => {
+      row.addEventListener('click', () => openEventDetail(nextEvents.find(e => e.key === row.dataset.eventKey)));
+    });
+
+    const allChallenges = [
+      ...crews.filter(c => c.challenge).map(c => c.challenge),
+      ...local.challenges,
+    ];
+    document.getElementById('profileChallenges').innerHTML = allChallenges.map(challengeCardHtml).join('');
+  }
+
+  // ---------------- Friends ----------------
+  let friendSearch = '';
+  function renderFriends(){
+    document.getElementById('requestsLabel').style.display = friendRequests.length ? 'flex' : 'none';
+    document.getElementById('friendRequestsList').innerHTML = friendRequests.map(f => `
+      <div class="row">
+        <div class="avatar" style="background:${f.color}">${f.name[0]}</div>
+        <div style="flex:1"><div class="name">${f.name}</div><div class="sub">Wants to be accountability partners</div></div>
+        <button class="small-btn" data-accept="${f.name}">Accept</button>
+        <button class="small-btn ghost" data-decline="${f.name}" style="margin-left:6px;">Decline</button>
+      </div>
+    `).join('');
+    document.querySelectorAll('[data-accept]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = friendRequests.findIndex(f => f.name === btn.dataset.accept);
+        const [f] = friendRequests.splice(idx, 1);
+        friends.push({ name:f.name, color:f.color, streak:0, mostActive:'—' });
+        renderFriends();
+      });
+    });
+    document.querySelectorAll('[data-decline]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = friendRequests.findIndex(f => f.name === btn.dataset.decline);
+        friendRequests.splice(idx, 1);
+        renderFriends();
+      });
+    });
+
+    document.getElementById('friendsList').innerHTML = friends.map(f => `
+      <div class="row">
+        <div class="avatar" style="background:${f.color}">${f.name[0]}</div>
+        <div style="flex:1"><div class="name">${f.name}</div><div class="sub">🔥 ${f.streak}-day streak · most active in ${f.mostActive}</div></div>
+      </div>
+    `).join('') || `<p class="note">No accountability partners yet — search above to add some.</p>`;
+
+    const q = friendSearch.trim().toLowerCase();
+    const resultsEl = document.getElementById('friendSearchResults');
+    if(!q){ resultsEl.innerHTML = ''; return; }
+    const already = new Set(friends.map(f=>f.name));
+    const pending = new Set(friendRequests.map(f=>f.name));
+    const matches = discoverPeople.filter(p => p.name.toLowerCase().includes(q) && !already.has(p.name));
+    resultsEl.innerHTML = matches.map(p => `
+      <div class="row">
+        <div class="avatar" style="background:${p.color}">${p.name[0]}</div>
+        <div style="flex:1"><div class="name">${p.name}</div></div>
+        ${pending.has(p.name) ? '<span class="lock-tag">Requested</span>' : `<button class="small-btn" data-request="${p.name}">Add</button>`}
+      </div>
+    `).join('') || `<p class="note">No one found for "${friendSearch}".</p>`;
+    resultsEl.querySelectorAll('[data-request]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = discoverPeople.find(x => x.name === btn.dataset.request);
+        friends.push({ name:p.name, color:p.color, streak:0, mostActive:'—' });
+        renderFriends();
+      });
+    });
+  }
+  document.getElementById('friendSearchInput').addEventListener('input', (e) => {
+    friendSearch = e.target.value;
+    renderFriends();
+    e.target.focus();
+  });
+
+  // ---------------- Feed (BeReal-style public feed) ----------------
+  function renderFeed(){
+    document.getElementById('feedList').innerHTML = publicFeed.map(feedCardHtml).join('') || `<p class="note">No public posts right now.</p>`;
+    document.querySelectorAll('.reaction-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const post = publicFeed.find(p => p.id === pill.dataset.post);
+        const emoji = pill.dataset.emoji;
+        if(post.myReactions[emoji]){
+          post.reactions[emoji] -= 1;
+          delete post.myReactions[emoji];
+        } else {
+          post.reactions[emoji] = (post.reactions[emoji]||0) + 1;
+          post.myReactions[emoji] = true;
+        }
+        renderFeed();
+      });
+    });
+    document.querySelectorAll('.comment-btn').forEach(btn => {
+      btn.addEventListener('click', () => openFeedComments(btn.dataset.post));
+    });
+  }
+
+  function feedCardHtml(post){
+    const reactionsHtml = REACTION_SET.map(emoji => {
+      const count = post.reactions[emoji] || 0;
+      if(!count && !post.myReactions[emoji]) return '';
+      return `<div class="reaction-pill ${post.myReactions[emoji]?'mine':''}" data-post="${post.id}" data-emoji="${emoji}">${emoji} ${count}</div>`;
+    }).join('') + REACTION_SET.filter(e => !post.reactions[e]).map(emoji => `<div class="reaction-pill" data-post="${post.id}" data-emoji="${emoji}">${emoji}</div>`).join('');
+    return `
+      <div class="feed-card">
+        <div class="fc-head">
+          <div class="fc-avatar" style="background:${post.color}">${post.name[0]}</div>
+          <div class="fc-name">${post.name}</div>
+          <div class="fc-time">${post.time}</div>
+        </div>
+        <div class="fc-photo" style="${thumbStyle(seedFromString(post.seed))}"></div>
+        <div class="fc-caption">${post.caption}</div>
+        <div class="fc-actions">
+          <div class="reaction-row">${reactionsHtml}</div>
+          <button class="comment-btn" data-post="${post.id}"><svg><use href="#ic-chat"/></svg>${post.comments.length}</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function openFeedComments(postId){
+    const post = publicFeed.find(p => p.id === postId);
+    document.getElementById('feedCommentsContent').innerHTML = post.comments.map(c => `
+      <div class="chat-bubble-row">
+        <div class="fp-avatar" style="background:${stableColor(c.name)}; width:26px; height:26px; font-size:10.5px;">${c.name[0]}</div>
+        <div class="chat-bubble"><div class="cb-name">${c.name}</div><div class="cb-text">${c.text}</div></div>
+      </div>
+    `).join('') || `<p class="note">No comments yet — be the first.</p>`;
+    openSheet(document.getElementById('sheetFeedComments'));
+  }
+  document.getElementById('feedCommentsClose').addEventListener('click', closeSheets);
+
+  document.getElementById('publicFeedToggle').checked = publicFeedOn;
+  document.getElementById('publicFeedToggle').addEventListener('change', (e) => {
+    publicFeedOn = e.target.checked;
+  });
+
+  function openEventDetail(e){
+    document.getElementById('eventDetailContent').innerHTML = `
+      <h2 style="margin:0 0 2px; font-size:20px;">${e.title}</h2>
+      <div class="note" style="margin-bottom:10px">${e.source} · ${e.when}</div>
+      <span class="bonus-pill">🔥 +${e.bonus} streak bonus for going</span>
+      <div class="section-label">Going</div>
+      ${e.going.map(n => `
+        <div class="row"><div class="avatar" style="background:${stableColor(n)}">${n[0]}</div><div class="name">${n}</div></div>
+      `).join('')}
+      <button class="btn-primary" style="margin-top:10px;">I'm in</button>
+    `;
+    openSheet(document.getElementById('sheetEvent'));
+  }
+  document.getElementById('eventClose').addEventListener('click', closeSheets);
+
+  // ---------------- Widgets ----------------
+  function renderWidgetPicker(){
+    document.getElementById('widgetCrewPicker').innerHTML = crews.map(c => `
+      <button data-crew="${c.id}" class="${c.id===widgetCrewId?'sel':''}" style="background:color-mix(in srgb, ${c.color} 22%, transparent); color:${c.color}"><svg style="width:16px;height:16px"><use href="#${c.icon||'ic-bowl'}"/></svg></button>
+    `).join('');
+    document.querySelectorAll('#widgetCrewPicker button').forEach(btn => {
+      btn.addEventListener('click', () => { widgetCrewId = btn.dataset.crew; renderWidgets(); document.querySelectorAll('#widgetCrewPicker button').forEach(b => b.classList.toggle('sel', b===btn)); });
+    });
+  }
+
+  function photoTileHtml({ seed, streak, completed, name, withPostBtn }){
+    const bg = completed
+      ? `<div class="pt-bg" style="${thumbStyle(seedFromString(seed))}"></div>`
+      : `<div class="pt-bg placeholder"></div>`;
+    return `
+      <div class="photo-tile">
+        ${bg}
+        <div class="pt-streak">🔥&nbsp;${streak}</div>
+        ${withPostBtn ? `<div class="pt-postbtn"><svg><use href="#ic-camera"/></svg></div>` : ''}
+        <div class="pt-foot"><span class="pt-name">${name}</span></div>
+      </div>
+    `;
+  }
+
+  function renderWidgets(){
+    const c = crews.find(x => x.id === widgetCrewId) || crews[0];
+    const postedToday = c.members.filter(m => m.done);
+    const spotlight = postedToday[Math.floor(Math.random()*postedToday.length)] || c.members[0];
+    document.getElementById('widgetSpotlight').innerHTML = photoTileHtml({
+      seed:'w-'+c.id+'-'+spotlight.name, streak:c.myStreak, completed:!!spotlight.done, name: c.name, withPostBtn:true
+    });
+
+    const myDone = c.members.some(m => m.name === 'You' && m.done);
+    document.getElementById('widgetStreakSplit').innerHTML = `
+      <div class="stat-split">
+        <span class="ss-lbl">You</span>
+        <span class="ss-num">🔥${c.myStreak}</span>
+        <span class="ss-sub">${myDone ? 'Done today' : 'Missing today'}</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-split">
+        <span class="ss-lbl">${c.name}</span>
+        <span class="ss-num">🔥${postedToday.length}/${c.size}</span>
+        <span class="ss-sub">checked in today</span>
+      </div>
+    `;
+  }
+
+  // ---------------- Sheets / tabs plumbing ----------------
+  const scrim = document.getElementById('scrim');
+  const ALL_SHEETS = ['sheetCrewChat','sheetCapture','sheetFabMenu','sheetCreateCrew','sheetCreateEvent','sheetCreateChallenge','sheetChangeLocal','sheetAdmin','sheetEditReward','sheetCreateBoosted','sheetEvent','sheetFeedComments'];
+  function openSheet(el){ scrim.classList.add('active'); el.classList.add('active'); }
+  // Closes just one sheet — used when a sheet was opened *on top of*
+  // another (Capture opened from within Crew Chat), so dismissing it
+  // reveals what was underneath instead of nuking everything.
+  function closeSheet(id){
+    document.getElementById(id).classList.remove('active');
+    const stillOpen = ALL_SHEETS.some(x => document.getElementById(x).classList.contains('active'));
+    if(!stillOpen) scrim.classList.remove('active');
+  }
+  function closeSheets(){
+    scrim.classList.remove('active');
+    ALL_SHEETS.forEach(id => document.getElementById(id).classList.remove('active'));
+  }
+  scrim.addEventListener('click', closeSheets);
+
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+  function switchTab(tab){
+    document.querySelectorAll('.app-screen').forEach(s => s.classList.toggle('active', s.dataset.screen === tab));
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  }
+  switchTab('home');
+
+  function renderAll(){
+    renderLocalLabel();
+    renderHome();
+    renderFeed();
+    renderProfile();
+    renderFriends();
+    renderWidgetPicker();
+    renderWidgets();
+  }
+
+  // push notification banner
+  const pushToast = document.getElementById('pushToast');
+  function showPushNotification(name){
+    document.getElementById('pushTitle').textContent = `${name} completed today's proof! 🎉`;
+    document.getElementById('pushMsg').textContent = 'Complete yours to check it out.';
+    document.getElementById('pushTime').textContent = 'now';
+    pushToast.classList.add('show');
+    clearTimeout(showPushNotification._t);
+    showPushNotification._t = setTimeout(() => pushToast.classList.remove('show'), 5000);
+  }
+  pushToast.addEventListener('click', () => {
+    pushToast.classList.remove('show');
+    switchTab('home');
+  });
+  setTimeout(() => showPushNotification('Marco'), 1800);
+
+  function tick(){
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+  }
+  tick(); setInterval(tick, 30000);
+
+  renderAll();
+})();
+</script>

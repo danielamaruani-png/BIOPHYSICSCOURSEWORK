@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Proof",
+    "slug": "ProofExpo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Proof uses your camera to capture today's proof photo.",
+        "NSPhotoLibraryUsageDescription": "Proof lets you pick a photo from your library as today's proof."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Proof lets you pick a photo from your library as today's proof.",
+          "cameraPermission": "Proof uses your camera to capture today's proof photo."
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isCrewMember(uid, crewId) {
+      return firestore.exists(/databases/(default)/documents/crews/$(crewId)) &&
+        uid in firestore.get(/databases/(default)/documents/crews/$(crewId)).data.memberUids;
+    }
+
+    // Once someone opts into the public Feed, their proof photos are
+    // meant to be publicly discoverable going forward — mirrors
+    // firestore.rules' `publicFeed` create rule, which only ever
+    // creates a public post for an author with this flag set. Rather
+    // than trying to check "was *this specific* photo mirrored to
+    // publicFeed" (Storage rules can't cheaply query that), the
+    // simpler and consistent read is: opted-in users' proof photos are
+    // all publicly readable, same as the mockup's "Public feed" toggle
+    // being an all-or-nothing switch rather than a per-post choice.
+    function publicFeedOptedIn(uid) {
+      return firestore.exists(/databases/(default)/documents/users/$(uid)) &&
+        firestore.get(/databases/(default)/documents/users/$(uid)).data.publicFeedOptIn == true;
+    }
+
+    match /proofs/{uid}/{crewId}/{fileName} {
+      allow read: if request.auth != null &&
+        (request.auth.uid == uid ||
+         isCrewMember(request.auth.uid, crewId) ||
+         publicFeedOptedIn(uid));
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
