@@ -47,7 +47,7 @@ targets:
           - remote-notification
         CFBundleURLTypes:
           - CFBundleURLSchemes:
-              - "com.googleusercontent.apps.REPLACE_WITH_REVERSED_CLIENT_ID"
+              - "com.googleusercontent.apps.139929635746-hctat4vj72vpg0jt1k9fgbani1o69mst"
           - CFBundleURLSchemes:
               # Lets the widget's "post proof" button deep-link straight
               # into that crew's capture sheet (commited://capture?crewId=...)
