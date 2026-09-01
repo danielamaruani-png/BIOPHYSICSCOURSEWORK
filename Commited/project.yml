@@ -1,6 +1,6 @@
-name: Proof
+name: Commited
 options:
-  bundleIdPrefix: com.proofapp
+  bundleIdPrefix: com.commitedapp
   deploymentTarget:
     iOS: "16.0"
   createIntermediateGroups: true
@@ -20,40 +20,40 @@ packages:
     from: 7.1.0
 
 targets:
-  Proof:
+  Commited:
     type: application
     platform: iOS
     sources:
-      - path: Proof
+      - path: Commited
         excludes:
           - "**/*.entitlements"
     resources:
-      - path: Proof/Resources
+      - path: Commited/Resources
     entitlements:
-      path: Proof/Proof.entitlements
+      path: Commited/Commited.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.proofapp.shared
+          - group.com.commitedapp.shared
         com.apple.developer.applesignin:
           - Default
         aps-environment: development
     info:
-      path: Proof/Info.plist
+      path: Commited/Info.plist
       properties:
-        CFBundleDisplayName: Proof
+        CFBundleDisplayName: Commited
         UILaunchScreen: {}
-        NSCameraUsageDescription: "Proof uses your camera to capture today's proof photo. Proof is a live-camera-only app — no photo library import is offered, so this is the only way to post."
+        NSCameraUsageDescription: "Commited uses your camera to capture today's proof photo. Commited is a live-camera-only app — no photo library import is offered, so this is the only way to post."
         UIBackgroundModes:
           - remote-notification
         CFBundleURLTypes:
           - CFBundleURLSchemes:
-              - "com.googleusercontent.apps.53305321410-88v547baka2hs86li6d6gkrn1g4tcd0a"
+              - "com.googleusercontent.apps.REPLACE_WITH_REVERSED_CLIENT_ID"
           - CFBundleURLSchemes:
               # Lets the widget's "post proof" button deep-link straight
-              # into that crew's capture sheet (proof://capture?crewId=...)
+              # into that crew's capture sheet (commited://capture?crewId=...)
               # instead of just opening the app on whatever screen it was
               # left on.
-              - "proof"
+              - "commited"
     dependencies:
       - package: Firebase
         product: FirebaseAuth
@@ -65,23 +65,23 @@ targets:
         product: FirebaseMessaging
       - package: GoogleSignIn
         product: GoogleSignIn
-      - target: ProofWidgetExtension
+      - target: CommitedWidgetExtension
         embed: true
     postCompileScripts: []
 
-  ProofWidgetExtension:
+  CommitedWidgetExtension:
     type: app-extension
     platform: iOS
     sources:
-      - path: ProofWidget
+      - path: CommitedWidget
     entitlements:
-      path: ProofWidget/ProofWidget.entitlements
+      path: CommitedWidget/CommitedWidget.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.proofapp.shared
+          - group.com.commitedapp.shared
     info:
-      path: ProofWidget/Info.plist
+      path: CommitedWidget/Info.plist
       properties:
-        CFBundleDisplayName: Proof Widget
+        CFBundleDisplayName: Commited Widget
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension

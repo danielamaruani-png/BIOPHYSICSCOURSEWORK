@@ -23,7 +23,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 @main
-struct ProofApp: App {
+struct CommitedApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var session = SessionViewModel()
 
@@ -32,9 +32,9 @@ struct ProofApp: App {
             RootView()
                 .environmentObject(session)
                 .onOpenURL { url in
-                    if url.scheme == "proof" {
+                    if url.scheme == "commited" {
                         // The widget's "post proof" button deep-links
-                        // here (proof://capture?crewId=...) so tapping
+                        // here (commited://capture?crewId=...) so tapping
                         // it drops the user straight into that crew's
                         // capture sheet instead of just opening the app.
                         handleDeepLink(url)

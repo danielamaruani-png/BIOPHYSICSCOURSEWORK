@@ -1,4 +1,4 @@
-# Proof
+# Commited
 
 A general-purpose accountability app whose only unit is the crew —
 there's no solo goal anymore, joining or creating a crew *is* the goal.
@@ -57,7 +57,7 @@ none of it exists anymore.
   checked in today, with the crew's streak badge) plus, at medium
   size, a "your streak vs. how many of the crew checked in today"
   stat-split card. A camera button on the tile deep-links straight into
-  that crew's capture sheet (`proof://capture?crewId=...`)
+  that crew's capture sheet (`commited://capture?crewId=...`)
 - Push notification: when an accepted accountability partner posts a
   proof anywhere, you get "{name} completed today's proof! 🎉" — the
   one piece of server-side logic in the app (`functions/`), since
@@ -76,7 +76,7 @@ none of it exists anymore.
 
 1. **Firebase project**
    - Create a project at console.firebase.google.com
-   - Add an iOS app with bundle ID `com.proofapp.Proof`
+   - Add an iOS app with bundle ID `com.commitedapp.Commited`
    - Download `GoogleService-Info.plist`
    - Enable **Authentication** providers: Apple, Google
    - Enable **Firestore** (production mode), **Storage**, and **Cloud
@@ -121,32 +121,32 @@ none of it exists anymore.
 
 3. **App Group** (needed for the widget to read streak data)
    - In your Apple Developer account, create an App Group with the
-     identifier `group.com.proofapp.shared`
+     identifier `group.com.commitedapp.shared`
    - `project.yml` already requests this entitlement for both the app
      and widget targets — you just need the ID to exist and your team
      to have access to it.
 
 4. **Generate the Xcode project**
    ```
-   cd Proof
+   cd Commited
    xcodegen generate
-   open Proof.xcodeproj
+   open Commited.xcodeproj
    ```
 
 5. **Wire up Google Sign-In's URL scheme**
    - Open the downloaded `GoogleService-Info.plist`, copy the
      `REVERSED_CLIENT_ID` value
    - In `project.yml`, replace `REPLACE_WITH_REVERSED_CLIENT_ID` under
-     `targets.Proof.info.properties.CFBundleURLTypes` with that value,
+     `targets.Commited.info.properties.CFBundleURLTypes` with that value,
      then re-run `xcodegen generate`
      (or edit it directly in Xcode's target Info tab — either works,
      but re-running xcodegen will overwrite a direct edit). Leave the
-     second `CFBundleURLSchemes` entry (`proof`) alone — that one's the
+     second `CFBundleURLSchemes` entry (`commited`) alone — that one's the
      widget's deep-link scheme and doesn't need editing.
 
 6. **Add `GoogleService-Info.plist` to the project**
-   - Drag it into the `Proof/Proof` group in Xcode
-   - Check "Copy items if needed" and target membership = `Proof`
+   - Drag it into the `Commited/Commited` group in Xcode
+   - Check "Copy items if needed" and target membership = `Commited`
 
 7. **Set your Team ID**
    - Either fill in `DEVELOPMENT_TEAM` in `project.yml` and regenerate,
@@ -220,8 +220,8 @@ as its own pass once the app actually runs on a device.
   no way to manually choose a different crew from the widget yet; that
   would need an `AppIntent`-backed interactive widget configuration
   (iOS 17+), called out here as a follow-up rather than half-built.
-- The `WidgetSnapshot` struct is duplicated between `Proof/Services`
-  and `ProofWidget` rather than shared, to keep the widget target a
+- The `WidgetSnapshot` struct is duplicated between `Commited/Services`
+  and `CommitedWidget` rather than shared, to keep the widget target a
   simple drop-in folder. If the shared surface grows, promote both to
   a local Swift package instead of keeping them in sync by hand.
 - **Widget photos** (`WidgetPhotoCache`/`WidgetPhotoLoader`) are cached
@@ -231,7 +231,7 @@ as its own pass once the app actually runs on a device.
 - **The widget's post-proof button is a deep link, not a true
   interactive action**: pre-iOS 17 widgets can't run app logic in
   place, so tapping the camera icon opens the app via
-  `proof://capture?crewId=...` (handled in `ProofApp.onOpenURL`,
+  `commited://capture?crewId=...` (handled in `CommitedApp.onOpenURL`,
   routed through `SessionViewModel.pendingCaptureCrewId`) and drops
   straight into that crew's capture sheet — not literally "without
   opening the app," but the closest realistic equivalent at this
@@ -277,7 +277,7 @@ as its own pass once the app actually runs on a device.
 - No tap-through routing on the push notification yet — tapping it
   just opens the app to wherever it was left. Would need a
   notification `userInfo` payload plus navigation state, same shape as
-  the widget's `proof://` deep link already sets up.
+  the widget's `commited://` deep link already sets up.
 - No UI to revoke an accepted partnership once granted, or to leave a
   crew, or for a crew owner to delete/edit an existing crew's
   name/vibe/icon after creation (only event/challenge and Creator

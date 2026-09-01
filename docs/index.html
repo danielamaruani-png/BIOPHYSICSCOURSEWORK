@@ -1,4 +1,4 @@
-<title>Proof — App Preview</title>
+<title>Commited — App Preview</title>
 <style>
   :root{
     --bg: #FBF1E3;
@@ -353,7 +353,7 @@
 </svg>
 
 <div class="masthead">
-  <h1><span class="flame">🔥</span>Proof</h1>
+  <h1><span class="flame">🔥</span>Commited</h1>
   <p>Que des communautés : pas d'objectif solo, chaque crew EST l'objectif — sport, bouffe, travail, ce que tu veux. Explore My Crews / Local, un chat de crew, tes Friends, ton Profil — et des vraies rewards à chaque palier de streak.</p>
 </div>
 
@@ -369,7 +369,7 @@
         <div class="push-toast" id="pushToast">
           <div class="pt-icon">🔥</div>
           <div class="pt-body">
-            <div class="pt-appname"><span>Proof</span><span id="pushTime">now</span></div>
+            <div class="pt-appname"><span>Commited</span><span id="pushTime">now</span></div>
             <div class="pt-title" id="pushTitle">Marco completed today's proof! 🎉</div>
             <div class="pt-msg" id="pushMsg">Complete yours to check it out.</div>
           </div>
@@ -704,7 +704,7 @@
           </div>
           <div class="content">
             <div class="field-label" style="margin-top:4px">Name</div>
-            <input class="text-input" id="newBoostedName" placeholder="e.g. Proof Official Runners">
+            <input class="text-input" id="newBoostedName" placeholder="e.g. Commited Official Runners">
             <div class="field-label">Vibe</div>
             <input class="text-input" id="newBoostedVibe" placeholder="e.g. Official crew, curated events every week">
             <div class="field-label">Icon</div>
@@ -860,7 +860,7 @@
 
   const REWARDS = [
     { days:7,   icon:'🥄', label:'Wooden spoon set' },
-    { days:14,  icon:'👕', label:'Proof apron' },
+    { days:14,  icon:'👕', label:'Commited apron' },
     { days:30,  icon:'🍳', label:'New non-stick pan' },
     { days:60,  icon:'🎁', label:'1 month HelloFresh at -10%' },
     { days:100, icon:'🔪', label:"Chef's knife set" },
@@ -1441,7 +1441,7 @@
     const vibe = document.getElementById('newBoostedVibe').value.trim();
     local.discover.unshift({
       id:'boosted'+Date.now(), name, icon:selectedBoostedIcon, color:selectedBoostedColor,
-      size:1, private:false, boosted:true, vibe: vibe || 'Official Proof community',
+      size:1, private:false, boosted:true, vibe: vibe || 'Official Commited community',
       members:[{name:'You', color:'#D9713C', done:false}], feed:[],
     });
     closeSheet('sheetCreateBoosted');

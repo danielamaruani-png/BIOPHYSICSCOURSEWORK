@@ -2,8 +2,8 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct ProofWidgetBundle: WidgetBundle {
+struct CommitedWidgetBundle: WidgetBundle {
     var body: some Widget {
-        ProofWidget()
+        CommitedWidget()
     }
 }

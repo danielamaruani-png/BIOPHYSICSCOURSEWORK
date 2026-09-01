@@ -8,7 +8,7 @@ struct SignInView: View {
         VStack(spacing: 32) {
             Spacer()
             VStack(spacing: 8) {
-                Text("Proof")
+                Text("Commited")
                     .font(.system(size: 44, weight: .bold, design: .rounded))
                 Text("Post today's proof. Build the streak.")
                     .foregroundStyle(.secondary)

@@ -29,7 +29,7 @@ struct WidgetSnapshot: Codable {
     var spotlightDoneToday: Bool
     var updatedAt: Date
 
-    static let appGroupId = "group.com.proofapp.shared"
+    static let appGroupId = "group.com.commitedapp.shared"
     private static let key = "widgetSnapshot"
 
     static func load() -> WidgetSnapshot? {

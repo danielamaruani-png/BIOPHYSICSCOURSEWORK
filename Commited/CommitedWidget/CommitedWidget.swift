@@ -41,7 +41,7 @@ struct StreakProvider: TimelineProvider {
     }
 }
 
-struct ProofWidgetEntryView: View {
+struct CommitedWidgetEntryView: View {
     @Environment(\.widgetFamily) private var family
     var entry: StreakEntry
 
@@ -55,7 +55,7 @@ struct ProofWidgetEntryView: View {
             }
         } else {
             VStack {
-                Text("Open Proof").font(.headline)
+                Text("Open Commited").font(.headline)
                 Text("join a crew to get started").font(.caption).foregroundStyle(.secondary)
             }
             .padding()
@@ -65,7 +65,7 @@ struct ProofWidgetEntryView: View {
 
 /// Spotlight tile: a crew member's photo (whoever checked in today) with
 /// the crew's streak badge, plus a "post proof" button that deep-links
-/// straight into that crew's capture sheet via `proof://capture`.
+/// straight into that crew's capture sheet via `commited://capture`.
 /// Camera-only capture (no gallery import) applies the same way whether
 /// you got there from the app or the widget.
 private struct SmallWidgetView: View {
@@ -139,7 +139,7 @@ private struct PhotoTile: View {
             .background(.black.opacity(0.35), in: Capsule())
             .padding(6)
 
-            if showPostButton, let crewId, let url = URL(string: "proof://capture?crewId=\(crewId)") {
+            if showPostButton, let crewId, let url = URL(string: "commited://capture?crewId=\(crewId)") {
                 VStack {
                     Spacer()
                     HStack {
@@ -224,15 +224,15 @@ private extension View {
     }
 }
 
-struct ProofWidget: Widget {
-    let kind = "ProofWidget"
+struct CommitedWidget: Widget {
+    let kind = "CommitedWidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: StreakProvider()) { entry in
-            ProofWidgetEntryView(entry: entry)
+            CommitedWidgetEntryView(entry: entry)
                 .widgetBackground()
         }
-        .configurationDisplayName("Proof Streak")
+        .configurationDisplayName("Commited Streak")
         .description("Today's crew spotlight photo and streak — tap the camera to post straight from the widget.")
         .supportedFamilies([.systemSmall, .systemMedium])
         // .contentMarginsDisabled() (edge-to-edge photo, no system

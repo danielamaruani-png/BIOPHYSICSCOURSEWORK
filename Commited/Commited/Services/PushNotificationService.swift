@@ -40,7 +40,7 @@ extension PushNotificationService: MessagingDelegate {
 extension PushNotificationService: UNUserNotificationCenterDelegate {
     /// Shows the banner even while the app is in the foreground —
     /// otherwise a "Marco completed today's proof!" push would only
-    /// ever surface while Proof is backgrounded, which defeats the
+    /// ever surface while Commited is backgrounded, which defeats the
     /// point of the nudge.
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,

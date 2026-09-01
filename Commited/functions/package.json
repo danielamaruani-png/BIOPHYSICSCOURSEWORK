@@ -1,6 +1,6 @@
 {
-  "name": "proof-functions",
-  "description": "Cloud Functions for Proof — currently just the partner-proof push notification.",
+  "name": "commited-functions",
+  "description": "Cloud Functions for Commited — currently just the partner-proof push notification.",
   "engines": {
     "node": "20"
   },

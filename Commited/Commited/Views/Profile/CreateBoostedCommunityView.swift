@@ -23,7 +23,7 @@ struct CreateBoostedCommunityView: View {
         NavigationStack {
             Form {
                 Section("Name") {
-                    TextField("e.g. Proof Official Runners", text: $name)
+                    TextField("e.g. Commited Official Runners", text: $name)
                 }
                 Section("Vibe") {
                     TextField("e.g. Official crew, curated events every week", text: $vibe, axis: .vertical)
@@ -54,7 +54,7 @@ struct CreateBoostedCommunityView: View {
         isSaving = true
         defer { isSaving = false }
         let ok = await viewModel.createBoostedCrew(
-            name: name, vibe: vibe.isEmpty ? "Official Proof community" : vibe, iconName: iconName, colorHex: colorHex,
+            name: name, vibe: vibe.isEmpty ? "Official Commited community" : vibe, iconName: iconName, colorHex: colorHex,
             city: city, ownerUid: uid, ownerName: profile.name, ownerColorHex: "#D9713C"
         )
         if ok {

@@ -1,6 +1,6 @@
 name: iOS build check
 
-# Compiles the Proof app in the cloud on every push that touches it —
+# Compiles the Commited app in the cloud on every push that touches it —
 # no Mac needed on your end at all. This is a compile-only,
 # unsigned build against the simulator SDK: it exists purely to catch
 # Swift errors, since this codebase has never been built locally
@@ -13,7 +13,7 @@ on:
   push:
     branches: ["**"]
     paths:
-      - "Proof/**"
+      - "Commited/**"
       - ".github/workflows/ios-build.yml"
   workflow_dispatch:
 
@@ -22,7 +22,7 @@ jobs:
     runs-on: macos-14
     defaults:
       run:
-        working-directory: Proof
+        working-directory: Commited
 
     steps:
       - uses: actions/checkout@v4
@@ -41,8 +41,8 @@ jobs:
       - name: Build for the simulator (unsigned, compile-only)
         run: |
           xcodebuild build \
-            -project Proof.xcodeproj \
-            -scheme Proof \
+            -project Commited.xcodeproj \
+            -scheme Commited \
             -destination "generic/platform=iOS Simulator" \
             -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO

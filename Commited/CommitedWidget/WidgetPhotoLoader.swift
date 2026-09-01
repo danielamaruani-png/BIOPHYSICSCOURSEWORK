@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-/// Read-only counterpart to Proof/Services/WidgetPhotoCache.swift — the
+/// Read-only counterpart to Commited/Services/WidgetPhotoCache.swift — the
 /// widget only ever loads photos the main app already cached into the
 /// shared App Group container, never fetches or writes anything itself.
 enum WidgetPhotoLoader {

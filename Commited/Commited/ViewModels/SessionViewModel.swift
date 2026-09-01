@@ -17,8 +17,8 @@ final class SessionViewModel: ObservableObject {
     @Published var isLoading = true
     @Published var errorMessage: String?
 
-    /// Set by ProofApp's `onOpenURL` handler when the widget's "post
-    /// proof" button deep-links in (`proof://capture?crewId=...`).
+    /// Set by CommitedApp's `onOpenURL` handler when the widget's "post
+    /// proof" button deep-links in (`commited://capture?crewId=...`).
     /// RootView/CommunitiesView observes this to auto-present Capture
     /// for that crew, then clears it back to nil once handled.
     @Published var pendingCaptureCrewId: String?
